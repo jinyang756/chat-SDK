@@ -3,482 +3,637 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>扣子智能聊天</title>
-    <!-- 引入Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- 引入Font Awesome -->
-    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
-    
-    <!-- Tailwind配置 -->
+    <title>AI智能助手 - 扣子智能体</title>
+    <!-- 聊天配置 - 在生产环境中应从环境变量或安全配置中获取 -->
     <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#4F46E5',
-                        secondary: '#10B981',
-                        dark: '#1F2937',
-                        light: '#F3F4F6',
-                        user: '#DCF8C6',
-                        assistant: '#E5E7EB',
-                    },
-                    fontFamily: {
-                        sans: ['Inter', 'system-ui', 'sans-serif'],
-                    },
-                },
+        // 注意：在Vercel部署时，这些值会从环境变量中读取
+        // 本地开发时可以临时设置测试值
+        window.chatConfig = {
+            botId: '', // 在这里填入Bot ID或留空使用环境变量
+            accessToken: '' // 在这里填入Access Token或留空使用环境变量
+        };
+        
+        // 从URL参数中尝试获取配置（开发测试用）
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('botId')) window.chatConfig.botId = urlParams.get('botId');
+        if (urlParams.get('accessToken')) window.chatConfig.accessToken = urlParams.get('accessToken');
+    </script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .chat-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+            max-width: 800px;
+            margin: 0 auto;
+            height: 600px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .chat-header h2 {
+            margin-bottom: 5px;
+        }
+
+        .chat-header .status {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background-color: #f8f9fa;
+        }
+
+        .message {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .message.user {
+            flex-direction: row-reverse;
+        }
+
+        .message-content {
+            max-width: 70%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            position: relative;
+        }
+
+        .message.user .message-content {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            margin-left: 50px;
+        }
+
+        .message.bot .message-content {
+            background: white;
+            color: #333;
+            border: 1px solid #e0e0e0;
+            margin-right: 50px;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin: 0 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+        }
+
+        .avatar.user {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .avatar.bot {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+            color: #666;
+        }
+
+        .chat-input {
+            padding: 20px;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .input-field {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            outline: none;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .input-field:focus {
+            border-color: #667eea;
+        }
+
+        .send-button {
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: transform 0.2s;
+        }
+
+        .send-button:hover {
+            transform: translateY(-2px);
+        }
+
+        .send-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loading {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: #666;
+            font-style: italic;
+        }
+
+        .loading-dots {
+            display: flex;
+            gap: 2px;
+        }
+
+        .loading-dot {
+            width: 6px;
+            height: 6px;
+            background: #666;
+            border-radius: 50%;
+            animation: loading 1.4s infinite;
+        }
+
+        .loading-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .loading-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes loading {
+            0%, 80%, 100% {
+                transform: scale(1);
+                opacity: 0.5;
+            }
+            40% {
+                transform: scale(1.2);
+                opacity: 1;
             }
         }
-    </script>
-    
-    <style type="text/tailwindcss">
-        @layer utilities {
-            .content-auto {
-                content-visibility: auto;
+
+        .config-panel {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            max-width: 300px;
+            z-index: 1000;
+        }
+
+        .config-panel h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .config-field {
+            margin-bottom: 15px;
+        }
+
+        .config-field label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        .config-field input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .config-button {
+            width: 100%;
+            padding: 10px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+
+        .toggle-config {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 50px;
+            cursor: pointer;
+            z-index: 1001;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
             }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
             .chat-container {
-                height: calc(100vh - 4rem);
+                height: 70vh;
+                margin: 0 10px;
             }
-            .message-container {
-                max-height: calc(100vh - 16rem);
-            }
-            .scrollbar-thin::-webkit-scrollbar {
-                width: 4px;
-            }
-            .scrollbar-thin::-webkit-scrollbar-thumb {
-                background-color: rgba(156, 163, 175, 0.5);
-                border-radius: 2px;
+
+            .config-panel {
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                width: 90%;
+                max-width: none;
             }
         }
     </style>
 </head>
-<body class="bg-gray-100 font-sans">
-    <!-- 顶部导航栏 -->
-    <header class="bg-white shadow-md py-4 px-6 flex justify-between items-center">
-        <div class="flex items-center space-x-2">
-            <i class="fa fa-commenting text-primary text-2xl"></i>
-            <h1 class="text-xl font-bold text-gray-800">扣子智能聊天</h1>
-        </div>
-        <div class="flex items-center space-x-4">
-            <button id="settings-btn" class="text-gray-600 hover:text-primary transition-colors">
-                <i class="fa fa-cog text-xl"></i>
-            </button>
-        </div>
-    </header>
-
-    <!-- 聊天界面主体 -->
-    <main class="container mx-auto px-4 py-6">
-        <!-- 欢迎信息 -->
-        <div class="bg-white rounded-lg shadow-md p-6 mb-6 text-center">
-            <h2 class="text-lg font-semibold text-gray-700 mb-2">欢迎使用扣子智能聊天</h2>
-            <p class="text-gray-500 mb-4">请在下方输入您的问题，智能助手会为您提供帮助</p>
-            <div class="flex justify-center">
-                <button id="start-chat-btn" class="bg-primary hover:bg-primary/90 text-white px-6 py-2 rounded-md transition-colors flex items-center space-x-2">
-                    <i class="fa fa-comments"></i>
-                    <span>开始聊天</span>
-                </button>
-            </div>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 AI智能助手</h1>
+            <p>基于扣子智能体的强大对话系统</p>
         </div>
 
-        <!-- 聊天容器 -->
-        <div id="chat-container" class="bg-white rounded-lg shadow-md overflow-hidden hidden">
-            <!-- 聊天头部 -->
-            <div class="bg-primary text-white p-4 flex justify-between items-center">
-                <h2 class="text-lg font-semibold">智能助手</h2>
-                <div class="flex space-x-2">
-                    <button id="clear-chat-btn" class="text-white hover:bg-primary/80 p-2 rounded-full transition-colors">
-                        <i class="fa fa-refresh"></i>
-                    </button>
-                </div>
+        <div class="chat-container" id="chatContainer">
+            <div class="chat-header">
+                <h2>智能客服</h2>
+                <div class="status" id="status">已连接 - 随时为您服务</div>
             </div>
 
-            <!-- 消息展示区域 -->
-            <div id="messages-container" class="p-4 message-container overflow-y-auto scrollbar-thin bg-gray-50">
-                <!-- 系统消息 -->
-                <div class="flex mb-4">
-                    <div class="bg-gray-200 text-gray-700 rounded-lg p-3 max-w-[85%] mx-auto">
-                        <p>您好！我是您的智能助手，请问有什么可以帮助您的吗？</p>
+            <div class="chat-messages" id="chatMessages">
+                <div class="message bot">
+                    <div class="avatar bot">AI</div>
+                    <div class="message-content">
+                        你好！我是你的AI助手，有什么可以帮助你的吗？
                     </div>
                 </div>
             </div>
 
-            <!-- 输入区域 -->
-            <div class="p-4 border-t">
-                <form id="chat-form" class="flex space-x-2">
-                    <input type="text" id="message-input" placeholder="请输入您的问题..." 
-                           class="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50">
-                    <button type="submit" class="bg-primary hover:bg-primary/90 text-white px-6 py-2 rounded-md transition-colors">
-                        <i class="fa fa-paper-plane"></i>
-                    </button>
-                </form>
-            </div>
-        </div>
-    </main>
-
-    <!-- 设置弹窗 -->
-    <div id="settings-modal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
-        <div class="bg-white rounded-lg shadow-lg max-w-md w-full mx-4 p-6">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-lg font-semibold text-gray-800">设置</h3>
-                <button id="close-settings-btn" class="text-gray-500 hover:text-gray-700">
-                    <i class="fa fa-times text-xl"></i>
-                </button>
-            </div>
-            <form id="settings-form">
-                <div class="mb-4">
-                    <label for="bot-id" class="block text-sm font-medium text-gray-700 mb-1">Bot ID</label>
-                    <input type="text" id="bot-id" name="botId" 
-                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50" 
-                           placeholder="请输入您的Bot ID">
+            <div class="chat-input">
+                <div class="input-group">
+                    <input type="text" class="input-field" id="messageInput" placeholder="输入你的问题..." maxlength="500">
+                    <button class="send-button" id="sendButton">发送</button>
                 </div>
-                <div class="mb-4">
-                    <label for="access-token" class="block text-sm font-medium text-gray-700 mb-1">Access Token</label>
-                    <input type="text" id="access-token" name="accessToken" 
-                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50" 
-                           placeholder="请输入您的Access Token">
-                </div>
-                <div class="mb-6">
-                    <label for="api-url" class="block text-sm font-medium text-gray-700 mb-1">API URL</label>
-                    <input type="text" id="api-url" name="apiUrl" 
-                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50" 
-                           value="https://api.coze.cn/v3/chat" placeholder="API地址">
-                </div>
-                <div class="flex justify-end space-x-3">
-                    <button type="button" id="test-connection-btn" 
-                            class="px-4 py-2 border border-primary text-primary hover:bg-primary/10 rounded-md transition-colors">
-                        测试连接
-                    </button>
-                    <button type="submit" 
-                            class="px-4 py-2 bg-primary text-white hover:bg-primary/90 rounded-md transition-colors">
-                        保存设置
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- 连接测试结果弹窗 -->
-    <div id="test-result-modal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
-        <div class="bg-white rounded-lg shadow-lg max-w-md w-full mx-4 p-6">
-            <div id="test-result-content" class="text-center">
-                <div id="test-loading" class="mb-4">
-                    <div class="inline-block animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-primary"></div>
-                    <p class="mt-2 text-gray-700">正在测试连接...</p>
-                </div>
-                <div id="test-success" class="mb-4 hidden">
-                    <div class="inline-block p-3 bg-green-100 text-green-600 rounded-full mb-2">
-                        <i class="fa fa-check-circle text-2xl"></i>
-                    </div>
-                    <p class="text-gray-700">连接测试成功！</p>
-                </div>
-                <div id="test-error" class="mb-4 hidden">
-                    <div class="inline-block p-3 bg-red-100 text-red-600 rounded-full mb-2">
-                        <i class="fa fa-times-circle text-2xl"></i>
-                    </div>
-                    <p id="error-message" class="text-gray-700">连接测试失败</p>
-                </div>
-                <button id="close-test-result-btn" 
-                        class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-md transition-colors">
-                    关闭
-                </button>
             </div>
         </div>
     </div>
 
-    <!-- JavaScript -->
+    <!-- 配置面板 -->
+    <button class="toggle-config" id="toggleConfig">⚙️</button>
+    <div class="config-panel hidden" id="configPanel">
+        <h3>扣子配置</h3>
+        <div class="config-field">
+            <label for="botId">Bot ID:</label>
+            <input type="text" id="botId" placeholder="请输入你的Bot ID">
+        </div>
+        <div class="config-field">
+            <label for="accessToken">Access Token:</label>
+            <input type="password" id="accessToken" placeholder="请输入访问令牌">
+        </div>
+        <div class="config-field">
+            <label for="apiUrl">API URL:</label>
+            <input type="text" id="apiUrl" value="https://api.coze.cn/v3/chat" placeholder="API地址">
+        </div>
+        <button class="config-button" id="saveConfig">保存配置</button>
+        <button class="config-button" id="testConnection">测试连接</button>
+    </div>
+
     <script>
-        // DOM元素
-        const startChatBtn = document.getElementById('start-chat-btn');
-        const chatContainer = document.getElementById('chat-container');
-        const messagesContainer = document.getElementById('messages-container');
-        const chatForm = document.getElementById('chat-form');
-        const messageInput = document.getElementById('message-input');
-        const clearChatBtn = document.getElementById('clear-chat-btn');
-        const settingsBtn = document.getElementById('settings-btn');
-        const settingsModal = document.getElementById('settings-modal');
-        const closeSettingsBtn = document.getElementById('close-settings-btn');
-        const settingsForm = document.getElementById('settings-form');
-        const testConnectionBtn = document.getElementById('test-connection-btn');
-        const testResultModal = document.getElementById('test-result-modal');
-        const closeTestResultBtn = document.getElementById('close-test-result-btn');
-        const testLoading = document.getElementById('test-loading');
-        const testSuccess = document.getElementById('test-success');
-        const testError = document.getElementById('test-error');
-        const errorMessage = document.getElementById('error-message');
-        
-        // 配置管理
-        let chatConfig = {
-            botId: '',
-            accessToken: '',
-            apiUrl: 'https://api.coze.cn/v3/chat',
-            conversationId: null
-        };
-        
-        // 初始化配置
-        function initConfig() {
-            const savedConfig = localStorage.getItem('cozeChatConfig');
-            if (savedConfig) {
-                chatConfig = { ...chatConfig, ...JSON.parse(savedConfig) };
-                document.getElementById('bot-id').value = chatConfig.botId || '';
-                document.getElementById('access-token').value = chatConfig.accessToken || '';
-                document.getElementById('api-url').value = chatConfig.apiUrl || 'https://api.coze.cn/v3/chat';
+        // 显示平台信息（帮助用户理解Vercel相关的错误消息）
+        function showPlatformInfo() {
+            // 添加一个简单的提示
+            console.log('------------------------------------------');
+            console.log('扣子聊天应用平台信息');
+            console.log('------------------------------------------');
+            console.log('1. 您看到的Vercel相关错误（如signals.js、vercel-user-meta等）是Vercel平台的正常功能');
+            console.log('2. 这些请求失败不影响聊天应用的核心功能');
+            console.log('3. 若要验证应用功能，请使用：');
+            console.log('   - 健康检查API: /api/health');
+            console.log('   - 测试连接功能: 页面设置中的测试按钮');
+            console.log('------------------------------------------');
+        }
+
+        class CozeChat {
+            constructor() {
+                this.config = {
+                    botId: window.chatConfig?.botId || '',
+                    accessToken: window.chatConfig?.accessToken || '',
+                    apiUrl: 'https://api.coze.cn/v3/chat',
+                    conversationId: this.generateConversationId()
+                };
+                
+                this.isLoading = false;
+                this.loadConfig();
+                this.initElements();
+                this.bindEvents();
+                
+                // 页面加载完成后显示平台信息
+                showPlatformInfo();
             }
-        }
-        
-        // 保存配置
-        function saveConfig() {
-            localStorage.setItem('cozeChatConfig', JSON.stringify(chatConfig));
-        }
-        
-        // 添加消息到聊天界面
-        function addMessage(role, content) {
-            const isUser = role === 'user';
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `flex mb-4 ${isUser ? 'justify-end' : 'justify-start'}`;
-            
-            const messageBubble = document.createElement('div');
-            messageBubble.className = `rounded-lg p-3 max-w-[85%] ${isUser ? 'bg-user' : 'bg-assistant'}`;
-            
-            const messageContent = document.createElement('p');
-            messageContent.textContent = content;
-            
-            messageBubble.appendChild(messageContent);
-            messageDiv.appendChild(messageBubble);
-            messagesContainer.appendChild(messageDiv);
-            
-            // 滚动到底部
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        }
-        
-        // 发送消息到API
-        async function sendMessage() {
-            const message = messageInput.value.trim();
-            if (!message) return;
-            
-            // 验证配置
-            if (!chatConfig.botId || !chatConfig.accessToken) {
-                alert('请先配置Bot ID和Access Token');
-                settingsModal.classList.remove('hidden');
-                return;
+
+            initElements() {
+                this.chatMessages = document.getElementById('chatMessages');
+                this.messageInput = document.getElementById('messageInput');
+                this.sendButton = document.getElementById('sendButton');
+                this.configPanel = document.getElementById('configPanel');
+                this.toggleConfig = document.getElementById('toggleConfig');
+                this.status = document.getElementById('status');
+                this.chatContainer = document.getElementById('chatContainer');
             }
-            
-            // 添加用户消息到界面
-            addMessage('user', message);
-            messageInput.value = '';
-            
-            // 添加加载状态
-            const loadingDiv = document.createElement('div');
-            loadingDiv.id = 'loading-message';
-            loadingDiv.className = 'flex justify-start mb-4';
-            loadingDiv.innerHTML = `
-                <div class="bg-assistant rounded-lg p-3 max-w-[85%]">
-                    <div class="flex space-x-1">
-                        <div class="h-2 w-2 bg-gray-500 rounded-full animate-bounce" style="animation-delay: 0ms"></div>
-                        <div class="h-2 w-2 bg-gray-500 rounded-full animate-bounce" style="animation-delay: 150ms"></div>
-                        <div class="h-2 w-2 bg-gray-500 rounded-full animate-bounce" style="animation-delay: 300ms"></div>
-                    </div>
-                </div>
-            `;
-            messagesContainer.appendChild(loadingDiv);
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
-            
-            try {
-                // 发送请求到API
-                const response = await fetch('/api/chat.js', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        message,
-                        botId: chatConfig.botId,
-                        accessToken: chatConfig.accessToken,
-                        apiUrl: chatConfig.apiUrl,
-                        conversationId: chatConfig.conversationId
-                    })
-                });
+
+            bindEvents() {
+                // 发送按钮点击事件
+                this.sendButton.addEventListener('click', () => this.sendMessage());
                 
-                const data = await response.json();
-                
-                // 移除加载状态
-                document.getElementById('loading-message')?.remove();
-                
-                if (response.ok) {
-                    // 添加助手回复到界面
-                    addMessage('assistant', data.reply || '抱歉，我暂时无法回答这个问题。');
-                    
-                    // 更新会话ID
-                    if (data.conversation_id) {
-                        chatConfig.conversationId = data.conversation_id;
+                // 输入框回车事件
+                this.messageInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        this.sendMessage();
                     }
-                } else {
-                    // 显示错误信息
-                    addMessage('assistant', `错误: ${data.error || '请求失败'}`);
-                }
-            } catch (error) {
-                // 移除加载状态
-                document.getElementById('loading-message')?.remove();
-                
-                // 显示错误信息
-                addMessage('assistant', `网络错误: ${error.message || '无法连接到服务器'}`);
-            }
-        }
-        
-        // 测试连接
-        async function testConnection() {
-            // 获取表单中的配置
-            const botId = document.getElementById('bot-id').value.trim();
-            const accessToken = document.getElementById('access-token').value.trim();
-            const apiUrl = document.getElementById('api-url').value.trim() || 'https://api.coze.cn/v3/chat';
-            
-            if (!botId || !accessToken) {
-                alert('请输入Bot ID和Access Token');
-                return;
-            }
-            
-            // 显示测试结果弹窗
-            testResultModal.classList.remove('hidden');
-            testLoading.classList.remove('hidden');
-            testSuccess.classList.add('hidden');
-            testError.classList.add('hidden');
-            
-            try {
-                // 发送测试请求
-                const response = await fetch('/api/vercel-api-test.js', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        botId,
-                        accessToken,
-                        apiUrl
-                    })
                 });
+
+                // 配置面板切换
+                this.toggleConfig.addEventListener('click', () => this.toggleConfigPanel());
+
+                // 保存配置
+                document.getElementById('saveConfig').addEventListener('click', () => this.saveConfig());
                 
-                const data = await response.json();
-                
-                // 隐藏加载状态
-                testLoading.classList.add('hidden');
-                
-                if (response.ok && data.success) {
-                    // 显示成功信息
-                    testSuccess.classList.remove('hidden');
-                } else {
-                    // 显示错误信息
-                    testError.classList.remove('hidden');
-                    errorMessage.textContent = data.error || '连接测试失败';
+                // 测试连接
+                document.getElementById('testConnection').addEventListener('click', () => this.testConnection());
+
+                // 点击外部关闭配置面板
+                document.addEventListener('click', (e) => {
+                    if (!this.configPanel.contains(e.target) && !this.toggleConfig.contains(e.target)) {
+                        this.configPanel.classList.add('hidden');
+                    }
+                });
+            }
+
+            generateConversationId() {
+                return 'conv_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            }
+
+            loadConfig() {
+                const saved = localStorage.getItem('coze_config');
+                if (saved) {
+                    const config = JSON.parse(saved);
+                    this.config = { ...this.config, ...config };
+                    this.updateConfigUI();
                 }
-            } catch (error) {
-                // 隐藏加载状态
-                testLoading.classList.add('hidden');
+            }
+
+            saveConfig() {
+                const botId = document.getElementById('botId').value.trim();
+                const accessToken = document.getElementById('accessToken').value.trim();
+                const apiUrl = document.getElementById('apiUrl').value.trim();
+
+                if (!botId || !accessToken) {
+                    alert('请填写Bot ID和Access Token');
+                    return;
+                }
+
+                this.config.botId = botId;
+                this.config.accessToken = accessToken;
+                this.config.apiUrl = apiUrl;
+
+                localStorage.setItem('coze_config', JSON.stringify(this.config));
+                this.configPanel.classList.add('hidden');
                 
-                // 显示错误信息
-                testError.classList.remove('hidden');
-                errorMessage.textContent = `网络错误: ${error.message}`;
+                this.updateStatus('配置已保存', 'success');
+                setTimeout(() => this.updateStatus('已连接 - 随时为您服务'), 2000);
+            }
+
+            updateConfigUI() {
+                document.getElementById('botId').value = this.config.botId || '';
+                document.getElementById('accessToken').value = this.config.accessToken || '';
+                document.getElementById('apiUrl').value = this.config.apiUrl || 'https://api.coze.cn/v3/chat';
+            }
+
+            toggleConfigPanel() {
+                this.configPanel.classList.toggle('hidden');
+                if (!this.configPanel.classList.contains('hidden')) {
+                    this.updateConfigUI();
+                }
+            }
+
+            updateStatus(message, type = 'info') {
+                this.status.textContent = message;
+                this.status.className = `status ${type}`;
+            }
+
+            async testConnection() {
+                if (!this.config.botId || !this.config.accessToken) {
+                    alert('请先配置Bot ID和Access Token');
+                    return;
+                }
+
+                this.updateStatus('测试连接中...', 'loading');
+                
+                try {
+                    const response = await fetch('/api/vercel-api-test.js', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            botId: this.config.botId,
+                            accessToken: this.config.accessToken,
+                            apiUrl: this.config.apiUrl
+                        })
+                    });
+
+                    const data = await response.json();
+                    
+                    if (response.ok && data.success) {
+                        this.updateStatus('连接测试成功！', 'success');
+                        setTimeout(() => this.updateStatus('已连接 - 随时为您服务'), 2000);
+                    } else {
+                        throw new Error(data.error || '连接测试失败');
+                    }
+                } catch (error) {
+                    this.updateStatus('连接测试失败', 'error');
+                    console.error('测试连接失败:', error);
+                }
+            }
+
+            addMessage(content, isUser = false, isLoading = false) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${isUser ? 'user' : 'bot'}`;
+                
+                const avatarDiv = document.createElement('div');
+                avatarDiv.className = `avatar ${isUser ? 'user' : 'bot'}`;
+                avatarDiv.textContent = isUser ? '你' : 'AI';
+                
+                const contentDiv = document.createElement('div');
+                contentDiv.className = 'message-content';
+                
+                if (isLoading) {
+                    contentDiv.innerHTML = `
+                        <div class="loading">
+                            正在思考
+                            <div class="loading-dots">
+                                <div class="loading-dot"></div>
+                                <div class="loading-dot"></div>
+                                <div class="loading-dot"></div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    contentDiv.textContent = content;
+                }
+                
+                messageDiv.appendChild(avatarDiv);
+                messageDiv.appendChild(contentDiv);
+                
+                this.chatMessages.appendChild(messageDiv);
+                this.scrollToBottom();
+                
+                return messageDiv;
+            }
+
+            scrollToBottom() {
+                this.chatMessages.scrollTop = this.chatMessages.scrollHeight;
+            }
+
+            async sendMessage() {
+                const message = this.messageInput.value.trim();
+                if (!message || this.isLoading) return;
+
+                if (!this.config.botId || !this.config.accessToken) {
+                    alert('请先配置Bot ID和Access Token');
+                    this.toggleConfigPanel();
+                    return;
+                }
+
+                // 添加用户消息
+                this.addMessage(message, true);
+                this.messageInput.value = '';
+                
+                // 显示加载状态
+                this.isLoading = true;
+                this.sendButton.disabled = true;
+                const loadingMessage = this.addMessage('', false, true);
+
+                try {
+                    const response = await fetch('/api/chat.js', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            message: message,
+                            botId: this.config.botId,
+                            accessToken: this.config.accessToken,
+                            apiUrl: this.config.apiUrl,
+                            conversationId: this.config.conversationId
+                        })
+                    });
+
+                    // 移除加载消息
+                    loadingMessage.remove();
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        this.addMessage(data.reply || '抱歉，我暂时无法回答这个问题。');
+                        
+                        // 更新会话ID
+                        if (data.conversation_id) {
+                            this.config.conversationId = data.conversation_id;
+                        }
+                    } else {
+                        const errorData = await response.json().catch(() => ({}));
+                        this.addMessage(`抱歉，出现了一些问题: ${errorData.error || '未知错误'}`);
+                    }
+                } catch (error) {
+                    loadingMessage.remove();
+                    this.addMessage('网络错误，请检查连接或稍后重试。');
+                    console.error('发送消息失败:', error);
+                } finally {
+                    this.isLoading = false;
+                    this.sendButton.disabled = false;
+                    this.messageInput.focus();
+                }
             }
         }
-        
-        // 事件监听器
+
+        // 初始化聊天应用
         document.addEventListener('DOMContentLoaded', () => {
-            initConfig();
-            
-            // 开始聊天按钮
-            startChatBtn.addEventListener('click', () => {
-                chatContainer.classList.remove('hidden');
-                messageInput.focus();
-            });
-            
-            // 聊天表单提交
-            chatForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                sendMessage();
-            });
-            
-            // 清除聊天按钮
-            clearChatBtn.addEventListener('click', () => {
-                messagesContainer.innerHTML = `
-                    <div class="flex mb-4">
-                        <div class="bg-gray-200 text-gray-700 rounded-lg p-3 max-w-[85%] mx-auto">
-                            <p>您好！我是您的智能助手，请问有什么可以帮助您的吗？</p>
-                        </div>
-                    </div>
-                `;
-                chatConfig.conversationId = null;
-            });
-            
-            // 设置按钮
-            settingsBtn.addEventListener('click', () => {
-                settingsModal.classList.remove('hidden');
-            });
-            
-            // 关闭设置弹窗
-            closeSettingsBtn.addEventListener('click', () => {
-                settingsModal.classList.add('hidden');
-            });
-            
-            // 设置表单提交
-            settingsForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                
-                // 更新配置
-                chatConfig.botId = document.getElementById('bot-id').value.trim();
-                chatConfig.accessToken = document.getElementById('access-token').value.trim();
-                chatConfig.apiUrl = document.getElementById('api-url').value.trim() || 'https://api.coze.cn/v3/chat';
-                
-                // 保存配置
-                saveConfig();
-                
-                // 关闭弹窗
-                settingsModal.classList.add('hidden');
-                
-                // 提示保存成功
-                alert('设置已保存');
-            });
-            
-            // 测试连接按钮
-            testConnectionBtn.addEventListener('click', testConnection);
-            
-            // 关闭测试结果弹窗
-            closeTestResultBtn.addEventListener('click', () => {
-                testResultModal.classList.add('hidden');
-            });
-            
-            // 点击弹窗外部关闭弹窗
-            settingsModal.addEventListener('click', (e) => {
-                if (e.target === settingsModal) {
-                    settingsModal.classList.add('hidden');
-                }
-            });
-            
-            testResultModal.addEventListener('click', (e) => {
-                if (e.target === testResultModal) {
-                    testResultModal.classList.add('hidden');
-                }
-            });
-            
-            // ESC键关闭弹窗
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape') {
-                    settingsModal.classList.add('hidden');
-                    testResultModal.classList.add('hidden');
-                }
-            });
+            new CozeChat();
         });
     </script>
-
-    <!-- Coze Chat SDK (已注释，项目使用自定义API实现) -->
-    <!-- <script src="https://lf-cdn-tos.bytescm.com/obj/static/xitu_extension/static/browser-sdk/coze-web-sdk.umd.js"></script>
-    <script>
-        window.onload = function() {
-            // 请使用界面设置中的Bot ID和Access Token，不要在这里硬编码
-            window.CozeWebSDK.init({
-                bot_id: chatConfig.botId || '',
-                component_title: '扣子智能助手',
-                auth_type: 'pat',
-                pat: chatConfig.accessToken || ''
-            });
-        };
-    </script> -->
 
     <!-- 添加Coze Web SDK安装代码 -->
     <!-- 注意：实际部署时请使用环境变量或安全的方式配置凭证，不要硬编码 -->
