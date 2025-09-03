@@ -1,0 +1,21 @@
+{
+  "name": "coze-chat-app",
+  "version": "1.0.0",
+  "description": "基于扣子智能体的聊天网站",
+  "main": "index.html",
+  "scripts": {
+    "dev": "vercel dev",
+    "build": "echo 'No build process needed'",
+    "start": "vercel dev"
+  },
+  "keywords": ["coze", "chatbot", "ai", "vercel"],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {},
+  "devDependencies": {
+    "@vercel/node": "^2.15.10"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

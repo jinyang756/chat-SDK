@@ -1,0 +1,190 @@
+# 🤖 扣子智能体网站
+
+基于扣子（Coze）智能体的现代化聊天网站，支持一键部署到Vercel，让用户通过自定义域名直接访问你的AI助手。
+
+![预览图](https://via.placeholder.com/800x400/667eea/ffffff?text=AI%E8%81%8A%E5%A4%A9%E7%BD%91%E7%AB%99)
+
+## ✨ 特性
+
+- 🎨 **现代化设计** - 精美的渐变UI，支持移动端
+- ⚡ **极速部署** - 一键部署到Vercel，3分钟上线
+- 🔐 **安全可靠** - 支持环境变量配置，保护敏感信息
+- 💬 **流畅对话** - 实时聊天体验，支持长对话记忆
+- 🌍 **自定义域名** - 使用你自己的域名访问
+- 📱 **响应式布局** - 完美支持手机、平板、桌面
+
+## 🚀 快速开始
+
+### 1. 一键部署到Vercel
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/你的用户名/coze-chat-app)
+
+### 2. 获取扣子配置
+
+1. 登录 [扣子平台](https://www.coze.cn/)
+2. 创建或选择你的智能体
+3. 获取 Bot ID：智能体页面 → 发布 → API
+4. 创建 Access Token：个人中心 → API管理 → 创建令牌
+
+### 3. 配置环境变量（推荐）
+
+在Vercel Dashboard中添加以下环境变量：
+
+```
+COZE_BOT_ID=你的Bot ID
+COZE_ACCESS_TOKEN=你的Access Token
+COZE_API_URL=https://api.coze.cn/v3/chat
+```
+
+### 4. 访问你的网站
+
+部署完成后，访问分配的Vercel域名或你的自定义域名即可开始使用！
+
+## 📁 项目结构
+
+```
+├── index.html          # 主聊天界面
+├── api/
+│   ├── chat.js         # 聊天API接口
+│   └── test-coze.js    # 连接测试接口
+├── vercel.json         # Vercel配置
+├── package.json        # 项目配置
+└── README.md           # 说明文档
+```
+
+## 🔧 本地开发
+
+```bash
+# 克隆项目
+git clone https://github.com/你的用户名/coze-chat-app.git
+cd coze-chat-app
+
+# 安装Vercel CLI
+npm i -g vercel
+
+# 启动开发服务器
+vercel dev
+```
+
+在 `http://localhost:3000` 查看效果
+
+## ⚙️ 配置说明
+
+### 环境变量配置（生产环境推荐）
+
+| 变量名 | 必填 | 说明 |
+|--------|------|------|
+| `COZE_BOT_ID` | ✅ | 扣子智能体ID |
+| `COZE_ACCESS_TOKEN` | ✅ | 扣子访问令牌 |
+| `COZE_API_URL` | ❌ | API地址（默认官方地址） |
+
+### 界面配置（开发测试）
+
+如果未设置环境变量，可以通过网页界面进行配置：
+
+1. 点击页面右上角的⚙️按钮
+2. 填入Bot ID和Access Token
+3. 点击"测试连接"验证配置
+4. 保存配置并开始聊天
+
+## 🎨 自定义外观
+
+### 修改主题色
+
+编辑 `index.html` 中的CSS变量：
+
+```css
+:root {
+    --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --primary-color: #667eea;
+    --secondary-color: #764ba2;
+}
+```
+
+### 修改网站标题
+
+```html
+<div class="header">
+    <h1>🤖 你的AI助手名称</h1>
+    <p>你的个性化描述</p>
+</div>
+```
+
+## 📊 API接口
+
+### POST /api/chat
+
+发送聊天消息
+
+**请求体：**
+```json
+{
+    "message": "用户消息内容",
+    "botId": "bot_id（可选，优先使用环境变量）",
+    "accessToken": "access_token（可选，优先使用环境变量）"
+}
+```
+
+**响应：**
+```json
+{
+    "reply": "AI回复内容",
+    "conversation_id": "对话ID",
+    "timestamp": "2024-01-01T00:00:00.000Z"
+}
+```
+
+### POST /api/test-coze
+
+测试扣子连接
+
+## 🚨 故障排除
+
+### 常见问题
+
+**Q: 部署后显示404错误？**  
+A: 检查 `vercel.json` 配置文件是否正确，确保路由配置无误。
+
+**Q: 聊天无响应？**  
+A: 检查Bot ID和Access Token是否正确，确保智能体已发布为API。
+
+**Q: 环境变量不生效？**  
+A: 在Vercel Dashboard重新部署项目，确保环境变量正确保存。
+
+### 调试技巧
+
+1. 查看浏览器开发者工具的Network面板
+2. 检查Vercel Functions日志
+3. 使用测试连接功能验证配置
+
+## 🛡️ 安全建议
+
+- ✅ 使用环境变量存储敏感信息
+- ✅ 定期轮换Access Token
+- ✅ 设置合理的API调用频率限制
+- ✅ 监控API使用量，防止滥用
+
+## 📈 性能优化
+
+- 💡 启用Vercel Edge Functions（可选）
+- 💡 添加请求缓存机制
+- 💡 优化大文件传输
+- 💡 配置CDN加速静态资源
+
+## 🤝 贡献
+
+欢迎提交Issue和Pull Request！
+
+## 📄 许可证
+
+MIT License - 详见 [LICENSE](LICENSE) 文件
+
+## 🙏 致谢
+
+- [扣子（Coze）](https://www.coze.cn/) - 强大的AI智能体平台
+- [Vercel](https://vercel.com/) - 优秀的部署平台
+- 所有贡献者和用户的支持
+
+---
+
+⭐ 如果这个项目对你有帮助，请给个Star！
