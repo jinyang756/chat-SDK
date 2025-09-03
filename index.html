@@ -7,39 +7,9 @@
 <meta http-equiv="X-UA-Compatible" content="IE =edge,chrome =1">
 <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no,minimum-scale=1,maximum-scale=1">
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-<title>扣子智能助手</title>
+<title>客服系统</title>
 </head>
 <body>
-    <!-- 先加载扣子Web SDK -->
-    <script src="https://lf-cdn.coze.cn/obj/unpkg/flow-platform/chat-app-sdk/1.2.0-beta.10/libs/cn/index.js"></script>
-    <script>
-      // 确保文档加载完成后初始化扣子SDK
-      document.addEventListener('DOMContentLoaded', function() {
-        setTimeout(function() {
-          new CozeWebSDK.WebChatClient({
-            config: {
-              bot_id: '7545375886166982691',
-            },
-            componentProps: {
-              title: 'AI智能助手',
-              buttonStyle: {
-                // 调整扣子按钮位置，避免与米多客按钮重叠
-                right: '20px',
-                bottom: '120px'
-              }
-            },
-            auth: {
-              type: 'token',
-              token: 'pat_rQVfrvRk2QmHz3Q1K6ltQ58pZwqq3b2T8u2972iuZ8e3C9GzpgYGjUVjhW5elDWM',
-              onRefreshToken: function () {
-                return 'pat_rQVfrvRk2QmHz3Q1K6ltQ58pZwqq3b2T8u2972iuZ8e3C9GzpgYGjUVjhW5elDWM'
-              }
-            }
-          });
-        }, 500); // 延迟初始化，确保米多客先加载
-      });
-    </script>
-
 <script type="text/javascript">
 window._MICHAT = window._MICHAT || function () { (_MICHAT.a = _MICHAT.a || []).push(arguments) };
      _MICHAT("cptid", "e773425b58e01513a5"); 
