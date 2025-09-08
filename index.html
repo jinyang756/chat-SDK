@@ -40,32 +40,38 @@
         })(window, document, "script");
     </script>
     
-    <!-- 品牌适配版添加到桌面按钮 --> 
+    <!-- 品牌适配版添加到桌面按钮 - 带无敌样式 --> 
     <button id="addToHomeScreen" style=" 
+        /* 核心：位置固定 + 最高层级（浏览器允许的最大值） */ 
         position: fixed !important; 
         top: 80px !important; 
-        right: 20px; 
-        background-color: #2563eb; 
-        color: white; 
-        padding: 12px 20px; 
-        border: none; 
-        border-radius: 30px; 
-        cursor: pointer; 
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15); 
-        z-index: 2147483647 !important; /* 浏览器最大层级值 */ 
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
-        font-size: 14px; 
+        right: 20px !important; 
+        z-index: 2147483647 !important; /* 浏览器最大层级，确保在所有元素之上 */ 
+        
+        /* 强制显示，无视任何隐藏逻辑 */ 
         display: flex !important; 
-        align-items: center; 
-        gap: 8px; 
-        transition: all 0.2s ease; 
-        pointer-events: auto; 
-        -webkit-user-select: none; 
-        -moz-user-select: none; 
-        -ms-user-select: none; 
-        user-select: none; 
+        visibility: visible !important; 
+        opacity: 1 !important; 
+        pointer-events: auto !important; /* 确保可点击 */ 
+        
+        /* 其他样式（背景、文字等）保持不变 */ 
+        background-color: #2563eb !important; 
+        color: white !important; 
+        padding: 12px 20px !important; 
+        border: none !important; 
+        border-radius: 30px !important; 
+        cursor: pointer !important; 
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important; 
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important; 
+        font-size: 14px !important; 
+        align-items: center !important; 
+        gap: 8px !important; 
+        -webkit-user-select: none !important; 
+        -moz-user-select: none !important; 
+        -ms-user-select: none !important; 
+        user-select: none !important; 
     "> 
-        <i class="fa fa-mobile" aria-hidden="true" style="font-size: 16px;"></i> 
+        <i class="fa fa-mobile" aria-hidden="true" style="font-size: 16px !important;"></i> 
         <span>添加到桌面</span> 
     </button>
 
@@ -224,6 +230,81 @@
     // 监听显示模式变化 
     window.matchMedia('(display-mode: standalone)').addEventListener('change', (e) => { 
         e.matches ? hideAddButton() : showAddButton(); 
+    }); 
+    
+    // 按钮监控和重建功能 - 防止被米多客移除 
+    function ensureAddButtonExists() { 
+        const button = document.getElementById('addToHomeScreen'); 
+        if (!button) { 
+            // 按钮被移除了，重新创建 
+            const newButton = document.createElement('button'); 
+            newButton.id = 'addToHomeScreen'; 
+            newButton.innerHTML = '<i class="fa fa-mobile" aria-hidden="true" style="font-size: 16px !important;"></i> <span>添加到桌面</span>'; 
+            
+            // 复制原按钮的点击逻辑 
+            newButton.onclick = function() { 
+                if (deviceInfo.isApple) { 
+                    showAppleInstructions(); 
+                } else if (deferredPrompt) { 
+                    // 优先使用标准安装流程（支持beforeinstallprompt事件的浏览器）
+                    handleStandardInstall(); 
+                } else if (deviceInfo.isXiaomi) { 
+                    showXiaomiInstructions(); 
+                } else if (deviceInfo.isHuawei) { 
+                    showHuaweiInstructions(); 
+                } else if (deviceInfo.isVivo) { 
+                    showVivoInstructions(); 
+                } else if (deviceInfo.isOppo) { 
+                    showOppoInstructions(); 
+                } else if (deviceInfo.isMobile) { 
+                    // 若浏览器不支持自动安装，直接显示通用指引 
+                    showGenericInstructions(); 
+                } 
+            }; 
+            
+            // 应用"无敌"样式 
+            newButton.style.cssText = ` 
+                /* 核心：位置固定 + 最高层级（浏览器允许的最大值） */ 
+                position: fixed !important; 
+                top: 80px !important; 
+                right: 20px !important; 
+                z-index: 2147483647 !important; /* 浏览器最大层级，确保在所有元素之上 */ 
+                
+                /* 强制显示，无视任何隐藏逻辑 */ 
+                display: flex !important; 
+                visibility: visible !important; 
+                opacity: 1 !important; 
+                pointer-events: auto !important; /* 确保可点击 */ 
+                
+                /* 其他样式（背景、文字等）保持不变 */ 
+                background-color: #2563eb !important; 
+                color: white !important; 
+                padding: 12px 20px !important; 
+                border: none !important; 
+                border-radius: 30px !important; 
+                cursor: pointer !important; 
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important; 
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important; 
+                font-size: 14px !important; 
+                align-items: center !important; 
+                gap: 8px !important; 
+                -webkit-user-select: none !important; 
+                -moz-user-select: none !important; 
+                -ms-user-select: none !important; 
+                user-select: none !important; 
+            `; 
+            
+            document.body.appendChild(newButton); 
+            console.log("按钮被移除，已自动重建"); 
+        } 
+    } 
+    
+    // 每 100ms 检查一次按钮是否存在（高频监控） 
+    setInterval(ensureAddButtonExists, 100); 
+    
+    // 页面加载时先检查一次 
+    window.addEventListener('load', function() { 
+        setTimeout(ensureAddButtonExists, 1000); 
     }); 
     </script> 
 
