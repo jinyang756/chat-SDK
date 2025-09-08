@@ -40,272 +40,234 @@
         })(window, document, "script");
     </script>
     
-    <!-- 品牌适配版添加到桌面按钮 - 带无敌样式 --> 
-    <button id="addToHomeScreen" style=" 
-        /* 核心：位置固定 + 最高层级（浏览器允许的最大值） */ 
-        position: fixed !important; 
-        top: 80px !important; 
-        right: 20px !important; 
-        z-index: 2147483647 !important; /* 浏览器最大层级，确保在所有元素之上 */ 
-        
-        /* 强制显示，无视任何隐藏逻辑 */ 
-        display: flex !important; 
-        visibility: visible !important; 
-        opacity: 1 !important; 
-        pointer-events: auto !important; /* 确保可点击 */ 
-        
-        /* 其他样式（背景、文字等）保持不变 */ 
-        background-color: #2563eb !important; 
-        color: white !important; 
-        padding: 12px 20px !important; 
-        border: none !important; 
-        border-radius: 30px !important; 
-        cursor: pointer !important; 
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important; 
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important; 
-        font-size: 14px !important; 
-        align-items: center !important; 
-        gap: 8px !important; 
-        -webkit-user-select: none !important; 
-        -moz-user-select: none !important; 
-        -ms-user-select: none !important; 
-        user-select: none !important; 
-    "> 
-        <i class="fa fa-mobile" aria-hidden="true" style="font-size: 16px !important;"></i> 
-        <span>添加到桌面</span> 
+    <!-- 放在<body>标签内，米多客代码之后 -->
+    <button id="persistentAddButton" style="
+        /* 1. 基础样式 + 最高优先级 */
+        position: fixed !important;
+        top: 20px !important; /* 避开米多客常见位置 */
+        right: 20px !important;
+        z-index: 2147483647 !important; /* 浏览器最大层级 */
+        background: #2563eb !important;
+        color: white !important;
+        padding: 12px 20px !important;
+        border: none !important;
+        border-radius: 30px !important;
+        cursor: pointer !important;
+        font-size: 14px !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 8px !important;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+        pointer-events: auto !important; /* 确保可点击 */
+        transition: all 0.2s ease !important;
+        /* 2. 防删除/隐藏增强 */
+        will-change: transform !important; /* 提示浏览器优先渲染 */
+        transform: translateZ(0) !important; /* 启用GPU加速，避免被遮挡 */
+    ">
+        <i class="fa fa-mobile" aria-hidden="true"></i>
+        <span>添加到桌面</span>
     </button>
 
-    <script> 
-    // 检测设备品牌和浏览器信息 
-    const deviceInfo = { 
-        // 设备品牌检测 
-        isXiaomi: /mi\s|xiaomi|redmi/i.test(navigator.userAgent), 
-        isHuawei: /huawei|honor/i.test(navigator.userAgent), 
-        isVivo: /vivo/i.test(navigator.userAgent), 
-        isOppo: /oppo|realme/i.test(navigator.userAgent), 
-        isApple: /iphone|ipad|ipod/i.test(navigator.userAgent), 
-        
-        // 浏览器检测 
-        isDefaultBrowser: function() { 
-            // 检测是否为手机厂商默认浏览器 
-            return (this.isXiaomi && /miuibrowser/i.test(navigator.userAgent)) || 
-                   (this.isHuawei && /huaweibrowser/i.test(navigator.userAgent)) || 
-                   (this.isVivo && /vivobrowser/i.test(navigator.userAgent)) || 
-                   (this.isOppo && /oppobrowser/i.test(navigator.userAgent)); 
-        }, 
-        isChrome: /chrome/i.test(navigator.userAgent) && /google inc/.test(navigator.vendor), 
-        isSafari: /^((?!chrome|android).)*safari/i.test(navigator.userAgent), 
-        isMobile: /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) 
-    }; 
+    <script>
+    // 设备检测逻辑（复用原有的设备识别）
+    const deviceInfo = {
+        isXiaomi: /mi\s|xiaomi|redmi/i.test(navigator.userAgent),
+        isHuawei: /huawei|honor/i.test(navigator.userAgent),
+        isVivo: /vivo/i.test(navigator.userAgent),
+        isOppo: /oppo|realme/i.test(navigator.userAgent),
+        isApple: /iphone|ipad|ipod/i.test(navigator.userAgent),
+        isDefaultBrowser: function() {
+            return (this.isXiaomi && /miuibrowser/i.test(navigator.userAgent)) ||
+                   (this.isHuawei && /huaweibrowser/i.test(navigator.userAgent)) ||
+                   (this.isVivo && /vivobrowser/i.test(navigator.userAgent)) ||
+                   (this.isOppo && /oppobrowser/i.test(navigator.userAgent));
+        },
+        isChrome: /chrome/i.test(navigator.userAgent) && /google inc/.test(navigator.vendor),
+        isSafari: /^((?!chrome|android).)*safari/i.test(navigator.userAgent),
+        isMobile: /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
+    };
 
-    let deferredPrompt; 
-    const addButton = document.getElementById('addToHomeScreen'); 
+    let deferredPrompt;
 
     // 监听安装提示事件 
-    window.addEventListener('beforeinstallprompt', (e) => { 
-        if (!deviceInfo.isMobile) return; 
+    window.addEventListener('beforeinstallprompt', (e) => {
+        if (!deviceInfo.isMobile) return;
         
-        e.preventDefault(); 
-        deferredPrompt = e; 
-        showAddButton(); 
-    }); 
-
-    // 显示按钮 
-    function showAddButton() { 
-        if (window.matchMedia('(display-mode: standalone)').matches) { 
-            hideAddButton(); 
-            console.log("已在独立模式，隐藏按钮");
-            return; 
-        } 
-        addButton.style.display = 'flex'; 
-        console.log("显示添加到桌面按钮");
-    } 
-
-    // 隐藏按钮 
-    function hideAddButton() { 
-        addButton.style.display = 'none'; 
-    } 
-
-    // 按钮点击事件 
-    addButton.addEventListener('click', async () => { 
-        // 根据不同品牌设备和浏览器显示不同指引 
-        if (deviceInfo.isApple) { 
-            showAppleInstructions(); 
-        } else if (deferredPrompt) { 
-            // 优先使用标准安装流程（支持beforeinstallprompt事件的浏览器）
-            handleStandardInstall(); 
-        } else if (deviceInfo.isXiaomi) { 
-            showXiaomiInstructions(); 
-        } else if (deviceInfo.isHuawei) { 
-            showHuaweiInstructions(); 
-        } else if (deviceInfo.isVivo) { 
-            showVivoInstructions(); 
-        } else if (deviceInfo.isOppo) { 
-            showOppoInstructions(); 
-        } else if (deviceInfo.isMobile) { 
-            // 若浏览器不支持自动安装，直接显示通用指引 
-            showGenericInstructions(); 
-        } 
-    }); 
-
-    // 标准安装流程 
-    async function handleStandardInstall() { 
-        const { outcome } = await deferredPrompt.prompt(); 
-        console.log(`用户${outcome === 'accepted' ? '接受' : '拒绝'}了安装`); 
-        deferredPrompt = null; 
-        hideAddButton(); 
-    } 
+        e.preventDefault();
+        deferredPrompt = e;
+    });
 
     // 苹果设备指引 
-    function showAppleInstructions() { 
-        const instructions = deviceInfo.isSafari 
-            ? "1. 点击底部的分享按钮(正方形+箭头)\n2. 选择'添加到主屏幕'\n3. 点击右上角'添加'" 
-            : "1. 点击浏览器菜单(三个点)\n2. 选择'添加到主屏幕'\n3. 确认添加"; 
+    function showAppleInstructions() {
+        const instructions = deviceInfo.isSafari
+            ? "1. 点击底部的分享按钮(正方形+箭头)\n2. 选择'添加到主屏幕'\n3. 点击右上角'添加'"
+            : "1. 点击浏览器菜单(三个点)\n2. 选择'添加到主屏幕'\n3. 确认添加";
         
-        alert(`在iPhone上添加到桌面：\n${instructions}`); 
-    } 
+        alert(`在iPhone上添加到桌面：\n${instructions}`);
+    }
 
     // 小米设备指引 
-    function showXiaomiInstructions() { 
-        const browser = deviceInfo.isDefaultBrowser() ? "小米浏览器" : 
-                       deviceInfo.isChrome ? "Chrome浏览器" : "浏览器"; 
+    function showXiaomiInstructions() {
+        const browser = deviceInfo.isDefaultBrowser() ? "小米浏览器" :
+                       deviceInfo.isChrome ? "Chrome浏览器" : "浏览器";
                         
-        const instructions = deviceInfo.isDefaultBrowser() 
-            ? "1. 点击底部菜单按钮(三个点)\n2. 选择'添加至桌面'\n3. 点击'确定'" 
-            : "1. 点击右上角菜单(三个点)\n2. 选择'添加到主屏幕'\n3. 确认添加"; 
+        const instructions = deviceInfo.isDefaultBrowser()
+            ? "1. 点击底部菜单按钮(三个点)\n2. 选择'添加至桌面'\n3. 点击'确定'"
+            : "1. 点击右上角菜单(三个点)\n2. 选择'添加到主屏幕'\n3. 确认添加";
         
-        alert(`在小米手机上添加到桌面：\n${instructions}`); 
-    } 
+        alert(`在小米手机上添加到桌面：\n${instructions}`);
+    }
 
     // 华为设备指引 
-    function showHuaweiInstructions() { 
-        const instructions = deviceInfo.isDefaultBrowser() 
-            ? "1. 点击底部四个点按钮\n2. 选择'添加至桌面'\n3. 确认添加" 
-            : "1. 点击浏览器菜单按钮\n2. 选择'添加到主屏幕'\n3. 完成添加"; 
+    function showHuaweiInstructions() {
+        const instructions = deviceInfo.isDefaultBrowser()
+            ? "1. 点击底部四个点按钮\n2. 选择'添加至桌面'\n3. 确认添加"
+            : "1. 点击浏览器菜单按钮\n2. 选择'添加到主屏幕'\n3. 完成添加";
         
-        alert(`在华为手机上添加到桌面：\n${instructions}`); 
-    } 
+        alert(`在华为手机上添加到桌面：\n${instructions}`);
+    }
 
     // Vivo设备指引 
-    function showVivoInstructions() { 
-        const instructions = deviceInfo.isDefaultBrowser() 
-            ? "1. 点击底部菜单按钮\n2. 选择'添加到桌面'\n3. 点击'确定'" 
-            : "1. 点击右上角三个点\n2. 选择'添加到主屏幕'\n3. 确认操作"; 
+    function showVivoInstructions() {
+        const instructions = deviceInfo.isDefaultBrowser()
+            ? "1. 点击底部菜单按钮\n2. 选择'添加到桌面'\n3. 点击'确定'"
+            : "1. 点击右上角三个点\n2. 选择'添加到主屏幕'\n3. 确认操作";
         
-        alert(`在Vivo手机上添加到桌面：\n${instructions}`); 
-    } 
+        alert(`在Vivo手机上添加到桌面：\n${instructions}`);
+    }
 
     // OPPO设备指引 
-    function showOppoInstructions() { 
-        const instructions = deviceInfo.isDefaultBrowser() 
-            ? "1. 点击底部菜单按钮\n2. 选择'添加至桌面'\n3. 确认添加" 
-            : "1. 点击浏览器菜单\n2. 选择'添加到主屏幕'\n3. 完成操作"; 
+    function showOppoInstructions() {
+        const instructions = deviceInfo.isDefaultBrowser()
+            ? "1. 点击底部菜单按钮\n2. 选择'添加至桌面'\n3. 确认添加"
+            : "1. 点击浏览器菜单\n2. 选择'添加到主屏幕'\n3. 完成操作";
         
-        alert(`在OPPO手机上添加到桌面：\n${instructions}`); 
-    } 
+        alert(`在OPPO手机上添加到桌面：\n${instructions}`);
+    }
 
     // 通用指引 
-    function showGenericInstructions() { 
-        const instructions = "1. 打开浏览器菜单\n2. 寻找'添加到主屏幕'或'安装'\n3. 确认添加到桌面"; 
-        alert(`添加到桌面：\n${instructions}`); 
-    } 
+    function showGenericInstructions() {
+        const instructions = "1. 打开浏览器菜单\n2. 寻找'添加到主屏幕'或'安装'\n3. 确认添加到桌面";
+        alert(`添加到桌面：\n${instructions}`);
+    }
 
-    // 页面加载时检查 
-    window.addEventListener('load', () => { 
-        console.log("设备识别结果：", deviceInfo); // 查看设备识别是否正确
+    // 标准安装流程 
+    async function handleStandardInstall() {
+        if (deferredPrompt) {
+            const { outcome } = await deferredPrompt.prompt();
+            console.log(`用户${outcome === 'accepted' ? '接受' : '拒绝'}了安装`);
+            deferredPrompt = null;
+        }
+    }
+
+    // 3. 核心防御机制：按钮被删/隐藏就强制恢复
+    function defendButton() {
+        const button = document.getElementById('persistentAddButton');
         
-        // 延迟500ms执行隐藏判断，确保所有检测完成
-        setTimeout(() => { 
-            if (deviceInfo.isApple && !window.navigator.standalone) { 
-                showAddButton(); 
-            } else if (deviceInfo.isMobile && !window.matchMedia('(display-mode: standalone)').matches) { 
-                showAddButton(); 
-            } else { 
-                hideAddButton(); 
-                console.log("满足隐藏条件，隐藏按钮"); 
-            } 
-        }, 500); 
-    }); 
-
-    // 监听显示模式变化 
-    window.matchMedia('(display-mode: standalone)').addEventListener('change', (e) => { 
-        e.matches ? hideAddButton() : showAddButton(); 
-    }); 
-    
-    // 按钮监控和重建功能 - 防止被米多客移除 
-    function ensureAddButtonExists() { 
-        const button = document.getElementById('addToHomeScreen'); 
-        if (!button) { 
-            // 按钮被移除了，重新创建 
-            const newButton = document.createElement('button'); 
-            newButton.id = 'addToHomeScreen'; 
-            newButton.innerHTML = '<i class="fa fa-mobile" aria-hidden="true" style="font-size: 16px !important;"></i> <span>添加到桌面</span>'; 
-            
-            // 复制原按钮的点击逻辑 
-            newButton.onclick = function() { 
-                if (deviceInfo.isApple) { 
-                    showAppleInstructions(); 
-                } else if (deferredPrompt) { 
+        // 防御1：按钮被删除 → 立即重建
+        if (!button) {
+            const newButton = document.createElement('button');
+            newButton.id = 'persistentAddButton';
+            newButton.innerHTML = '<i class="fa fa-mobile" aria-hidden="true"></i><span>添加到桌面</span>';
+            newButton.style.cssText = `
+                position: fixed !important;
+                top: 20px !important;
+                right: 20px !important;
+                z-index: 2147483647 !important;
+                background: #2563eb !important;
+                color: white !important;
+                padding: 12px 20px !important;
+                border: none !important;
+                border-radius: 30px !important;
+                cursor: pointer !important;
+                font-size: 14px !important;
+                display: flex !important;
+                align-items: center !important;
+                gap: 8px !important;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+                pointer-events: auto !important;
+                will-change: transform !important;
+                transform: translateZ(0) !important;
+            `;
+            // 重新绑定点击事件
+            newButton.onclick = function() {
+                if (deviceInfo.isApple) {
+                    showAppleInstructions();
+                } else if (deferredPrompt) {
                     // 优先使用标准安装流程（支持beforeinstallprompt事件的浏览器）
-                    handleStandardInstall(); 
-                } else if (deviceInfo.isXiaomi) { 
-                    showXiaomiInstructions(); 
-                } else if (deviceInfo.isHuawei) { 
-                    showHuaweiInstructions(); 
-                } else if (deviceInfo.isVivo) { 
-                    showVivoInstructions(); 
-                } else if (deviceInfo.isOppo) { 
-                    showOppoInstructions(); 
-                } else if (deviceInfo.isMobile) { 
-                    // 若浏览器不支持自动安装，直接显示通用指引 
-                    showGenericInstructions(); 
-                } 
-            }; 
-            
-            // 应用"无敌"样式 
-            newButton.style.cssText = ` 
-                /* 核心：位置固定 + 最高层级（浏览器允许的最大值） */ 
-                position: fixed !important; 
-                top: 80px !important; 
-                right: 20px !important; 
-                z-index: 2147483647 !important; /* 浏览器最大层级，确保在所有元素之上 */ 
-                
-                /* 强制显示，无视任何隐藏逻辑 */ 
-                display: flex !important; 
-                visibility: visible !important; 
-                opacity: 1 !important; 
-                pointer-events: auto !important; /* 确保可点击 */ 
-                
-                /* 其他样式（背景、文字等）保持不变 */ 
-                background-color: #2563eb !important; 
-                color: white !important; 
-                padding: 12px 20px !important; 
-                border: none !important; 
-                border-radius: 30px !important; 
-                cursor: pointer !important; 
-                box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important; 
-                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important; 
-                font-size: 14px !important; 
-                align-items: center !important; 
-                gap: 8px !important; 
-                -webkit-user-select: none !important; 
-                -moz-user-select: none !important; 
-                -ms-user-select: none !important; 
-                user-select: none !important; 
-            `; 
-            
-            document.body.appendChild(newButton); 
-            console.log("按钮被移除，已自动重建"); 
-        } 
-    } 
-    
-    // 每 100ms 检查一次按钮是否存在（高频监控） 
-    setInterval(ensureAddButtonExists, 100); 
-    
-    // 页面加载时先检查一次 
-    window.addEventListener('load', function() { 
-        setTimeout(ensureAddButtonExists, 1000); 
-    }); 
+                    handleStandardInstall();
+                } else if (deviceInfo.isXiaomi) {
+                    showXiaomiInstructions();
+                } else if (deviceInfo.isHuawei) {
+                    showHuaweiInstructions();
+                } else if (deviceInfo.isVivo) {
+                    showVivoInstructions();
+                } else if (deviceInfo.isOppo) {
+                    showOppoInstructions();
+                } else if (deviceInfo.isMobile) {
+                    // 若浏览器不支持自动安装，直接显示通用指引
+                    showGenericInstructions();
+                }
+            };
+            document.body.appendChild(newButton);
+            console.log('按钮被删除，已重建');
+            return;
+        }
+        
+        // 防御2：按钮被隐藏 → 强制显示
+        if (button.style.display !== 'flex' || button.style.visibility === 'hidden' || button.style.opacity === '0') {
+            button.style.display = 'flex !important';
+            button.style.visibility = 'visible !important';
+            button.style.opacity = '1 !important';
+            console.log('按钮被隐藏，已强制显示');
+        }
+        
+        // 防御3：层级被覆盖 → 重置最高层级
+        if (parseInt(button.style.zIndex) < 2147483647) {
+            button.style.zIndex = '2147483647 !important';
+            console.log('层级被覆盖，已重置最高层级');
+        }
+    }
+
+    // 4. 高频监控 + 触发点拦截
+    // 4.1 每50ms检查一次（米多客任何操作都会被立即拦截）
+    const checkInterval = setInterval(defendButton, 50);
+
+    // 4.2 监听米多客可能操作DOM的时机（如脚本加载完成、窗口显示）
+    window.addEventListener('load', () => {
+        console.log("设备识别结果：", deviceInfo); // 查看设备识别是否正确
+        defendButton(); // 页面加载完成后立即检查
+        // 延迟1秒再检查一次（应对米多客延迟加载的情况）
+        setTimeout(defendButton, 1000);
+    });
+
+    // 4.3 监听米多客可能注入的iframe/弹窗事件
+    document.addEventListener('DOMNodeInserted', (e) => {
+        // 若米多客添加了新元素，立即检查按钮状态
+        if (e.target.tagName === 'IFRAME' || e.target.className.includes('michat')) {
+            defendButton();
+        }
+    });
+
+    // 5. 防误删机制：重写可能删除按钮的DOM方法
+    const originalRemoveChild = Node.prototype.removeChild;
+    Node.prototype.removeChild = function(child) {
+        if (child.id === 'persistentAddButton') {
+            console.log('阻止米多客删除按钮');
+            return child; // 假装删除，实际保留
+        }
+        return originalRemoveChild.call(this, child);
+    };
+
+    const originalSetAttribute = Element.prototype.setAttribute;
+    Element.prototype.setAttribute = function(name, value) {
+        if (this.id === 'persistentAddButton' && name === 'style' && 
+            (value.includes('display:none') || value.includes('visibility:hidden'))) {
+            console.log('阻止米多客隐藏按钮');
+            return; // 忽略隐藏样式
+        }
+        return originalSetAttribute.call(this, name, value);
+    };
     </script> 
 
     <!-- 注册Service Worker -->
