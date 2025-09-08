@@ -43,7 +43,7 @@
     <!-- 品牌适配版添加到桌面按钮 --> 
     <button id="addToHomeScreen" style=" 
         position: fixed; 
-        bottom: 100px; 
+        bottom: 120px !important; 
         right: 20px; 
         background-color: #2563eb; 
         color: white; 
@@ -52,10 +52,10 @@
         border-radius: 30px; 
         cursor: pointer; 
         box-shadow: 0 4px 12px rgba(0,0,0,0.15); 
-        z-index: 99999; 
+        z-index: 99999 !important; 
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
         font-size: 14px; 
-        display: none; 
+        display: flex !important; 
         align-items: center; 
         gap: 8px; 
         transition: all 0.2s ease; 
@@ -200,14 +200,18 @@
     // 页面加载时检查 
     window.addEventListener('load', () => { 
         console.log("设备识别结果：", deviceInfo); // 查看设备识别是否正确
-        // 苹果设备特殊处理 
-        if (deviceInfo.isApple && !window.navigator.standalone) { 
-            showAddButton(); 
-        } 
-        // 安卓设备检查 
-        else if (deviceInfo.isMobile && !window.matchMedia('(display-mode: standalone)').matches) { 
-            showAddButton(); 
-        } 
+        
+        // 延迟500ms执行隐藏判断，确保所有检测完成
+        setTimeout(() => { 
+            if (deviceInfo.isApple && !window.navigator.standalone) { 
+                showAddButton(); 
+            } else if (deviceInfo.isMobile && !window.matchMedia('(display-mode: standalone)').matches) { 
+                showAddButton(); 
+            } else { 
+                hideAddButton(); 
+                console.log("满足隐藏条件，隐藏按钮"); 
+            } 
+        }, 500); 
     }); 
 
     // 监听显示模式变化 
