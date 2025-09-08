@@ -42,7 +42,7 @@
     
     <!-- 品牌适配版添加到桌面按钮 --> 
     <button id="addToHomeScreen" style=" 
-        position: fixed; 
+        position: fixed !important; 
         top: 80px !important; 
         right: 20px; 
         background-color: #2563eb; 
@@ -52,7 +52,7 @@
         border-radius: 30px; 
         cursor: pointer; 
         box-shadow: 0 4px 12px rgba(0,0,0,0.15); 
-        z-index: 999999999 !important; 
+        z-index: 2147483647 !important; /* 浏览器最大层级值 */ 
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
         font-size: 14px; 
         display: flex !important; 
@@ -60,6 +60,10 @@
         gap: 8px; 
         transition: all 0.2s ease; 
         pointer-events: auto; 
+        -webkit-user-select: none; 
+        -moz-user-select: none; 
+        -ms-user-select: none; 
+        user-select: none; 
     "> 
         <i class="fa fa-mobile" aria-hidden="true" style="font-size: 16px;"></i> 
         <span>添加到桌面</span> 
@@ -121,6 +125,9 @@
         // 根据不同品牌设备和浏览器显示不同指引 
         if (deviceInfo.isApple) { 
             showAppleInstructions(); 
+        } else if (deferredPrompt) { 
+            // 优先使用标准安装流程（支持beforeinstallprompt事件的浏览器）
+            handleStandardInstall(); 
         } else if (deviceInfo.isXiaomi) { 
             showXiaomiInstructions(); 
         } else if (deviceInfo.isHuawei) { 
@@ -129,9 +136,8 @@
             showVivoInstructions(); 
         } else if (deviceInfo.isOppo) { 
             showOppoInstructions(); 
-        } else if (deferredPrompt) { 
-            handleStandardInstall(); 
-        } else { 
+        } else if (deviceInfo.isMobile) { 
+            // 若浏览器不支持自动安装，直接显示通用指引 
             showGenericInstructions(); 
         } 
     }); 

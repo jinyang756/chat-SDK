@@ -1,9 +1,16 @@
 {  
   "name": "客服系统",
   "short_name": "客服",
-  "description": "快速访问在线客服系统",
+  "description": "快速访问在线客服系统，随时获取客户支持",
   "start_url": "/",
   "display": "standalone",
+  "orientation": "portrait-primary",
   "background_color": "#ffffff",
-  "theme_color": "#4CAF50"
+  "theme_color": "#4CAF50",
+  "prefer_related_applications": false,
+  "scope": "/",
+  "categories": [
+    "customer_service",
+    "utilities"
+  ]
 }
