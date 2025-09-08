@@ -89,12 +89,22 @@
 
     let deferredPrompt;
 
-    // 监听安装提示事件 
+    // 监听安装提示事件 - 捕获浏览器提供的安装权限
     window.addEventListener('beforeinstallprompt', (e) => {
         if (!deviceInfo.isMobile) return;
         
+        // 阻止浏览器默认的安装提示
         e.preventDefault();
+        // 保存安装提示对象，用于后续手动触发
         deferredPrompt = e;
+        console.log('捕获到PWA安装权限，准备为支持的设备显示按钮');
+    });
+
+    // 监听应用安装完成事件
+    window.addEventListener('appinstalled', () => {
+        console.log('PWA应用已成功安装到桌面');
+        // 安装成功后清理安装提示对象
+        deferredPrompt = null;
     });
 
     // 苹果设备指引 
@@ -151,12 +161,37 @@
         alert(`添加到桌面：\n${instructions}`);
     }
 
-    // 标准安装流程 
+    // 标准安装流程 - 直接触发浏览器原生安装弹窗
     async function handleStandardInstall() {
         if (deferredPrompt) {
-            const { outcome } = await deferredPrompt.prompt();
-            console.log(`用户${outcome === 'accepted' ? '接受' : '拒绝'}了安装`);
-            deferredPrompt = null;
+            try {
+                // 直接调用浏览器原生安装弹窗
+                const { outcome } = await deferredPrompt.prompt();
+                console.log(`用户${outcome === 'accepted' ? '接受' : '拒绝'}了PWA安装`);
+                
+                // 无论用户是否接受，都清理安装提示对象
+                deferredPrompt = null;
+                
+                // 如果用户接受了安装，隐藏按钮
+                if (outcome === 'accepted') {
+                    const button = document.getElementById('persistentAddButton');
+                    if (button) {
+                        console.log('安装已接受，隐藏按钮');
+                    }
+                }
+            } catch (error) {
+                console.error('触发PWA安装弹窗失败:', error);
+                // 失败时回退到显示手动指引
+                if (deviceInfo.isMobile) {
+                    showGenericInstructions();
+                }
+            }
+        } else {
+            console.warn('没有可用的安装提示，可能是浏览器不支持或已过期');
+            // 如果没有安装提示，显示对应设备的手动指引
+            if (deviceInfo.isMobile) {
+                showGenericInstructions();
+            }
         }
     }
 
@@ -239,6 +274,18 @@
         defendButton(); // 页面加载完成后立即检查
         // 延迟1秒再检查一次（应对米多客延迟加载的情况）
         setTimeout(defendButton, 1000);
+        
+        // 检查是否已经安装（独立模式）
+        if (window.matchMedia('(display-mode: standalone)').matches) {
+            console.log('应用已在独立模式运行，无需显示安装按钮');
+        }
+    });
+
+    // 监听显示模式变化 - 当应用从浏览器切换到独立模式时
+    window.matchMedia('(display-mode: standalone)').addEventListener('change', (e) => {
+        if (e.matches) {
+            console.log('应用已切换到独立模式运行');
+        }
     });
 
     // 4.3 监听米多客可能注入的iframe/弹窗事件
