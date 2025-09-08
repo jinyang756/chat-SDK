@@ -8,6 +8,9 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <title>客服系统</title>
     
+    <!-- 优先引入Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    
     <!-- PWA设置 -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#4CAF50">
@@ -40,7 +43,7 @@
     <!-- 品牌适配版添加到桌面按钮 --> 
     <button id="addToHomeScreen" style=" 
         position: fixed; 
-        bottom: 80px; 
+        bottom: 100px; 
         right: 20px; 
         background-color: #2563eb; 
         color: white; 
@@ -49,7 +52,7 @@
         border-radius: 30px; 
         cursor: pointer; 
         box-shadow: 0 4px 12px rgba(0,0,0,0.15); 
-        z-index: 9998; 
+        z-index: 99999; 
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
         font-size: 14px; 
         display: none; 
@@ -81,7 +84,7 @@
         }, 
         isChrome: /chrome/i.test(navigator.userAgent) && /google inc/.test(navigator.vendor), 
         isSafari: /^((?!chrome|android).)*safari/i.test(navigator.userAgent), 
-        isMobile: /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) 
+        isMobile: /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) 
     }; 
 
     let deferredPrompt; 
@@ -100,9 +103,11 @@
     function showAddButton() { 
         if (window.matchMedia('(display-mode: standalone)').matches) { 
             hideAddButton(); 
+            console.log("已在独立模式，隐藏按钮");
             return; 
         } 
         addButton.style.display = 'flex'; 
+        console.log("显示添加到桌面按钮");
     } 
 
     // 隐藏按钮 
@@ -194,6 +199,7 @@
 
     // 页面加载时检查 
     window.addEventListener('load', () => { 
+        console.log("设备识别结果：", deviceInfo); // 查看设备识别是否正确
         // 苹果设备特殊处理 
         if (deviceInfo.isApple && !window.navigator.standalone) { 
             showAddButton(); 
@@ -210,10 +216,8 @@
     }); 
     </script> 
 
-    <!-- 引入Font Awesome --> 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    
     <!-- 注册Service Worker -->
+    <!--
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
@@ -227,5 +231,6 @@
             });
         }
     </script>
+    -->
 </body>
 </html>
