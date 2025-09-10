@@ -10,6 +10,7 @@
 - ⚙️ 灵活配置：支持自定义Bot ID和Access Token
 - 🔄 会话管理：保持对话上下文
 - ✅ 连接测试：提供API连接测试功能
+- 📱 PWA支持：集成pwa-install组件，支持"添加到桌面"功能，适配国内主流手机浏览器
 
 ## 一键部署到Vercel
 
@@ -83,13 +84,39 @@ vercel dev
 ```
 ├── api/                 # API路由
 │   ├── chat.js          # 主聊天API
-│   ├── vercel-api-chat.js # Vercel专用聊天API
+│   ├── health.js        # 健康检查API
 │   └── vercel-api-test.js # 连接测试API
-├── index.html           # 主页面
+├── index.html           # 主页面（集成了pwa-install组件）
+├── manifest.json        # PWA清单文件
+├── service-worker.js    # PWA服务工作线程
 ├── package.json         # 项目配置和依赖
-├── vercel-config.json   # Vercel部署配置
+├── vercel.json          # Vercel部署配置
 └── .env.example         # 环境变量示例
 ```
+
+## PWA安装功能说明
+
+本项目集成了[pwa-install](https://github.com/pwa-builder/pwa-install)开源组件，为用户提供"添加到桌面"的便捷体验。
+
+### 支持设备
+
+- 📱 iOS设备：通过"分享"菜单添加到主屏幕
+- 🤖 Android设备：支持小米、华为、Vivo、OPPO等主流手机浏览器
+- 🌐 桌面浏览器：支持Chrome、Edge等现代浏览器
+
+### 功能特点
+
+- 🔄 自动适配：根据用户设备和浏览器类型提供个性化指引
+- 🛡️ 防御机制：确保按钮始终可见，防止被第三方SDK隐藏或删除
+- 🔧 多重备份：提供CDN备用方案和降级处理逻辑
+- 📊 实时反馈：用户操作有明确的视觉反馈和状态提示
+
+### 使用方式
+
+1. 访问应用页面
+2. 点击右上角的"添加到桌面"按钮
+3. 根据提示完成安装操作
+4. 安装成功后，可在设备主屏幕直接打开应用
 
 ## 如何获取扣子Bot ID和Access Token
 
