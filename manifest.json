@@ -1,4 +1,4 @@
-{  
+{
   "name": "客服系统",
   "short_name": "客服",
   "description": "快速访问在线客服系统，随时获取客户支持",
@@ -12,5 +12,17 @@
   "categories": [
     "customer_service",
     "utilities"
+  ],
+  "icons": [
+    {
+      "src": "/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
   ]
 }
