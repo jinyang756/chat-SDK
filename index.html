@@ -89,6 +89,28 @@
     
     <!-- 添加调试脚本，监控pwa-install组件的事件 -->
     <script>
+        // 全局变量存储beforeinstallprompt事件
+        let deferredPrompt;
+        
+        // 直接在全局捕获beforeinstallprompt事件
+        window.addEventListener('beforeinstallprompt', function(e) {
+            console.log('全局捕获到beforeinstallprompt事件', e);
+            // 阻止默认行为
+            e.preventDefault();
+            // 存储事件以供后续使用
+            deferredPrompt = e;
+            
+            // 触发pwa-install组件的available事件
+            const installButton = document.getElementById('persistentAddButton');
+            if (installButton) {
+                const availableEvent = new CustomEvent('available', {
+                    detail: { promptEvent: e }
+                });
+                installButton.dispatchEvent(availableEvent);
+                console.log('已手动触发pwa-install组件的available事件');
+            }
+        });
+        
         document.addEventListener('DOMContentLoaded', function() {
             const installButton = document.getElementById('persistentAddButton');
             if (installButton) {
@@ -97,20 +119,40 @@
                 // 监控组件状态变化
                 installButton.addEventListener('available', function() {
                     console.log('PWA安装已可用');
+                    // 显示按钮（如果被隐藏）
+                    installButton.style.display = 'flex';
                 });
                 
                 installButton.addEventListener('install', function() {
                     console.log('用户点击了安装按钮');
+                    // 如果有存储的beforeinstallprompt事件，手动触发它
+                    if (deferredPrompt) {
+                        console.log('手动触发存储的beforeinstallprompt事件');
+                        deferredPrompt.prompt();
+                        
+                        // 等待用户响应
+                        deferredPrompt.userChoice.then((choiceResult) => {
+                            console.log('用户选择:', choiceResult.outcome);
+                            // 重置deferredPrompt变量
+                            deferredPrompt = null;
+                        });
+                    }
                 });
                 
                 installButton.addEventListener('installed', function() {
                     console.log('应用已成功安装');
                 });
                 
-                installButton.addEventListener('beforeinstallprompt', function(e) {
-                    console.log('捕获到beforeinstallprompt事件', e);
-                    // 确保事件被正确传播
-                    e.preventDefault();
+                // 额外添加点击事件监听器作为后备
+                installButton.addEventListener('click', function() {
+                    console.log('按钮被点击 - 后备处理');
+                    if (deferredPrompt) {
+                        console.log('点击事件触发存储的beforeinstallprompt事件');
+                        deferredPrompt.prompt();
+                    } else {
+                        console.log('没有可用的beforeinstallprompt事件，显示通用指引');
+                        showGenericInstructions();
+                    }
                 });
             } else {
                 console.log('未找到pwa-install组件');
