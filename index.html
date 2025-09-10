@@ -40,33 +40,88 @@
         })(window, document, "script");
     </script>
     
-    <!-- 放在<body>标签内，米多客代码之后 -->
-    <button id="persistentAddButton" style="
-        /* 1. 基础样式 + 最高优先级 */
-        position: fixed !important;
-        top: 20px !important; /* 避开米多客常见位置 */
-        right: 20px !important;
-        z-index: 2147483647 !important; /* 浏览器最大层级 */
-        background: #2563eb !important;
-        color: white !important;
-        padding: 12px 20px !important;
-        border: none !important;
-        border-radius: 30px !important;
-        cursor: pointer !important;
-        font-size: 14px !important;
-        display: flex !important;
-        align-items: center !important;
-        gap: 8px !important;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
-        pointer-events: auto !important; /* 确保可点击 */
-        transition: all 0.2s ease !important;
-        /* 2. 防删除/隐藏增强 */
-        will-change: transform !important; /* 提示浏览器优先渲染 */
-        transform: translateZ(0) !important; /* 启用GPU加速，避免被遮挡 */
-    ">
+    <!-- 引入pwa-install组件 -->
+    <script src="https://unpkg.com/pwa-install/dist/pwa-install.min.js"></script>
+    
+    <!-- 备用方案：如果pwa-install不可用，使用备用CDN -->
+    <script>if (typeof customElements.get('pwa-install') === 'undefined') {
+        console.log('pwa-install组件加载失败，尝试备用CDN');
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/pwa-install/dist/pwa-install.min.js';
+        document.head.appendChild(script);
+        script.onload = function() {
+            console.log('备用pwa-install组件加载成功');
+        };
+    }</script>
+    
+    <!-- 使用pwa-install组件替换手动创建的按钮 -->
+    <pwa-install 
+        id="persistentAddButton"
+        style="
+            position: fixed !important;
+            top: 20px !important;
+            right: 20px !important;
+            z-index: 2147483647 !important;
+            background: #2563eb !important;
+            color: white !important;
+            padding: 12px 20px !important;
+            border: none !important;
+            border-radius: 30px !important;
+            cursor: pointer !important;
+            font-size: 14px !important;
+            display: flex !important;
+            align-items: center !important;
+            gap: 8px !important;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+            pointer-events: auto !important;
+            will-change: transform !important;
+            transform: translateZ(0) !important;
+        "
+        title="添加到桌面"
+        icon="/icon.png"
+        ios-text="点击分享按钮 → 添加到主屏幕"
+        android-text="点击菜单 → 添加到主屏幕"
+        unsupported-text="打开浏览器菜单，选择「添加到桌面」"
+    >
         <i class="fa fa-mobile" aria-hidden="true"></i>
         <span>添加到桌面</span>
-    </button>
+    </pwa-install>
+    
+    <!-- 降级方案：如果组件仍不可用，创建备用按钮 -->
+    <script>setTimeout(function() {
+        if (typeof customElements.get('pwa-install') === 'undefined') {
+            console.log('pwa-install组件不可用，创建备用按钮');
+            const button = document.createElement('button');
+            button.id = 'persistentAddButton';
+            button.innerHTML = '<i class="fa fa-mobile" aria-hidden="true"></i><span>添加到桌面</span>';
+            button.style.cssText = `
+                position: fixed !important;
+                top: 20px !important;
+                right: 20px !important;
+                z-index: 2147483647 !important;
+                background: #2563eb !important;
+                color: white !important;
+                padding: 12px 20px !important;
+                border: none !important;
+                border-radius: 30px !important;
+                cursor: pointer !important;
+                font-size: 14px !important;
+                display: flex !important;
+                align-items: center !important;
+                gap: 8px !important;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+                pointer-events: auto !important;
+                will-change: transform !important;
+                transform: translateZ(0) !important;
+            `;
+            button.onclick = function() {
+                if (deviceInfo.isMobile) {
+                    showGenericInstructions();
+                }
+            };
+            document.body.appendChild(button);
+        }
+    }, 1000);</script>
 
     <script>
     // 设备检测逻辑（复用原有的设备识别）
@@ -87,165 +142,83 @@
         isMobile: /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
     };
 
-    let deferredPrompt;
-
-    // 监听安装提示事件 - 捕获浏览器提供的安装权限
-    window.addEventListener('beforeinstallprompt', (e) => {
-        if (!deviceInfo.isMobile) return;
-        
-        // 阻止浏览器默认的安装提示
-        e.preventDefault();
-        // 保存安装提示对象，用于后续手动触发
-        deferredPrompt = e;
-        console.log('捕获到PWA安装权限，准备为支持的设备显示按钮');
-    });
-
-    // 监听应用安装完成事件
-    window.addEventListener('appinstalled', () => {
-        console.log('PWA应用已成功安装到桌面');
-        // 安装成功后清理安装提示对象
-        deferredPrompt = null;
-    });
-
-    // 苹果设备指引 
-    function showAppleInstructions() {
-        const instructions = deviceInfo.isSafari
-            ? "1. 点击底部的分享按钮(正方形+箭头)\n2. 选择'添加到主屏幕'\n3. 点击右上角'添加'"
-            : "1. 点击浏览器菜单(三个点)\n2. 选择'添加到主屏幕'\n3. 确认添加";
-        
-        alert(`在iPhone上添加到桌面：\n${instructions}`);
-    }
-
-    // 小米设备指引 
-    function showXiaomiInstructions() {
-        const browser = deviceInfo.isDefaultBrowser() ? "小米浏览器" :
-                       deviceInfo.isChrome ? "Chrome浏览器" : "浏览器";
-                        
-        const instructions = deviceInfo.isDefaultBrowser()
-            ? "1. 点击底部菜单按钮(三个点)\n2. 选择'添加至桌面'\n3. 点击'确定'"
-            : "1. 点击右上角菜单(三个点)\n2. 选择'添加到主屏幕'\n3. 确认添加";
-        
-        alert(`在小米手机上添加到桌面：\n${instructions}`);
-    }
-
-    // 华为设备指引 
-    function showHuaweiInstructions() {
-        const instructions = deviceInfo.isDefaultBrowser()
-            ? "1. 点击底部四个点按钮\n2. 选择'添加至桌面'\n3. 确认添加"
-            : "1. 点击浏览器菜单按钮\n2. 选择'添加到主屏幕'\n3. 完成添加";
-        
-        alert(`在华为手机上添加到桌面：\n${instructions}`);
-    }
-
-    // Vivo设备指引 
-    function showVivoInstructions() {
-        const instructions = deviceInfo.isDefaultBrowser()
-            ? "1. 点击底部菜单按钮\n2. 选择'添加到桌面'\n3. 点击'确定'"
-            : "1. 点击右上角三个点\n2. 选择'添加到主屏幕'\n3. 确认操作";
-        
-        alert(`在Vivo手机上添加到桌面：\n${instructions}`);
-    }
-
-    // OPPO设备指引 
-    function showOppoInstructions() {
-        const instructions = deviceInfo.isDefaultBrowser()
-            ? "1. 点击底部菜单按钮\n2. 选择'添加至桌面'\n3. 确认添加"
-            : "1. 点击浏览器菜单\n2. 选择'添加到主屏幕'\n3. 完成操作";
-        
-        alert(`在OPPO手机上添加到桌面：\n${instructions}`);
-    }
-
-    // 通用指引 
+    // 通用指引 - 保留用于降级方案
     function showGenericInstructions() {
         const instructions = "1. 打开浏览器菜单\n2. 寻找'添加到主屏幕'或'安装'\n3. 确认添加到桌面";
         alert(`添加到桌面：\n${instructions}`);
     }
 
-    // 标准安装流程 - 直接触发浏览器原生安装弹窗
-    async function handleStandardInstall() {
-        if (deferredPrompt) {
-            try {
-                // 直接调用浏览器原生安装弹窗
-                const { outcome } = await deferredPrompt.prompt();
-                console.log(`用户${outcome === 'accepted' ? '接受' : '拒绝'}了PWA安装`);
-                
-                // 无论用户是否接受，都清理安装提示对象
-                deferredPrompt = null;
-                
-                // 如果用户接受了安装，隐藏按钮
-                if (outcome === 'accepted') {
-                    const button = document.getElementById('persistentAddButton');
-                    if (button) {
-                        console.log('安装已接受，隐藏按钮');
-                    }
-                }
-            } catch (error) {
-                console.error('触发PWA安装弹窗失败:', error);
-                // 失败时回退到显示手动指引
-                if (deviceInfo.isMobile) {
-                    showGenericInstructions();
-                }
-            }
-        } else {
-            console.warn('没有可用的安装提示，可能是浏览器不支持或已过期');
-            // 如果没有安装提示，显示对应设备的手动指引
-            if (deviceInfo.isMobile) {
-                showGenericInstructions();
-            }
-        }
-    }
-
-    // 3. 核心防御机制：按钮被删/隐藏就强制恢复
+    // 3. 核心防御机制：按钮被删/隐藏就强制恢复 - 适配pwa-install组件
     function defendButton() {
         const button = document.getElementById('persistentAddButton');
         
         // 防御1：按钮被删除 → 立即重建
         if (!button) {
-            const newButton = document.createElement('button');
-            newButton.id = 'persistentAddButton';
-            newButton.innerHTML = '<i class="fa fa-mobile" aria-hidden="true"></i><span>添加到桌面</span>';
-            newButton.style.cssText = `
-                position: fixed !important;
-                top: 20px !important;
-                right: 20px !important;
-                z-index: 2147483647 !important;
-                background: #2563eb !important;
-                color: white !important;
-                padding: 12px 20px !important;
-                border: none !important;
-                border-radius: 30px !important;
-                cursor: pointer !important;
-                font-size: 14px !important;
-                display: flex !important;
-                align-items: center !important;
-                gap: 8px !important;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
-                pointer-events: auto !important;
-                will-change: transform !important;
-                transform: translateZ(0) !important;
-            `;
-            // 重新绑定点击事件
-            newButton.onclick = function() {
-                if (deviceInfo.isApple) {
-                    showAppleInstructions();
-                } else if (deferredPrompt) {
-                    // 优先使用标准安装流程（支持beforeinstallprompt事件的浏览器）
-                    handleStandardInstall();
-                } else if (deviceInfo.isXiaomi) {
-                    showXiaomiInstructions();
-                } else if (deviceInfo.isHuawei) {
-                    showHuaweiInstructions();
-                } else if (deviceInfo.isVivo) {
-                    showVivoInstructions();
-                } else if (deviceInfo.isOppo) {
-                    showOppoInstructions();
-                } else if (deviceInfo.isMobile) {
-                    // 若浏览器不支持自动安装，直接显示通用指引
-                    showGenericInstructions();
-                }
-            };
-            document.body.appendChild(newButton);
-            console.log('按钮被删除，已重建');
+            // 优先创建pwa-install组件
+            if (typeof customElements.get('pwa-install') !== 'undefined') {
+                const newButton = document.createElement('pwa-install');
+                newButton.id = 'persistentAddButton';
+                newButton.innerHTML = '<i class="fa fa-mobile" aria-hidden="true"></i><span>添加到桌面</span>';
+                newButton.setAttribute('title', '添加到桌面');
+                newButton.setAttribute('icon', '/icon.png');
+                newButton.setAttribute('ios-text', '点击分享按钮 → 添加到主屏幕');
+                newButton.setAttribute('android-text', '点击菜单 → 添加到主屏幕');
+                newButton.setAttribute('unsupported-text', '打开浏览器菜单，选择「添加到桌面」');
+                newButton.style.cssText = `
+                    position: fixed !important;
+                    top: 20px !important;
+                    right: 20px !important;
+                    z-index: 2147483647 !important;
+                    background: #2563eb !important;
+                    color: white !important;
+                    padding: 12px 20px !important;
+                    border: none !important;
+                    border-radius: 30px !important;
+                    cursor: pointer !important;
+                    font-size: 14px !important;
+                    display: flex !important;
+                    align-items: center !important;
+                    gap: 8px !important;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+                    pointer-events: auto !important;
+                    will-change: transform !important;
+                    transform: translateZ(0) !important;
+                `;
+                document.body.appendChild(newButton);
+                console.log('pwa-install组件被删除，已重建');
+            } else {
+                // 降级方案：创建普通按钮
+                const newButton = document.createElement('button');
+                newButton.id = 'persistentAddButton';
+                newButton.innerHTML = '<i class="fa fa-mobile" aria-hidden="true"></i><span>添加到桌面</span>';
+                newButton.style.cssText = `
+                    position: fixed !important;
+                    top: 20px !important;
+                    right: 20px !important;
+                    z-index: 2147483647 !important;
+                    background: #2563eb !important;
+                    color: white !important;
+                    padding: 12px 20px !important;
+                    border: none !important;
+                    border-radius: 30px !important;
+                    cursor: pointer !important;
+                    font-size: 14px !important;
+                    display: flex !important;
+                    align-items: center !important;
+                    gap: 8px !important;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+                    pointer-events: auto !important;
+                    will-change: transform !important;
+                    transform: translateZ(0) !important;
+                `;
+                newButton.onclick = function() {
+                    if (deviceInfo.isMobile) {
+                        showGenericInstructions();
+                    }
+                };
+                document.body.appendChild(newButton);
+                console.log('备用按钮被删除，已重建');
+            }
             return;
         }
         
@@ -272,6 +245,36 @@
     window.addEventListener('load', () => {
         console.log("设备识别结果：", deviceInfo); // 查看设备识别是否正确
         defendButton(); // 页面加载完成后立即检查
+        
+        // 适配国内浏览器：为不同品牌设备自定义pwa-install组件的指引文本
+        const installButton = document.querySelector('pwa-install');
+        if (installButton) {
+            // 小米设备自定义指引
+            if (deviceInfo.isXiaomi) {
+                installButton.setAttribute('android-text', deviceInfo.isDefaultBrowser() 
+                    ? '点击底部菜单 → 添加至桌面 → 确定' 
+                    : '点击菜单 → 添加到主屏幕');
+            }
+            // 华为设备自定义指引
+            else if (deviceInfo.isHuawei) {
+                installButton.setAttribute('android-text', deviceInfo.isDefaultBrowser() 
+                    ? '点击底部四个点 → 添加至桌面 → 确认' 
+                    : '点击菜单 → 添加到主屏幕');
+            }
+            // Vivo设备自定义指引
+            else if (deviceInfo.isVivo) {
+                installButton.setAttribute('android-text', deviceInfo.isDefaultBrowser() 
+                    ? '点击底部菜单 → 添加到桌面 → 确定' 
+                    : '点击菜单 → 添加到主屏幕');
+            }
+            // OPPO设备自定义指引
+            else if (deviceInfo.isOppo) {
+                installButton.setAttribute('android-text', deviceInfo.isDefaultBrowser() 
+                    ? '点击底部菜单 → 添加至桌面 → 确认' 
+                    : '点击菜单 → 添加到主屏幕');
+            }
+        }
+        
         // 延迟1秒再检查一次（应对米多客延迟加载的情况）
         setTimeout(defendButton, 1000);
         
