@@ -150,8 +150,8 @@
                         console.log('点击事件触发存储的beforeinstallprompt事件');
                         deferredPrompt.prompt();
                     } else {
-                        console.log('没有可用的beforeinstallprompt事件，显示通用指引');
-                        showGenericInstructions();
+                        console.log('没有可用的beforeinstallprompt事件，显示设备特定指引');
+                        showDeviceSpecificInstructions();
                     }
                 });
             } else {
@@ -215,6 +215,70 @@
         isMobile: /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
     };
 
+    // 根据设备类型显示特定的添加指引
+    function showDeviceSpecificInstructions() {
+        let instructions = "";
+        
+        // 小米设备
+        if (deviceInfo.isXiaomi) {
+            if (deviceInfo.isDefaultBrowser()) {
+                instructions = "小米手机（默认浏览器）：\n1. 点击底部菜单按钮\n2. 选择'添加至桌面'\n3. 点击'确定'完成添加";
+            } else if (deviceInfo.isChrome) {
+                instructions = "小米手机（Chrome浏览器）：\n1. 点击右上角三个点\n2. 选择'添加到主屏幕'\n3. 点击'添加'完成";
+            } else {
+                instructions = "小米手机：\n1. 打开浏览器菜单\n2. 寻找'添加到主屏幕'或'安装'选项\n3. 确认添加到桌面";
+            }
+        }
+        // 华为设备
+        else if (deviceInfo.isHuawei) {
+            if (deviceInfo.isDefaultBrowser()) {
+                instructions = "华为手机（默认浏览器）：\n1. 点击底部四个点按钮\n2. 选择'添加至桌面'\n3. 点击'确认'完成添加";
+            } else if (deviceInfo.isChrome) {
+                instructions = "华为手机（Chrome浏览器）：\n1. 点击右上角三个点\n2. 选择'添加到主屏幕'\n3. 点击'添加'完成";
+            } else {
+                instructions = "华为手机：\n1. 打开浏览器菜单\n2. 寻找'添加到主屏幕'或'安装'选项\n3. 确认添加到桌面";
+            }
+        }
+        // Vivo设备
+        else if (deviceInfo.isVivo) {
+            if (deviceInfo.isDefaultBrowser()) {
+                instructions = "Vivo手机（默认浏览器）：\n1. 点击底部菜单按钮\n2. 选择'添加到桌面'\n3. 点击'确定'完成添加";
+            } else if (deviceInfo.isChrome) {
+                instructions = "Vivo手机（Chrome浏览器）：\n1. 点击右上角三个点\n2. 选择'添加到主屏幕'\n3. 点击'添加'完成";
+            } else {
+                instructions = "Vivo手机：\n1. 打开浏览器菜单\n2. 寻找'添加到主屏幕'或'安装'选项\n3. 确认添加到桌面";
+            }
+        }
+        // OPPO设备
+        else if (deviceInfo.isOppo) {
+            if (deviceInfo.isDefaultBrowser()) {
+                instructions = "OPPO手机（默认浏览器）：\n1. 点击底部菜单按钮\n2. 选择'添加至桌面'\n3. 点击'确认'完成添加";
+            } else if (deviceInfo.isChrome) {
+                instructions = "OPPO手机（Chrome浏览器）：\n1. 点击右上角三个点\n2. 选择'添加到主屏幕'\n3. 点击'添加'完成";
+            } else {
+                instructions = "OPPO手机：\n1. 打开浏览器菜单\n2. 寻找'添加到主屏幕'或'安装'选项\n3. 确认添加到桌面";
+            }
+        }
+        // iOS设备
+        else if (deviceInfo.isApple) {
+            if (deviceInfo.isSafari) {
+                instructions = "苹果手机（Safari浏览器）：\n1. 点击底部分享按钮\n2. 滑动到底部，点击'添加到主屏幕'\n3. 点击'添加'完成";
+            } else {
+                instructions = "苹果手机：\n1. 点击浏览器菜单\n2. 寻找'添加到主屏幕'或'安装'选项\n3. 确认添加到桌面";
+            }
+        }
+        // 其他安卓设备
+        else if (deviceInfo.isChrome) {
+            instructions = "Android手机（Chrome浏览器）：\n1. 点击右上角三个点\n2. 选择'添加到主屏幕'\n3. 点击'添加'完成";
+        }
+        // 通用指引
+        else {
+            instructions = "添加到桌面：\n1. 打开浏览器菜单\n2. 寻找'添加到主屏幕'或'安装'\n3. 确认添加到桌面";
+        }
+        
+        alert(instructions);
+    }
+    
     // 通用指引 - 保留用于降级方案
     function showGenericInstructions() {
         const instructions = "1. 打开浏览器菜单\n2. 寻找'添加到主屏幕'或'安装'\n3. 确认添加到桌面";
