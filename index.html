@@ -69,6 +69,7 @@
             min-width: 120px !important;
             transition: all 0.3s ease !important;
         "
+        onclick="window.location.href='qiliantong-download.html';"
     >
         <i class="fa fa-bar-chart" aria-hidden="true" style="font-size: 16px !important;"></i>
         <span>指标大礼包</span>
@@ -109,8 +110,14 @@
     
     <!-- 礼包按钮点击事件 -->
     <script>
-        document.getElementById('giftPackageButton').addEventListener('click', function() {
-            window.location.href = 'qiliantong-download.html';
+        // 等待DOM完全加载后再绑定点击事件
+        document.addEventListener('DOMContentLoaded', function() {
+            const giftButton = document.getElementById('giftPackageButton');
+            if (giftButton) {
+                giftButton.addEventListener('click', function() {
+                    window.location.href = 'qiliantong-download.html';
+                });
+            }
         });
     </script>
 
