@@ -19,7 +19,7 @@
       "dest": "/api/$1"
     },
     {
-      "src": "/(.*\.apk)",
+      "src": "/(.*\\.apk)",
       "dest": "/$1",
       "headers": {
         "Content-Type": "application/vnd.android.package-archive"

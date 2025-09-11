@@ -48,6 +48,9 @@ dist-ssr
 .cache
 
 # OS generated files
+
+# APK files
+*.apk
 Thumbs.db
 .DS_Store
 
