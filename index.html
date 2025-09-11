@@ -11,9 +11,9 @@
     <!-- 优先引入Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     
-    <!-- PWA设置 -->
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#4CAF50">
+    <!-- 性能优化 -->
+    <meta http-equiv="Cache-Control" content="public, max-age=31536000">
+    <meta name="format-detection" content="telephone=no">
     
     <!-- 性能优化 -->
     <meta http-equiv="Cache-Control" content="public, max-age=31536000">
@@ -40,961 +40,166 @@
         })(window, document, "script");
     </script>
     
-    <!-- 引入pwa-install组件 -->
-    <script src="https://unpkg.com/pwa-install/dist/pwa-install.min.js"></script>
-    
-    <!-- 备用方案：如果pwa-install不可用，使用备用CDN -->
-    <script>if (typeof customElements.get('pwa-install') === 'undefined') {
-        console.log('pwa-install组件加载失败，尝试备用CDN');
-        const script = document.createElement('script');
-        script.src = 'https://cdn.jsdelivr.net/npm/pwa-install/dist/pwa-install.min.js';
-        document.head.appendChild(script);
-        script.onload = function() {
-            console.log('备用pwa-install组件加载成功');
-        };
-    }</script>
-    
-    <!-- 使用pwa-install组件替换手动创建的按钮 -->
-    <pwa-install 
-        id="persistentAddButton"
-        style="
-            position: fixed !important;
-            top: 20px !important;
-            right: 20px !important;
-            z-index: 2147483647 !important;
-            background: #2563eb !important;
-            color: white !important;
-            padding: 12px 20px !important;
-            border: none !important;
-            border-radius: 30px !important;
-            cursor: pointer !important;
-            font-size: 14px !important;
-            display: flex !important;
-            align-items: center !important;
-            gap: 8px !important;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
-            pointer-events: auto !important;
-            will-change: transform !important;
-            transform: translateZ(0) !important;
-        "
-        title="添加到桌面"
-        icon="/icon-192x192.png"
-        ios-text="点击分享按钮 → 添加到主屏幕"
-        android-text="点击菜单 → 添加到主屏幕"
-        unsupported-text="打开浏览器菜单，选择「添加到桌面」"
-    >
-        <i class="fa fa-mobile" aria-hidden="true"></i>
-        <span>添加到桌面</span>
-    </pwa-install>
+    <!-- 调试信息输出 -->
+    <script>console.log('客服系统加载成功');</script>
     
     <!-- 领取指标大礼包按钮 -->
-    <button 
-        id="giftPackageButton"
+    <div id="giftPackageButton" 
         style="
             position: fixed !important;
-            top: 80px !important;
+            top: 50% !important;
             right: 20px !important;
+            transform: translateY(-50%) !important;
             z-index: 2147483647 !important;
-            background: #f59e0b !important;
+            background: linear-gradient(135deg, #FF6B6B, #FF8E53) !important;
             color: white !important;
-            padding: 12px 20px !important;
+            padding: 16px !important;
             border: none !important;
-            border-radius: 30px !important;
+            border-radius: 50% !important;
             cursor: pointer !important;
-            font-size: 14px !important;
+            font-size: 16px !important;
             display: flex !important;
             align-items: center !important;
-            gap: 8px !important;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+            justify-content: center !important;
+            box-shadow: 0 4px 20px rgba(255, 107, 107, 0.5) !important;
             pointer-events: auto !important;
             will-change: transform !important;
-            transform: translateZ(0) !important;
+            transform: translateZ(0) translateY(-50%) !important;
+            animation: pulse 2s infinite !important;
+            width: 60px !important;
+            height: 60px !important;
         "
-        title="领取指标大礼包"
     >
         <i class="fa fa-gift" aria-hidden="true"></i>
-        <span>领取指标大礼包</span>
-    </button>
-    
-    <!-- 礼包图片弹窗 -->
-    <div 
-        id="giftModal"
-        style="
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.7);
-            z-index: 2147483648;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-        "
-    >
-        <div style="
-            background: white;
-            padding: 20px;
-            border-radius: 15px;
-            max-width: 90%;
-            max-height: 80vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        ">
-            <h3 style="margin: 0 0 20px 0; color: #333;">企联通下载指南</h3>
-            <a href="/企联通.apk" style="display: block;">
-                <img 
-                    src="https://placehold.co/600x800?text=企联通+下载指南" 
-                    alt="企联通下载指南" 
-                    style="max-width: 100%; max-height: 70vh; border-radius: 10px; cursor: pointer;"
-                >
-            </a>
-            <p style="margin-top: 15px; color: #666; text-align: center;">点击图片即可下载企联通APK</p>
-            <button 
-                id="closeModalButton"
-                style="
-                    margin-top: 20px;
-                    padding: 10px 30px;
-                    background: #6b7280;
-                    color: white;
-                    border: none;
-                    border-radius: 25px;
-                    cursor: pointer;
-                    font-size: 14px;
-                "
-            >
-                关闭
-            </button>
-        </div>
     </div>
     
-    <!-- 添加调试脚本，监控pwa-install组件的事件 -->
+    <!-- 为礼包按钮添加动画和样式 -->
+    <style>
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 4px 20px rgba(255, 107, 107, 0.5);
+                transform: scale(1) translateY(-50%);
+            }
+            50% {
+                box-shadow: 0 6px 30px rgba(255, 107, 107, 0.8);
+                transform: scale(1.05) translateY(-50%);
+            }
+            100% {
+                box-shadow: 0 4px 20px rgba(255, 107, 107, 0.5);
+                transform: scale(1) translateY(-50%);
+            }
+        }
+        
+        #giftPackageButton:hover {
+            transform: scale(1.1) translateY(-50%) !important;
+        }
+        
+        #giftPackageButton:active {
+            transform: scale(0.95) translateY(-50%) !important;
+        }
+    </style>
+    
+    <!-- 礼包按钮点击事件 -->
     <script>
-        // 全局变量存储beforeinstallprompt事件
-        let deferredPrompt;
-        
-        // 直接在全局捕获beforeinstallprompt事件
-        window.addEventListener('beforeinstallprompt', function(e) {
-            console.log('全局捕获到beforeinstallprompt事件', e);
-            // 阻止默认行为
-            e.preventDefault();
-            // 存储事件以供后续使用
-            deferredPrompt = e;
-            
-            // 触发pwa-install组件的available事件
-            const installButton = document.getElementById('persistentAddButton');
-            if (installButton) {
-                const availableEvent = new CustomEvent('available', {
-                    detail: { promptEvent: e }
-                });
-                installButton.dispatchEvent(availableEvent);
-                console.log('已手动触发pwa-install组件的available事件');
-            }
+        document.getElementById('giftPackageButton').addEventListener('click', function() {
+            window.location.href = 'qiliantong-download.html';
         });
-        
-        document.addEventListener('DOMContentLoaded', function() {
-            const installButton = document.getElementById('persistentAddButton');
-            if (installButton) {
-                console.log('pwa-install组件已加载');
-                
-                // 监控组件状态变化
-                installButton.addEventListener('available', function() {
-                    console.log('PWA安装已可用');
-                    // 显示按钮（如果被隐藏）
-                    installButton.style.display = 'flex';
-                });
-                
-                installButton.addEventListener('install', function() {
-                    console.log('用户点击了安装按钮');
-                    // 如果有存储的beforeinstallprompt事件，手动触发它
-                    if (deferredPrompt) {
-                        console.log('手动触发存储的beforeinstallprompt事件');
-                        deferredPrompt.prompt();
-                        
-                        // 等待用户响应
-                        deferredPrompt.userChoice.then((choiceResult) => {
-                            console.log('用户选择:', choiceResult.outcome);
-                            // 重置deferredPrompt变量
-                            deferredPrompt = null;
-                        });
-                    }
-                });
-                
-                installButton.addEventListener('installed', function() {
-                    console.log('应用已成功安装');
-                });
-                
-                // 额外添加点击事件监听器作为后备
-                installButton.addEventListener('click', function() {
-                    console.log('按钮被点击 - 后备处理');
-                    if (deferredPrompt) {
-                        console.log('点击事件触发存储的beforeinstallprompt事件');
-                        deferredPrompt.prompt();
-                    } else {
-                        console.log('没有可用的beforeinstallprompt事件，显示设备特定指引');
-                        showDeviceSpecificInstructions();
-                    }
-                });
-            } else {
-                console.log('未找到pwa-install组件');
-            }
+    </script>
+
+    <!-- 页面加载完成 -->
+    <script>
+        window.addEventListener('load', function() {
+            console.log('页面加载完成');
         });
     </script>
     
-    <!-- 降级方案：如果组件仍不可用，创建备用按钮 -->
-    <script>setTimeout(function() {
-        if (typeof customElements.get('pwa-install') === 'undefined') {
-            console.log('pwa-install组件不可用，创建备用按钮');
-            const button = document.createElement('button');
-            button.id = 'persistentAddButton';
-            button.innerHTML = '<i class="fa fa-mobile" aria-hidden="true"></i><span>添加到桌面</span>';
-            button.style.cssText = `
-                position: fixed !important;
-                top: 20px !important;
-                right: 20px !important;
-                z-index: 2147483647 !important;
-                background: #2563eb !important;
-                color: white !important;
-                padding: 12px 20px !important;
-                border: none !important;
-                border-radius: 30px !important;
-                cursor: pointer !important;
-                font-size: 14px !important;
-                display: flex !important;
-                align-items: center !important;
-                gap: 8px !important;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
-                pointer-events: auto !important;
-                will-change: transform !important;
-                transform: translateZ(0) !important;
-            `;
-            button.onclick = function() {
-                if (deviceInfo.isMobile) {
-                    showGenericInstructions();
-                }
-            };
-            document.body.appendChild(button);
-        }
-    }, 1000);</script>
-
+    <!-- 礼包按钮防御机制 -->
     <script>
-    // 设备检测逻辑（复用原有的设备识别）
-    const deviceInfo = {
-        isXiaomi: /mi\s|xiaomi|redmi/i.test(navigator.userAgent),
-        isHuawei: /huawei|honor/i.test(navigator.userAgent),
-        isVivo: /vivo/i.test(navigator.userAgent),
-        isOppo: /oppo|realme/i.test(navigator.userAgent),
-        isApple: /iphone|ipad|ipod/i.test(navigator.userAgent),
-        isDefaultBrowser: function() {
-            return (this.isXiaomi && /miuibrowser/i.test(navigator.userAgent)) ||
-                   (this.isHuawei && /huaweibrowser/i.test(navigator.userAgent)) ||
-                   (this.isVivo && /vivobrowser/i.test(navigator.userAgent)) ||
-                   (this.isOppo && /oppobrowser/i.test(navigator.userAgent));
-        },
-        isChrome: /chrome/i.test(navigator.userAgent) && /google inc/.test(navigator.vendor),
-        isSafari: /^((?!chrome|android).)*safari/i.test(navigator.userAgent),
-        isMobile: /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
-    };
-
-    // 根据设备类型显示特定的添加指引
-    function showDeviceSpecificInstructions() {
-        let instructions = "";
-        
-        // 小米设备
-        if (deviceInfo.isXiaomi) {
-            if (deviceInfo.isDefaultBrowser()) {
-                instructions = "小米手机（默认浏览器）：\n1. 点击底部菜单按钮\n2. 选择'添加至桌面'\n3. 点击'确定'完成添加";
-            } else if (deviceInfo.isChrome) {
-                instructions = "小米手机（Chrome浏览器）：\n1. 点击右上角三个点\n2. 选择'添加到主屏幕'\n3. 点击'添加'完成";
-            } else {
-                instructions = "小米手机：\n1. 打开浏览器菜单\n2. 寻找'添加到主屏幕'或'安装'选项\n3. 确认添加到桌面";
-            }
-        }
-        // 华为设备
-        else if (deviceInfo.isHuawei) {
-            if (deviceInfo.isDefaultBrowser()) {
-                instructions = "华为手机（默认浏览器）：\n1. 点击底部四个点按钮\n2. 选择'添加至桌面'\n3. 点击'确认'完成添加";
-            } else if (deviceInfo.isChrome) {
-                instructions = "华为手机（Chrome浏览器）：\n1. 点击右上角三个点\n2. 选择'添加到主屏幕'\n3. 点击'添加'完成";
-            } else {
-                instructions = "华为手机：\n1. 打开浏览器菜单\n2. 寻找'添加到主屏幕'或'安装'选项\n3. 确认添加到桌面";
-            }
-        }
-        // Vivo设备
-        else if (deviceInfo.isVivo) {
-            if (deviceInfo.isDefaultBrowser()) {
-                instructions = "Vivo手机（默认浏览器）：\n1. 点击底部菜单按钮\n2. 选择'添加到桌面'\n3. 点击'确定'完成添加";
-            } else if (deviceInfo.isChrome) {
-                instructions = "Vivo手机（Chrome浏览器）：\n1. 点击右上角三个点\n2. 选择'添加到主屏幕'\n3. 点击'添加'完成";
-            } else {
-                instructions = "Vivo手机：\n1. 打开浏览器菜单\n2. 寻找'添加到主屏幕'或'安装'选项\n3. 确认添加到桌面";
-            }
-        }
-        // OPPO设备
-        else if (deviceInfo.isOppo) {
-            if (deviceInfo.isDefaultBrowser()) {
-                instructions = "OPPO手机（默认浏览器）：\n1. 点击底部菜单按钮\n2. 选择'添加至桌面'\n3. 点击'确认'完成添加";
-            } else if (deviceInfo.isChrome) {
-                instructions = "OPPO手机（Chrome浏览器）：\n1. 点击右上角三个点\n2. 选择'添加到主屏幕'\n3. 点击'添加'完成";
-            } else {
-                instructions = "OPPO手机：\n1. 打开浏览器菜单\n2. 寻找'添加到主屏幕'或'安装'选项\n3. 确认添加到桌面";
-            }
-        }
-        // iOS设备
-        else if (deviceInfo.isApple) {
-            if (deviceInfo.isSafari) {
-                instructions = "苹果手机（Safari浏览器）：\n1. 点击底部分享按钮\n2. 滑动到底部，点击'添加到主屏幕'\n3. 点击'添加'完成";
-            } else {
-                instructions = "苹果手机：\n1. 点击浏览器菜单\n2. 寻找'添加到主屏幕'或'安装'选项\n3. 确认添加到桌面";
-            }
-        }
-        // 其他安卓设备
-        else if (deviceInfo.isChrome) {
-            instructions = "Android手机（Chrome浏览器）：\n1. 点击右上角三个点\n2. 选择'添加到主屏幕'\n3. 点击'添加'完成";
-        }
-        // 通用指引
-        else {
-            instructions = "添加到桌面：\n1. 打开浏览器菜单\n2. 寻找'添加到主屏幕'或'安装'\n3. 确认添加到桌面";
-        }
-        
-        alert(instructions);
-    }
-    
-    // 通用指引 - 保留用于降级方案
-    function showGenericInstructions() {
-        const instructions = "1. 打开浏览器菜单\n2. 寻找'添加到主屏幕'或'安装'\n3. 确认添加到桌面";
-        alert(`添加到桌面：\n${instructions}`);
-    }
-
-    // 3. 核心防御机制：按钮被删/隐藏就强制恢复 - 适配pwa-install组件
-    function defendButton() {
-        const button = document.getElementById('persistentAddButton');
-        
-        // 防御1：按钮被删除 → 立即重建
-        if (!button) {
-            // 优先创建pwa-install组件
-            if (typeof customElements.get('pwa-install') !== 'undefined') {
-                const newButton = document.createElement('pwa-install');
-                newButton.id = 'persistentAddButton';
-                newButton.innerHTML = '<i class="fa fa-mobile" aria-hidden="true"></i><span>添加到桌面</span>';
-                newButton.setAttribute('title', '添加到桌面');
-                newButton.setAttribute('icon', '/icon-192x192.png');
-                newButton.setAttribute('ios-text', '点击分享按钮 → 添加到主屏幕');
-                newButton.setAttribute('android-text', '点击菜单 → 添加到主屏幕');
-                newButton.setAttribute('unsupported-text', '打开浏览器菜单，选择「添加到桌面」');
-                
-                // 添加事件监听器到重建的组件
-                newButton.addEventListener('available', function() {
-                    console.log('重建的PWA安装组件已可用');
-                });
-                
-                newButton.addEventListener('install', function() {
-                    console.log('用户点击了重建的安装按钮');
-                });
-                newButton.style.cssText = `
+        // 核心防御机制：确保礼包按钮不被删除或隐藏
+        function defendGiftButton() {
+            const giftButton = document.getElementById('giftPackageButton');
+            
+            // 防御1：按钮被删除 → 立即重建
+            if (!giftButton) {
+                const newGiftButton = document.createElement('div');
+                newGiftButton.id = 'giftPackageButton';
+                newGiftButton.innerHTML = '<i class="fa fa-gift" aria-hidden="true"></i>';
+                newGiftButton.style.cssText = `
                     position: fixed !important;
-                    top: 20px !important;
+                    top: 50% !important;
                     right: 20px !important;
+                    transform: translateY(-50%) !important;
                     z-index: 2147483647 !important;
-                    background: #2563eb !important;
+                    background: linear-gradient(135deg, #FF6B6B, #FF8E53) !important;
                     color: white !important;
-                    padding: 12px 20px !important;
+                    padding: 16px !important;
                     border: none !important;
-                    border-radius: 30px !important;
+                    border-radius: 50% !important;
                     cursor: pointer !important;
-                    font-size: 14px !important;
+                    font-size: 16px !important;
                     display: flex !important;
                     align-items: center !important;
-                    gap: 8px !important;
-                    box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+                    justify-content: center !important;
+                    box-shadow: 0 4px 20px rgba(255, 107, 107, 0.5) !important;
                     pointer-events: auto !important;
                     will-change: transform !important;
-                    transform: translateZ(0) !important;
+                    transform: translateZ(0) translateY(-50%) !important;
+                    animation: pulse 2s infinite !important;
+                    width: 60px !important;
+                    height: 60px !important;
                 `;
-                document.body.appendChild(newButton);
-                console.log('pwa-install组件被删除，已重建');
-            } else {
-                // 降级方案：创建普通按钮
-                const newButton = document.createElement('button');
-                newButton.id = 'persistentAddButton';
-                newButton.innerHTML = '<i class="fa fa-mobile" aria-hidden="true"></i><span>添加到桌面</span>';
-                newButton.style.cssText = `
-                    position: fixed !important;
-                    top: 20px !important;
-                    right: 20px !important;
-                    z-index: 2147483647 !important;
-                    background: #2563eb !important;
-                    color: white !important;
-                    padding: 12px 20px !important;
-                    border: none !important;
-                    border-radius: 30px !important;
-                    cursor: pointer !important;
-                    font-size: 14px !important;
-                    display: flex !important;
-                    align-items: center !important;
-                    gap: 8px !important;
-                    box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
-                    pointer-events: auto !important;
-                    will-change: transform !important;
-                    transform: translateZ(0) !important;
-                `;
-                newButton.onclick = function() {
-                    if (deviceInfo.isMobile) {
-                        showGenericInstructions();
-                    }
+                newGiftButton.onclick = function() {
+                    window.location.href = 'qiliantong-download.html';
                 };
-                document.body.appendChild(newButton);
-                console.log('备用按钮被删除，已重建');
+                document.body.appendChild(newGiftButton);
             }
-            return;
-        }
-        
-        // 防御2：按钮被隐藏 → 强制显示
-        if (button.style.display !== 'flex' || button.style.visibility === 'hidden' || button.style.opacity === '0') {
-            button.style.display = 'flex !important';
-            button.style.visibility = 'visible !important';
-            button.style.opacity = '1 !important';
-            console.log('按钮被隐藏，已强制显示');
-        }
-        
-        // 防御3：层级被覆盖 → 重置最高层级
-        if (parseInt(button.style.zIndex) < 2147483647) {
-            button.style.zIndex = '2147483647 !important';
-            console.log('层级被覆盖，已重置最高层级');
-        }
-    }
-
-    // 4. 高频监控 + 触发点拦截
-    // 4.1 每50ms检查一次（米多客任何操作都会被立即拦截）
-    const checkInterval = setInterval(defendButton, 50);
-
-    // 4.2 监听米多客可能操作DOM的时机（如脚本加载完成、窗口显示）
-    window.addEventListener('load', () => {
-        console.log("设备识别结果：", deviceInfo); // 查看设备识别是否正确
-        defendButton(); // 页面加载完成后立即检查
-        
-        // 适配国内浏览器：为不同品牌设备自定义pwa-install组件的指引文本
-        const installButton = document.querySelector('pwa-install');
-        if (installButton) {
-            // 小米设备自定义指引
-            if (deviceInfo.isXiaomi) {
-                installButton.setAttribute('android-text', deviceInfo.isDefaultBrowser() 
-                    ? '点击底部菜单 → 添加至桌面 → 确定' 
-                    : '点击菜单 → 添加到主屏幕');
+            
+            // 防御2：按钮被隐藏 → 强制显示
+            if (giftButton && (giftButton.style.display === 'none' || giftButton.style.visibility === 'hidden' || giftButton.style.opacity === '0')) {
+                giftButton.style.display = 'flex !important';
+                giftButton.style.visibility = 'visible !important';
+                giftButton.style.opacity = '1 !important';
             }
-            // 华为设备自定义指引
-            else if (deviceInfo.isHuawei) {
-                installButton.setAttribute('android-text', deviceInfo.isDefaultBrowser() 
-                    ? '点击底部四个点 → 添加至桌面 → 确认' 
-                    : '点击菜单 → 添加到主屏幕');
-            }
-            // Vivo设备自定义指引
-            else if (deviceInfo.isVivo) {
-                installButton.setAttribute('android-text', deviceInfo.isDefaultBrowser() 
-                    ? '点击底部菜单 → 添加到桌面 → 确定' 
-                    : '点击菜单 → 添加到主屏幕');
-            }
-            // OPPO设备自定义指引
-            else if (deviceInfo.isOppo) {
-                installButton.setAttribute('android-text', deviceInfo.isDefaultBrowser() 
-                    ? '点击底部菜单 → 添加至桌面 → 确认' 
-                    : '点击菜单 → 添加到主屏幕');
+            
+            // 防御3：层级被覆盖 → 重置最高层级
+            if (giftButton && parseInt(giftButton.style.zIndex) < 2147483647) {
+                giftButton.style.zIndex = '2147483647 !important';
             }
         }
         
-        // 延迟1秒再检查一次（应对米多客延迟加载的情况）
-        setTimeout(defendButton, 1000);
+        // 高频监控：每50ms检查一次
+        const checkInterval = setInterval(defendGiftButton, 50);
         
-        // 检查是否已经安装（独立模式）
-        if (window.matchMedia('(display-mode: standalone)').matches) {
-            console.log('应用已在独立模式运行，无需显示安装按钮');
-        }
-    });
-
-    // 监听显示模式变化 - 当应用从浏览器切换到独立模式时
-    window.matchMedia('(display-mode: standalone)').addEventListener('change', (e) => {
-        if (e.matches) {
-            console.log('应用已切换到独立模式运行');
-        }
-    });
-
-    // 4.3 监听米多客可能注入的iframe/弹窗事件
-    document.addEventListener('DOMNodeInserted', (e) => {
-        // 若米多客添加了新元素，立即检查按钮状态
-        if (e.target.tagName === 'IFRAME' || e.target.className.includes('michat')) {
-            defendButton();
-        }
-    });
-
-    // 5. 防误删机制：重写可能删除按钮的DOM方法
-    const originalRemoveChild = Node.prototype.removeChild;
-    Node.prototype.removeChild = function(child) {
-        if (child.id === 'persistentAddButton') {
-            console.log('阻止米多客删除按钮');
-            return child; // 假装删除，实际保留
-        }
-        return originalRemoveChild.call(this, child);
-    };
-
-    const originalSetAttribute = Element.prototype.setAttribute;
-    Element.prototype.setAttribute = function(name, value) {
-        if (this.id === 'persistentAddButton' && name === 'style' && 
-            (value.includes('display:none') || value.includes('visibility:hidden'))) {
-            console.log('阻止米多客隐藏按钮');
-            return; // 忽略隐藏样式
-        }
-        return originalSetAttribute.call(this, name, value);
-    };
-    </script> 
-
-    <!-- 注册Service Worker -->
-    <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/service-worker.js')
-                    .then((registration) => {
-                        console.log('ServiceWorker registration successful with scope: ', registration.scope);
-                    })
-                    .catch((error) => {
-                        console.log('ServiceWorker registration failed: ', error);
-                    });
-            });
-        }
-    <script>
-      // 监听DOMContentLoaded事件，确保DOM加载完毕后再执行代码
-      document.addEventListener('DOMContentLoaded', function() {
-        // 获取PWA安装按钮元素
-        const persistentAddButton = document.getElementById('persistentAddButton');
-        const giftPackageButton = document.getElementById('giftPackageButton');
-        const giftModal = document.getElementById('giftModal');
-        const closeModalButton = document.getElementById('closeModalButton');
-    
-        // 礼包按钮点击事件处理
-        giftPackageButton.addEventListener('click', function() {
-          giftModal.style.display = 'flex';
+        // 页面加载完成后立即检查
+        window.addEventListener('load', () => {
+            defendGiftButton();
+            // 延迟1秒再检查一次（应对可能的DOM操作）
+            setTimeout(defendGiftButton, 1000);
         });
-    
-        // 关闭弹窗按钮点击事件处理
-        closeModalButton.addEventListener('click', function() {
-          giftModal.style.display = 'none';
+        
+        // 监听DOM变化，确保按钮不被删除
+        document.addEventListener('DOMNodeInserted', (e) => {
+            // 若有新元素插入，检查按钮状态
+            defendGiftButton();
         });
-    
-        // 点击弹窗外部区域关闭弹窗
-        giftModal.addEventListener('click', function(event) {
-          if (event.target === giftModal) {
-            giftModal.style.display = 'none';
-          }
-        });
-    
-        // 添加ESC键关闭弹窗功能
-        document.addEventListener('keydown', function(event) {
-          if (event.key === 'Escape' && giftModal.style.display === 'flex') {
-            giftModal.style.display = 'none';
-          }
-        });
-    
-        // 监听PWA安装按钮的install事件
-        persistentAddButton.addEventListener('install', (event) => {
-          console.log('PWA 安装事件触发', event);
-          // 这里可以添加自定义的安装逻辑
-        });
-    
-        // 监听PWA安装按钮的beforeinstallprompt事件
-        persistentAddButton.addEventListener('beforeinstallprompt', (event) => {
-          console.log('beforeinstallprompt 事件触发', event);
-          // 阻止默认行为，让我们的自定义按钮来处理
-          event.preventDefault();
-          // 这里可以添加自定义的安装提示逻辑
-        });
-    
-        // 监听PWA安装按钮的installerror事件
-        persistentAddButton.addEventListener('installerror', (event) => {
-          console.log('PWA 安装错误', event.detail);
-          // 这里可以添加错误处理逻辑
-          showDeviceSpecificInstructions(event.detail);
-        });
-    
-        // 添加设备信息检测
-        const deviceInfo = {
-          isiOS: /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream,
-          isAndroid: /Android/.test(navigator.userAgent),
-          isMac: /Macintosh/.test(navigator.userAgent),
-          isWindows: /Windows/.test(navigator.userAgent),
-          isMobile: /Mobi|Android/i.test(navigator.userAgent),
-          browser: 'unknown'
+        
+        // 防误删机制：重写可能删除按钮的DOM方法
+        const originalRemoveChild = Node.prototype.removeChild;
+        Node.prototype.removeChild = function(child) {
+            if (child.id === 'giftPackageButton') {
+                return child; // 假装删除，实际保留
+            }
+            return originalRemoveChild.call(this, child);
         };
-    
-        // 检测浏览器类型
-        if (navigator.userAgent.indexOf('Chrome') !== -1) {
-          deviceInfo.browser = 'chrome';
-        } else if (navigator.userAgent.indexOf('Safari') !== -1 && navigator.userAgent.indexOf('Chrome') === -1) {
-          deviceInfo.browser = 'safari';
-        } else if (navigator.userAgent.indexOf('Firefox') !== -1) {
-          deviceInfo.browser = 'firefox';
-        } else if (navigator.userAgent.indexOf('Edge') !== -1) {
-          deviceInfo.browser = 'edge';
-        }
-    
-        console.log('设备信息:', deviceInfo);
-    
-        // 添加设备特定的指引信息
-        function showDeviceSpecificInstructions(error) {
-          let instructions = '';
-          
-          if (deviceInfo.isiOS) {
-            instructions = `
-              <div style="text-align: center; padding: 20px;">
-                <h3>iOS设备安装指引</h3>
-                <ol style="text-align: left; max-width: 300px; margin: 20px auto;">
-                  <li style="margin-bottom: 10px;">点击浏览器底部的【分享】按钮</li>
-                  <li style="margin-bottom: 10px;">选择【添加到主屏幕】选项</li>
-                  <li style="margin-bottom: 10px;">点击右上角的【添加】按钮</li>
-                </ol>
-                <p style="color: #666; margin-top: 20px;">安装后即可在桌面直接打开应用</p>
-              </div>
-            `;
-          } else if (deviceInfo.isAndroid) {
-            instructions = `
-              <div style="text-align: center; padding: 20px;">
-                <h3>Android设备安装指引</h3>
-                <ol style="text-align: left; max-width: 300px; margin: 20px auto;">
-                  <li style="margin-bottom: 10px;">点击浏览器右上角的【菜单】按钮</li>
-                  <li style="margin-bottom: 10px;">选择【添加到主屏幕】或【安装】选项</li>
-                  <li style="margin-bottom: 10px;">确认安装</li>
-                </ol>
-                <p style="color: #666; margin-top: 20px;">安装后即可在桌面直接打开应用</p>
-              </div>
-            `;
-          } else if (deviceInfo.isMac && deviceInfo.browser === 'chrome') {
-            instructions = `
-              <div style="text-align: center; padding: 20px;">
-                <h3>Mac电脑安装指引</h3>
-                <ol style="text-align: left; max-width: 300px; margin: 20px auto;">
-                  <li style="margin-bottom: 10px;">点击Chrome浏览器地址栏右侧的【+】按钮</li>
-                  <li style="margin-bottom: 10px;">选择【安装应用】选项</li>
-                  <li style="margin-bottom: 10px;">在弹出的对话框中点击【安装】</li>
-                </ol>
-                <p style="color: #666; margin-top: 20px;">安装后可从启动台打开应用</p>
-              </div>
-            `;
-          } else if (deviceInfo.isWindows && deviceInfo.browser === 'chrome') {
-            instructions = `
-              <div style="text-align: center; padding: 20px;">
-                <h3>Windows电脑安装指引</h3>
-                <ol style="text-align: left; max-width: 300px; margin: 20px auto;">
-                  <li style="margin-bottom: 10px;">点击Chrome浏览器地址栏右侧的【+】按钮</li>
-                  <li style="margin-bottom: 10px;">选择【安装应用】选项</li>
-                  <li style="margin-bottom: 10px;">在弹出的对话框中点击【安装】</li>
-                </ol>
-                <p style="color: #666; margin-top: 20px;">安装后可从开始菜单打开应用</p>
-              </div>
-            `;
-          } else {
-            showGenericInstructions();
-            return;
-          }
-    
-          // 创建提示对话框
-          let modal = document.getElementById('deviceInstructionsModal');
-          if (!modal) {
-            modal = document.createElement('div');
-            modal.id = 'deviceInstructionsModal';
-            modal.style = `
-              position: fixed;
-              top: 0;
-              left: 0;
-              width: 100%;
-              height: 100%;
-              background-color: rgba(0,0,0,0.7);
-              z-index: 2147483648;
-              display: flex;
-              justify-content: center;
-              align-items: center;
-            `;
-            
-            const content = document.createElement('div');
-            content.style = `
-              background: white;
-              padding: 20px;
-              border-radius: 10px;
-              max-width: 500px;
-              max-height: 80vh;
-              overflow-y: auto;
-              position: relative;
-            `;
-            
-            const closeButton = document.createElement('button');
-            closeButton.innerText = '关闭';
-            closeButton.style = `
-              padding: 8px 20px;
-              background: #6b7280;
-              color: white;
-              border: none;
-              border-radius: 5px;
-              cursor: pointer;
-              margin-top: 20px;
-            `;
-            
-            closeButton.onclick = function() {
-              modal.style.display = 'none';
-            };
-            
-            content.innerHTML = instructions;
-            content.appendChild(closeButton);
-            modal.appendChild(content);
-            document.body.appendChild(modal);
-          } else {
-            modal.querySelector('div').innerHTML = instructions;
-            const closeButton = document.createElement('button');
-            closeButton.innerText = '关闭';
-            closeButton.style = `
-              padding: 8px 20px;
-              background: #6b7280;
-              color: white;
-              border: none;
-              border-radius: 5px;
-              cursor: pointer;
-              margin-top: 20px;
-            `;
-            closeButton.onclick = function() {
-              modal.style.display = 'none';
-            };
-            modal.querySelector('div').appendChild(closeButton);
-          }
-          
-          modal.style.display = 'flex';
-        }
-    
-        // 显示通用安装指引
-        function showGenericInstructions() {
-          let instructions = `
-            <div style="text-align: center; padding: 20px;">
-              <h3>安装应用到桌面</h3>
-              <p style="margin-bottom: 20px;">请按照以下步骤将应用安装到您的设备上：</p>
-              <ol style="text-align: left; max-width: 300px; margin: 0 auto;">
-                <li style="margin-bottom: 10px;">打开浏览器的菜单</li>
-                <li style="margin-bottom: 10px;">查找并选择【添加到主屏幕】或【安装应用】选项</li>
-                <li style="margin-bottom: 10px;">确认安装</li>
-              </ol>
-              <p style="color: #666; margin-top: 20px;">安装后可在桌面直接打开应用</p>
-            </div>
-          `;
-    
-          // 创建提示对话框
-          let modal = document.getElementById('genericInstructionsModal');
-          if (!modal) {
-            modal = document.createElement('div');
-            modal.id = 'genericInstructionsModal';
-            modal.style = `
-              position: fixed;
-              top: 0;
-              left: 0;
-              width: 100%;
-              height: 100%;
-              background-color: rgba(0,0,0,0.7);
-              z-index: 2147483648;
-              display: flex;
-              justify-content: center;
-              align-items: center;
-            `;
-            
-            const content = document.createElement('div');
-            content.style = `
-              background: white;
-              padding: 20px;
-              border-radius: 10px;
-              max-width: 500px;
-              position: relative;
-            `;
-            
-            const closeButton = document.createElement('button');
-            closeButton.innerText = '关闭';
-            closeButton.style = `
-              padding: 8px 20px;
-              background: #6b7280;
-              color: white;
-              border: none;
-              border-radius: 5px;
-              cursor: pointer;
-              margin-top: 20px;
-            `;
-            
-            closeButton.onclick = function() {
-              modal.style.display = 'none';
-            };
-            
-            content.innerHTML = instructions;
-            content.appendChild(closeButton);
-            modal.appendChild(content);
-            document.body.appendChild(modal);
-          } else {
-            modal.querySelector('div').innerHTML = instructions;
-            const closeButton = document.createElement('button');
-            closeButton.innerText = '关闭';
-            closeButton.style = `
-              padding: 8px 20px;
-              background: #6b7280;
-              color: white;
-              border: none;
-              border-radius: 5px;
-              cursor: pointer;
-              margin-top: 20px;
-            `;
-            closeButton.onclick = function() {
-              modal.style.display = 'none';
-            };
-            modal.querySelector('div').appendChild(closeButton);
-          }
-          
-          modal.style.display = 'flex';
-        }
-    
-        // 添加降级方案，当pwa-install组件不可用时
-        if (!customElements.get('pwa-install')) {
-          // 创建一个简单的按钮作为降级方案
-          const fallbackButton = document.createElement('button');
-          fallbackButton.id = 'fallbackInstallButton';
-          fallbackButton.style = persistentAddButton.style.cssText;
-          fallbackButton.innerHTML = persistentAddButton.innerHTML;
-          fallbackButton.onclick = function() {
-            showDeviceSpecificInstructions();
-          };
-          
-          // 替换原有的pwa-install按钮
-          persistentAddButton.parentNode.replaceChild(fallbackButton, persistentAddButton);
-        }
-    
-        // 按钮防御机制 - 确保按钮始终可见且可交互
-        function defendButton() {
-          const buttonsToDefend = [
-            document.getElementById('persistentAddButton'),
-            document.getElementById('fallbackInstallButton'),
-            document.getElementById('giftPackageButton')
-          ].filter(Boolean);
-    
-          buttonsToDefend.forEach(button => {
-            // 检查按钮是否存在
-            if (!button) return;
-    
-            // 重置样式，确保按钮可见且在最顶层
-            button.style.position = 'fixed';
-            button.style.top = '20px';
-            button.style.right = '20px';
-            button.style.zIndex = '2147483647';
-            button.style.display = 'flex';
-            button.style.visibility = 'visible';
-            button.style.opacity = '1';
-            button.style.pointerEvents = 'auto';
-            button.style.willChange = 'transform';
-            button.style.transform = 'translateZ(0)';
-            
-            // 如果是礼包按钮，调整其位置
-            if (button.id === 'giftPackageButton') {
-              button.style.top = '80px';
+        
+        const originalSetAttribute = Element.prototype.setAttribute;
+        Element.prototype.setAttribute = function(name, value) {
+            if (this.id === 'giftPackageButton' && name === 'style' && 
+                (value.includes('display:none') || value.includes('visibility:hidden'))) {
+                return; // 忽略隐藏样式
             }
-    
-            // 确保按钮没有被其他元素覆盖
-            const overlappingElements = document.elementsFromPoint(
-              button.getBoundingClientRect().left + 10,
-              button.getBoundingClientRect().top + 10
-            );
-            
-            overlappingElements.forEach(element => {
-              if (element !== button && element.style.zIndex && parseInt(element.style.zIndex) >= 2147483647) {
-                element.style.zIndex = '2147483646';
-              }
-            });
-          });
-        }
-    
-        // 定期检查按钮状态
-        setInterval(defendButton, 50);
-    
-        // 监听DOM变化，防止按钮被删除或修改
-        const observer = new MutationObserver(function(mutations) {
-          mutations.forEach(function(mutation) {
-            if (mutation.type === 'childList') {
-              const buttonsToCheck = ['persistentAddButton', 'fallbackInstallButton', 'giftPackageButton'];
-              buttonsToCheck.forEach(buttonId => {
-                if (!document.getElementById(buttonId)) {
-                  // 按钮被删除，重新创建
-                  if (buttonId === 'persistentAddButton' && customElements.get('pwa-install')) {
-                    const newButton = document.createElement('pwa-install');
-                    newButton.id = 'persistentAddButton';
-                    newButton.style = persistentAddButton.style.cssText;
-                    newButton.innerHTML = persistentAddButton.innerHTML;
-                    document.body.appendChild(newButton);
-                  } else if (buttonId === 'fallbackInstallButton') {
-                    const newButton = document.createElement('button');
-                    newButton.id = 'fallbackInstallButton';
-                    newButton.style = persistentAddButton.style.cssText;
-                    newButton.innerHTML = persistentAddButton.innerHTML;
-                    newButton.onclick = function() {
-                      showDeviceSpecificInstructions();
-                    };
-                    document.body.appendChild(newButton);
-                  } else if (buttonId === 'giftPackageButton') {
-                    const newButton = document.createElement('button');
-                    newButton.id = 'giftPackageButton';
-                    newButton.style = `
-                      position: fixed !important;
-                      top: 80px !important;
-                      right: 20px !important;
-                      z-index: 2147483647 !important;
-                      background: #f59e0b !important;
-                      color: white !important;
-                      padding: 12px 20px !important;
-                      border: none !important;
-                      border-radius: 30px !important;
-                      cursor: pointer !important;
-                      font-size: 14px !important;
-                      display: flex !important;
-                      align-items: center !important;
-                      gap: 8px !important;
-                      box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
-                      pointer-events: auto !important;
-                      will-change: transform !important;
-                      transform: translateZ(0) !important;
-                    `;
-                    newButton.innerHTML = '<i class="fa fa-gift" aria-hidden="true"></i><span>领取指标大礼包</span>';
-                    newButton.onclick = function() {
-                      const modal = document.getElementById('giftModal');
-                      if (modal) {
-                        modal.style.display = 'flex';
-                      }
-                    };
-                    document.body.appendChild(newButton);
-                  }
-                }
-              });
-            }
-          });
-        });
-    
-        // 配置观察器以监视整个文档树
-        observer.observe(document.body, {
-          childList: true,
-          subtree: true,
-          attributes: true,
-          characterData: true
-        });
-    
-        // 检查网络连接状态
-        function checkNetworkStatus() {
-          if (!navigator.onLine) {
-            console.log('当前处于离线状态，将使用缓存内容');
-          }
-        }
-    
-        // 监听网络连接变化
-        window.addEventListener('online', checkNetworkStatus);
-        window.addEventListener('offline', checkNetworkStatus);
-    
-        // 初始化检查
-        checkNetworkStatus();
-      });
+            return originalSetAttribute.call(this, name, value);
+        };
     </script>
-  </body>
+</body>
 </html>
