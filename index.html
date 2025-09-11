@@ -43,7 +43,7 @@
     <!-- 调试信息输出 -->
     <script>console.log('客服系统加载成功');</script>
     
-    <!-- 领取指标大礼包按钮 -->
+    <!-- 领取指标大礼包按钮（图标+文字版） -->
     <div id="giftPackageButton" 
         style="
             position: fixed !important;
@@ -51,51 +51,59 @@
             right: 20px !important;
             transform: translateY(-50%) !important;
             z-index: 2147483647 !important;
-            background: linear-gradient(135deg, #FF6B6B, #FF8E53) !important;
+            background: linear-gradient(135deg, #4A90E2, #5C6BC0) !important;
             color: white !important;
-            padding: 16px !important;
+            padding: 12px 20px !important;
             border: none !important;
-            border-radius: 50% !important;
+            border-radius: 25px !important;
             cursor: pointer !important;
-            font-size: 16px !important;
+            font-size: 14px !important;
+            font-weight: bold !important;
             display: flex !important;
             align-items: center !important;
-            justify-content: center !important;
-            box-shadow: 0 4px 20px rgba(255, 107, 107, 0.5) !important;
+            gap: 8px !important;
+            box-shadow: 0 4px 20px rgba(74, 144, 226, 0.4) !important;
             pointer-events: auto !important;
             will-change: transform !important;
-            transform: translateZ(0) translateY(-50%) !important;
-            animation: pulse 2s infinite !important;
-            width: 60px !important;
-            height: 60px !important;
+            animation: subtleGlow 3s infinite alternate !important;
+            min-width: 120px !important;
+            transition: all 0.3s ease !important;
         "
     >
-        <i class="fa fa-gift" aria-hidden="true"></i>
+        <i class="fa fa-bar-chart" aria-hidden="true" style="font-size: 16px !important;"></i>
+        <span>指标大礼包</span>
     </div>
     
     <!-- 为礼包按钮添加动画和样式 -->
     <style>
-        @keyframes pulse {
+        @keyframes subtleGlow {
             0% {
-                box-shadow: 0 4px 20px rgba(255, 107, 107, 0.5);
-                transform: scale(1) translateY(-50%);
-            }
-            50% {
-                box-shadow: 0 6px 30px rgba(255, 107, 107, 0.8);
-                transform: scale(1.05) translateY(-50%);
+                box-shadow: 0 4px 20px rgba(74, 144, 226, 0.4);
+                background: linear-gradient(135deg, #4A90E2, #5C6BC0);
             }
             100% {
-                box-shadow: 0 4px 20px rgba(255, 107, 107, 0.5);
-                transform: scale(1) translateY(-50%);
+                box-shadow: 0 6px 25px rgba(74, 144, 226, 0.6);
+                background: linear-gradient(135deg, #5BA3F3, #6D82E3);
             }
         }
         
         #giftPackageButton:hover {
-            transform: scale(1.1) translateY(-50%) !important;
+            transform: scale(1.05) translateY(-50%) !important;
+            box-shadow: 0 8px 30px rgba(74, 144, 226, 0.7) !important;
         }
         
         #giftPackageButton:active {
-            transform: scale(0.95) translateY(-50%) !important;
+            transform: scale(0.98) translateY(-50%) !important;
+        }
+        
+        /* 响应式设计：在小屏幕上自动调整样式 */
+        @media (max-width: 768px) {
+            #giftPackageButton {
+                right: 10px !important;
+                font-size: 12px !important;
+                padding: 10px 16px !important;
+                min-width: auto !important;
+            }
         }
     </style>
     
@@ -123,30 +131,30 @@
             if (!giftButton) {
                 const newGiftButton = document.createElement('div');
                 newGiftButton.id = 'giftPackageButton';
-                newGiftButton.innerHTML = '<i class="fa fa-gift" aria-hidden="true"></i>';
+                newGiftButton.innerHTML = '<i class="fa fa-bar-chart" aria-hidden="true" style="font-size: 16px !important;"></i><span>指标大礼包</span>';
                 newGiftButton.style.cssText = `
                     position: fixed !important;
                     top: 50% !important;
                     right: 20px !important;
                     transform: translateY(-50%) !important;
                     z-index: 2147483647 !important;
-                    background: linear-gradient(135deg, #FF6B6B, #FF8E53) !important;
+                    background: linear-gradient(135deg, #4A90E2, #5C6BC0) !important;
                     color: white !important;
-                    padding: 16px !important;
+                    padding: 12px 20px !important;
                     border: none !important;
-                    border-radius: 50% !important;
+                    border-radius: 25px !important;
                     cursor: pointer !important;
-                    font-size: 16px !important;
+                    font-size: 14px !important;
+                    font-weight: bold !important;
                     display: flex !important;
                     align-items: center !important;
-                    justify-content: center !important;
-                    box-shadow: 0 4px 20px rgba(255, 107, 107, 0.5) !important;
+                    gap: 8px !important;
+                    box-shadow: 0 4px 20px rgba(74, 144, 226, 0.4) !important;
                     pointer-events: auto !important;
                     will-change: transform !important;
-                    transform: translateZ(0) translateY(-50%) !important;
-                    animation: pulse 2s infinite !important;
-                    width: 60px !important;
-                    height: 60px !important;
+                    animation: subtleGlow 3s infinite alternate !important;
+                    min-width: 120px !important;
+                    transition: all 0.3s ease !important;
                 `;
                 newGiftButton.onclick = function() {
                     window.location.href = 'qiliantong-download.html';
