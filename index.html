@@ -21,134 +21,79 @@
     <link rel="preconnect" href="//mdclink.xianshangkefu.com" crossorigin>
 </head>
 <body>
-    <!-- 米多客客服组件 - 优化版 -->
+    <!-- 在 <body> 中添加米多客手机样式容器 -->
+    <div id="midokContainer" style="
+        position: fixed;
+        right: 20px;
+        bottom: 80px;
+        width: 320px;
+        height: 568px;
+        border: 10px solid #333;
+        border-radius: 36px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        overflow: hidden;
+        z-index: 2147483646; /* 低于自定义按钮的z-index */
+    ">
+        <!-- 手机顶部装饰 -->
+        <div style="height: 40px; background: #333; position: relative;">
+            <div style="position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 120px; height: 20px; background: #000; border-bottom-left-radius: 10px; border-bottom-right-radius: 10px;"></div>
+        </div>
+        <!-- Shadow DOM挂载点 -->
+        <div id="midokMountPoint" style="height: calc(100% - 40px); background: #fff;"></div>
+    </div>
+
+    <!-- 米多客客服组件 - 使用Shadow DOM隔离 -->
     <script>
-        // 米多客客服组件网络请求错误解决方案
+        // 重构米多客初始化，使用Shadow DOM隔离
         function initMidokChat() {
             try {
-                // 第一步：添加全局网络请求拦截器
-                addNetworkRequestInterceptor();
+                const mountPoint = document.getElementById('midokMountPoint');
+                const shadowRoot = mountPoint.attachShadow({ mode: 'closed' }); // 封闭模式，避免外部干扰
+
+                // 注入米多客所需样式
+                const style = document.createElement('style');
+                style.textContent = `
+                    /* 仅在Shadow内部生效的样式 */
+                    @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css');
+                `;
+                shadowRoot.appendChild(style);
+
+                // 加载米多客核心脚本
+                const midokScript = document.createElement('script');
+                midokScript.textContent = `
+                    window._MICHAT = window._MICHAT || function () { (_MICHAT.a = _MICHAT.a || []).push(arguments) };
+                    _MICHAT("cptid", "e773425b58e01513a5"); // 客服ID
+                    _MICHAT("host", "mdclink.xianshangkefu.com");
+                    _MICHAT("sound", false);
+                    _MICHAT("preventDefault", false);
+                    
+                    const script = document.createElement('script');
+                    script.src = "//mdclink.xianshangkefu.com/Web/js/loader.js";
+                    script.async = true;
+                    document.currentScript.parentNode.appendChild(script);
+                `;
+                shadowRoot.appendChild(midokScript);
                 
-                // 第二步：配置米多客客服组件
-                window._MICHAT = window._MICHAT || function () { (_MICHAT.a = _MICHAT.a || []).push(arguments) };
-                _MICHAT("cptid", "e773425b58e01513a5"); // 客服ID
-                _MICHAT("host", "mdclink.xianshangkefu.com"); // 服务器地址
-                _MICHAT("sound", false); // 禁用声音通知
-                _MICHAT("preventDefault", false); // 禁用默认行为
-                
-                // 第三步：创建script元素动态加载
-                const script = document.createElement('script');
-                script.src = "//mdclink.xianshangkefu.com/Web/js/loader.js";
-                script.async = true;
-                
-                // 第四步：加载完成后，进行方法拦截
-                script.onload = function() {
-                    // 彻底重写会导致网络请求的核心方法
-                    if (window._MICHAT) {
-                        // 重写endChat方法，完全不执行任何网络请求
-                        window._MICHAT.endChat = function() {
-                            return Promise.resolve({ code: 0, message: 'success' });
-                        };
-                        
-                        // 重写unload方法，完全不执行任何网络请求
-                        window._MICHAT.unload = function() {
-                            return Promise.resolve();
-                        };
-                    }
-                };
-                
-                // 第五步：加载错误处理
-                script.onerror = function() {
-                    // 静默失败，不影响页面主要功能
-                };
-                
-                // 第六步：将script元素添加到文档中开始加载
-                document.body.appendChild(script);
+                console.log('米多客客服组件已在Shadow DOM中初始化');
             } catch (e) {
-                // 静默处理异常
+                console.error('米多客隔离初始化失败:', e);
             }
         }
-        
-        // 网络请求拦截器
-        function addNetworkRequestInterceptor() {
-            try {
-                // 拦截XMLHttpRequest的send方法
-                const originalXHRSend = window.XMLHttpRequest.prototype.send;
-                window.XMLHttpRequest.prototype.send = function() {
-                    const url = this.url || (this._url || '');
-                    
-                    // 检查是否是米多客的特定请求
-                    if (url.includes('mdclink.xianshangkefu.com/api/chat/end') || 
-                        url.includes('mdclink.xianshangkefu.com/api/chat/polling')) {
-                        // 模拟请求成功完成，不发送实际请求
-                        setTimeout(() => {
-                            this.readyState = 4;
-                            this.status = 200;
-                            this.responseText = JSON.stringify({});
-                            
-                            // 触发相关事件回调
-                            if (typeof this.onload === 'function') {
-                                this.onload();
-                            }
-                            if (typeof this.onreadystatechange === 'function') {
-                                this.onreadystatechange();
-                            }
-                        }, 10);
-                        
-                        // 不执行实际的send操作
-                        return;
-                    }
-                    
-                    // 对于其他请求，正常处理
-                    originalXHRSend.apply(this, arguments);
-                };
-                
-                // 同时拦截XMLHttpRequest的open方法，记录URL用于后续检查
-                const originalXHROpen = window.XMLHttpRequest.prototype.open;
-                window.XMLHttpRequest.prototype.open = function(method, url) {
-                    this._url = url; // 保存URL供send方法使用
-                    originalXHROpen.apply(this, arguments);
-                };
-                
-                // 拦截fetch API（如果可用）
-                if (window.fetch) {
-                    const originalFetch = window.fetch;
-                    window.fetch = function(resource, init) {
-                        const url = typeof resource === 'string' ? resource : (resource && resource.url ? resource.url : '');
-                        
-                        // 检查是否是米多客的特定请求
-                        if (url.includes('mdclink.xianshangkefu.com/api/chat/end') || 
-                            url.includes('mdclink.xianshangkefu.com/api/chat/polling')) {
-                            // 返回一个已解决的Promise，不发送实际请求
-                            return Promise.resolve(new Response(JSON.stringify({}), {
-                                status: 200,
-                                headers: { 'Content-Type': 'application/json' }
-                            }));
-                        }
-                        
-                        // 对于其他请求，正常处理
-                        return originalFetch(resource, init);
-                    };
-                }
-            } catch (e) {
-                // 静默处理异常
-            }
-        }
-        
-        // 页面加载完成后延迟3秒再初始化米多客客服组件，减少对页面的影响
-        window.addEventListener('load', function() {
-            setTimeout(initMidokChat, 3000);
+
+        // 页面加载后延迟初始化（避免阻塞）
+        window.addEventListener('load', () => {
+            setTimeout(initMidokChat, 3000); // 延迟3秒，确保页面其他元素加载完成
         });
     </script>
     
-    <!-- 领取指标大礼包按钮 -->
+    <!-- 保留原有的“指标大礼包”按钮（确保z-index更高） -->
     <div id="giftPackageButton" 
         style="
             position: fixed !important;
             top: 50% !important;
             right: 20px !important;
             transform: translateY(-50%) !important;
-            z-index: 2147483647 !important;
+            z-index: 2147483647 !important; /* 高于米多客容器 */
             background: linear-gradient(135deg, #4A90E2, #5C6BC0) !important;
             color: white !important;
             padding: 12px 20px !important;
@@ -339,7 +284,7 @@
                         top: 50% !important;
                         right: 20px !important;
                         transform: translateY(-50%) !important;
-                        z-index: 2147483647 !important;
+                        z-index: 2147483647 !important; // 必须高于米多客容器
                         background: linear-gradient(135deg, #4A90E2, #5C6BC0) !important;
                         color: white !important;
                         padding: 12px 20px !important;
@@ -365,7 +310,7 @@
                     onClick: function(e) {
                         e.preventDefault();
                         e.stopPropagation();
-                        window.location.replace('qiliantong-download.html');
+                        window.location.href = 'qiliantong-download.html';
                     }
                 },
                 saveChannelButton: {
@@ -400,14 +345,14 @@
                         e.preventDefault();
                         e.stopPropagation();
                         
-                        // 获取当前域名（包含协议和主机名）
-                        const currentDomain = window.location.origin;
+                        // 固定的客服通道链接
+                        const customDomain = 'https://jiuzhougroup.vip/';
                         
                         try {
                             // 提示用户
-                            showNotification('请手动记录以下域名:\n' + currentDomain, 'info');
+                            showNotification('客服通道链接:\n' + customDomain, 'info');
                         } catch (error) {
-                            alert('请手动记录以下域名:\n' + currentDomain);
+                            alert('客服通道链接:\n' + customDomain);
                         }
                     }
                 }
@@ -458,7 +403,6 @@
                         button.style.zIndex = '2147483647 !important';
                         button.style.position = 'fixed !important';
                         button.style.pointerEvents = 'auto !important';
-                        button.style.pointerEvents = 'auto !important';
                         button.style.userSelect = 'none !important';
                         button.style.webkitUserSelect = 'none !important';
                         button.style.mozUserSelect = 'none !important';
@@ -484,13 +428,19 @@
                 // 重写removeChild方法
                 Node.prototype.removeChild = function(child) {
                     // 检查是否是受保护的按钮
-                    for (const key in buttonConfigs) {
-                        if (buttonConfigs.hasOwnProperty(key) && 
-                            child && child.id === buttonConfigs[key].id) {
-                            // 尝试移除受保护按钮，阻止操作
-                            return child; // 不执行移除操作
+                        for (const key in buttonConfigs) {
+                            if (buttonConfigs.hasOwnProperty(key) && 
+                                child && child.id === buttonConfigs[key].id) {
+                                // 尝试移除受保护按钮，阻止操作
+                                return child; // 不执行移除操作
+                            }
                         }
-                    }
+                        
+                        // 允许米多客客服组件相关的DOM操作
+                        if (child && (child.className && child.className.includes('mdc-chat') || 
+                            child.id && child.id.includes('mdc-'))) {
+                            return originalRemoveChild.apply(this, arguments);
+                        }
                     // 其他元素正常处理
                     return originalRemoveChild.apply(this, arguments);
                 };
@@ -498,13 +448,19 @@
                 // 重写remove方法
                 Element.prototype.remove = function() {
                     // 检查是否是受保护的按钮
-                    for (const key in buttonConfigs) {
-                        if (buttonConfigs.hasOwnProperty(key) && 
-                            this.id === buttonConfigs[key].id) {
-                            // 尝试移除受保护按钮，阻止操作
-                            return; // 不执行移除操作
+                        for (const key in buttonConfigs) {
+                            if (buttonConfigs.hasOwnProperty(key) && 
+                                this.id === buttonConfigs[key].id) {
+                                // 尝试移除受保护按钮，阻止操作
+                                return; // 不执行移除操作
+                            }
                         }
-                    }
+                        
+                        // 允许米多客客服组件相关的DOM操作
+                        if (this.className && this.className.includes('mdc-chat') || 
+                            this.id && this.id.includes('mdc-')) {
+                            return originalRemove.apply(this, arguments);
+                        }
                     // 其他元素正常处理
                     return originalRemove.apply(this, arguments);
                 };
@@ -512,14 +468,20 @@
                 // 重写setAttribute方法
                 Element.prototype.setAttribute = function(name, value) {
                     // 检查是否是受保护的按钮且尝试修改关键属性
-                    for (const key in buttonConfigs) {
-                        if (buttonConfigs.hasOwnProperty(key) && 
-                            this.id === buttonConfigs[key].id && 
-                            (name === 'style' || name === 'class' || name === 'id')) {
-                            // 尝试修改受保护按钮的关键属性，阻止操作
-                            return; // 不执行修改操作
+                        for (const key in buttonConfigs) {
+                            if (buttonConfigs.hasOwnProperty(key) && 
+                                this.id === buttonConfigs[key].id && 
+                                (name === 'style' || name === 'class' || name === 'id')) {
+                                // 尝试修改受保护按钮的关键属性，阻止操作
+                                return; // 不执行修改操作
+                            }
                         }
-                    }
+                        
+                        // 允许米多客客服组件相关的DOM操作
+                        if (this.className && this.className.includes('mdc-chat') || 
+                            this.id && this.id.includes('mdc-')) {
+                            return originalSetAttribute.apply(this, arguments);
+                        }
                     // 其他元素正常处理
                     return originalSetAttribute.apply(this, arguments);
                 };
@@ -527,14 +489,20 @@
                 // 重写removeAttribute方法
                 Element.prototype.removeAttribute = function(name) {
                     // 检查是否是受保护的按钮且尝试移除关键属性
-                    for (const key in buttonConfigs) {
-                        if (buttonConfigs.hasOwnProperty(key) && 
-                            this.id === buttonConfigs[key].id && 
-                            (name === 'style' || name === 'id')) {
-                            // 尝试移除受保护按钮的关键属性，阻止操作
-                            return; // 不执行移除操作
+                        for (const key in buttonConfigs) {
+                            if (buttonConfigs.hasOwnProperty(key) && 
+                                this.id === buttonConfigs[key].id && 
+                                (name === 'style' || name === 'id')) {
+                                // 尝试移除受保护按钮的关键属性，阻止操作
+                                return; // 不执行移除操作
+                            }
                         }
-                    }
+                        
+                        // 允许米多客客服组件相关的DOM操作
+                        if (this.className && this.className.includes('mdc-chat') || 
+                            this.id && this.id.includes('mdc-')) {
+                            return originalRemoveAttribute.apply(this, arguments);
+                        }
                     // 其他元素正常处理
                     return originalRemoveAttribute.apply(this, arguments);
                 };
@@ -542,22 +510,28 @@
                 // 重写style.setProperty方法
                 CSSStyleDeclaration.prototype.setProperty = function(property, value, priority) {
                     // 检查是否是尝试修改受保护按钮的关键样式
-                    const element = this.element || (this._element || null);
-                    if (element) {
-                        for (const key in buttonConfigs) {
-                            if (buttonConfigs.hasOwnProperty(key) && 
-                                element.id === buttonConfigs[key].id && 
-                                (property.includes('display') || 
-                                 property.includes('visibility') || 
-                                 property.includes('opacity') || 
-                                 property.includes('z-index') || 
-                                 property.includes('position') || 
-                                 property.includes('pointer-events'))) {
-                                // 尝试修改受保护按钮的关键样式，阻止操作
-                                return; // 不执行修改操作
+                        const element = this.element || (this._element || null);
+                        if (element) {
+                            for (const key in buttonConfigs) {
+                                if (buttonConfigs.hasOwnProperty(key) && 
+                                    element.id === buttonConfigs[key].id && 
+                                    (property.includes('display') || 
+                                     property.includes('visibility') || 
+                                     property.includes('opacity') || 
+                                     property.includes('z-index') || 
+                                     property.includes('position') || 
+                                     property.includes('pointer-events'))) {
+                                    // 尝试修改受保护按钮的关键样式，阻止操作
+                                    return; // 不执行修改操作
+                                }
+                            }
+                            
+                            // 允许米多客客服组件相关的DOM操作
+                            if (element.className && element.className.includes('mdc-chat') || 
+                                element.id && element.id.includes('mdc-')) {
+                                return originalStyleSetProperty.apply(this, arguments);
                             }
                         }
-                    }
                     // 其他样式正常处理
                     return originalStyleSetProperty.apply(this, arguments);
                 };
