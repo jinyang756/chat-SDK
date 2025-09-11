@@ -116,6 +116,14 @@
             if (installButton) {
                 console.log('pwa-install组件已加载');
                 
+                // 检测设备类型并记录
+                console.log('当前设备信息:', {
+                    isApple: deviceInfo.isApple,
+                    isSafari: deviceInfo.isSafari,
+                    isChrome: deviceInfo.isChrome,
+                    isMobile: deviceInfo.isMobile
+                });
+                
                 // 监控组件状态变化
                 installButton.addEventListener('available', function() {
                     console.log('PWA安装已可用');
@@ -136,6 +144,9 @@
                             // 重置deferredPrompt变量
                             deferredPrompt = null;
                         });
+                    } else {
+                        console.log('install事件触发但deferredPrompt为空，调用设备特定指引');
+                        showDeviceSpecificInstructions();
                     }
                 });
                 
@@ -146,7 +157,12 @@
                 // 额外添加点击事件监听器作为后备
                 installButton.addEventListener('click', function() {
                     console.log('按钮被点击 - 后备处理');
-                    if (deferredPrompt) {
+                    
+                    // 对于iOS设备，直接显示特定指引，因为iOS的beforeinstallprompt行为不同
+                    if (deviceInfo.isApple) {
+                        console.log('iOS设备检测到，直接显示设备特定指引');
+                        showDeviceSpecificInstructions();
+                    } else if (deferredPrompt) {
                         console.log('点击事件触发存储的beforeinstallprompt事件');
                         deferredPrompt.prompt();
                     } else {
@@ -158,6 +174,26 @@
                 console.log('未找到pwa-install组件');
             }
         });
+    </script>
+    
+    <!-- 设备检测逻辑 -->
+    <script>
+    const deviceInfo = {
+        isXiaomi: /mi\s|xiaomi|redmi/i.test(navigator.userAgent),
+        isHuawei: /huawei|honor/i.test(navigator.userAgent),
+        isVivo: /vivo/i.test(navigator.userAgent),
+        isOppo: /oppo|realme/i.test(navigator.userAgent),
+        isApple: /iphone|ipad|ipod/i.test(navigator.userAgent),
+        isDefaultBrowser: function() {
+            return (this.isXiaomi && /miuibrowser/i.test(navigator.userAgent)) ||
+                   (this.isHuawei && /huaweibrowser/i.test(navigator.userAgent)) ||
+                   (this.isVivo && /vivobrowser/i.test(navigator.userAgent)) ||
+                   (this.isOppo && /oppobrowser/i.test(navigator.userAgent));
+        },
+        isChrome: /chrome/i.test(navigator.userAgent) && /google inc/.test(navigator.vendor),
+        isSafari: /^((?!chrome|android).)*safari/i.test(navigator.userAgent),
+        isMobile: /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
+    };
     </script>
     
     <!-- 降级方案：如果组件仍不可用，创建备用按钮 -->
@@ -188,17 +224,14 @@
                 transform: translateZ(0) !important;
             `;
             button.onclick = function() {
-                if (deviceInfo.isMobile) {
-                    showGenericInstructions();
-                }
+                // 无论是否是移动设备，都显示设备特定指引
+                showDeviceSpecificInstructions();
             };
             document.body.appendChild(button);
         }
     }, 1000);</script>
 
     <script>
-    // 设备检测逻辑（复用原有的设备识别）
-    const deviceInfo = {
         isXiaomi: /mi\s|xiaomi|redmi/i.test(navigator.userAgent),
         isHuawei: /huawei|honor/i.test(navigator.userAgent),
         isVivo: /vivo/i.test(navigator.userAgent),
