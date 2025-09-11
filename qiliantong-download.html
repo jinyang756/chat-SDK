@@ -231,10 +231,6 @@
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
         }
         
-        .shadow-md {
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-        }
-        
         .opacity-90 {
             opacity: 0.9;
         }
@@ -601,64 +597,37 @@
         // 下载按钮点击效果增强
         document.querySelectorAll('a[download]').forEach(button => {
             button.addEventListener('click', function(e) {
-                // 显示下载中状态
-                const originalContent = this.innerHTML;
-                this.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i> 下载中...';
-                this.disabled = true;
-                
-                // 模拟下载过程（实际项目中不需要这段）
-                setTimeout(() => {
-                    this.innerHTML = originalContent;
-                    this.disabled = false;
-                }, 2000);
+                // 下载处理由浏览器默认行为完成
             });
         });
     </script>
     
-    <!-- 返回聊天对话页面的显眼按钮 -->
+    <!-- 返回聊天对话页面的按钮 -->
     <style>
-        /* 闪烁动画效果 */
-        @keyframes blinkEffect {
-            0%, 50% { opacity: 1; transform: scale(1); }
-            25%, 75% { opacity: 0.7; transform: scale(1.05); }
-        }
-        
-        /* 呼吸灯效果 */
-        @keyframes breatheEffect {
-            0%, 100% { box-shadow: 0 0 15px rgba(255, 69, 0, 0.6), 0 0 30px rgba(255, 69, 0, 0.3); }
-            50% { box-shadow: 0 0 25px rgba(255, 69, 0, 0.8), 0 0 50px rgba(255, 69, 0, 0.5); }
-        }
-        
         .back-to-chat-button {
             position: fixed;
             bottom: 30px;
             right: 30px;
-            background: linear-gradient(135deg, #FF4500, #FF6347);
+            background: #FF4500;
             color: white;
             border: none;
             border-radius: 50%;
-            width: 80px;
-            height: 80px;
-            font-size: 20px;
+            width: 60px;
+            height: 60px;
+            font-size: 16px;
             font-weight: bold;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 5px;
             z-index: 9999;
-            animation: breatheEffect 3s infinite alternate, blinkEffect 1s infinite;
             transition: all 0.3s ease;
-            box-shadow: 0 0 20px rgba(255, 69, 0, 0.7);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
         
         .back-to-chat-button:hover {
-            transform: scale(1.1) rotate(5deg);
-            box-shadow: 0 0 30px rgba(255, 69, 0, 0.9);
-        }
-        
-        .back-to-chat-button:active {
-            transform: scale(0.95);
+            transform: scale(1.1);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
         }
         
         /* 响应式设计 */
@@ -666,16 +635,15 @@
             .back-to-chat-button {
                 bottom: 20px;
                 right: 20px;
-                width: 60px;
-                height: 60px;
-                font-size: 16px;
+                width: 50px;
+                height: 50px;
+                font-size: 14px;
             }
         }
     </style>
     
     <button class="back-to-chat-button" onclick="window.location.href='index.html'">
         <i class="fa fa-arrow-left" aria-hidden="true"></i>
-        <span>返回</span>
     </button>
 </body>
 </html>

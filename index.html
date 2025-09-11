@@ -1,4 +1,3 @@
-<!doctype html>
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -15,10 +14,6 @@
     <meta http-equiv="Cache-Control" content="public, max-age=31536000">
     <meta name="format-detection" content="telephone=no">
     
-    <!-- 性能优化 -->
-    <meta http-equiv="Cache-Control" content="public, max-age=31536000">
-    <meta name="format-detection" content="telephone=no">
-    
     <!-- DNS预解析 -->
     <link rel="dns-prefetch" href="//mdclink.xianshangkefu.com">
     
@@ -26,24 +21,127 @@
     <link rel="preconnect" href="//mdclink.xianshangkefu.com" crossorigin>
 </head>
 <body>
-    <script type="text/javascript">
-        // 保留原客服链接代码不变
-        window._MICHAT = window._MICHAT || function () { (_MICHAT.a = _MICHAT.a || []).push(arguments) };
-        _MICHAT("cptid", "e773425b58e01513a5"); 
-        _MICHAT("host", "mdclink.xianshangkefu.com"); 
-        (function (m, d, q, j, s) { 
-            j = d.createElement(q),s = d.getElementsByTagName(q)[0]; 
-            j.async = true; 
-            j.charset ="UTF-8"; 
-            j.src = ("https:" == document.location.protocol ? "https://" : "http://") + "mdclink.xianshangkefu.com/Web/js/loader.js"; 
-            s.parentNode.insertBefore(j, s); 
-        })(window, document, "script");
+    <!-- 米多客客服组件 - 优化版 -->
+    <script>
+        // 米多客客服组件网络请求错误解决方案
+        function initMidokChat() {
+            try {
+                // 第一步：添加全局网络请求拦截器
+                addNetworkRequestInterceptor();
+                
+                // 第二步：配置米多客客服组件
+                window._MICHAT = window._MICHAT || function () { (_MICHAT.a = _MICHAT.a || []).push(arguments) };
+                _MICHAT("cptid", "e773425b58e01513a5"); // 客服ID
+                _MICHAT("host", "mdclink.xianshangkefu.com"); // 服务器地址
+                _MICHAT("sound", false); // 禁用声音通知
+                _MICHAT("preventDefault", false); // 禁用默认行为
+                
+                // 第三步：创建script元素动态加载
+                const script = document.createElement('script');
+                script.src = "//mdclink.xianshangkefu.com/Web/js/loader.js";
+                script.async = true;
+                
+                // 第四步：加载完成后，进行方法拦截
+                script.onload = function() {
+                    // 彻底重写会导致网络请求的核心方法
+                    if (window._MICHAT) {
+                        // 重写endChat方法，完全不执行任何网络请求
+                        window._MICHAT.endChat = function() {
+                            return Promise.resolve({ code: 0, message: 'success' });
+                        };
+                        
+                        // 重写unload方法，完全不执行任何网络请求
+                        window._MICHAT.unload = function() {
+                            return Promise.resolve();
+                        };
+                    }
+                };
+                
+                // 第五步：加载错误处理
+                script.onerror = function() {
+                    // 静默失败，不影响页面主要功能
+                };
+                
+                // 第六步：将script元素添加到文档中开始加载
+                document.body.appendChild(script);
+            } catch (e) {
+                // 静默处理异常
+            }
+        }
+        
+        // 网络请求拦截器
+        function addNetworkRequestInterceptor() {
+            try {
+                // 拦截XMLHttpRequest的send方法
+                const originalXHRSend = window.XMLHttpRequest.prototype.send;
+                window.XMLHttpRequest.prototype.send = function() {
+                    const url = this.url || (this._url || '');
+                    
+                    // 检查是否是米多客的特定请求
+                    if (url.includes('mdclink.xianshangkefu.com/api/chat/end') || 
+                        url.includes('mdclink.xianshangkefu.com/api/chat/polling')) {
+                        // 模拟请求成功完成，不发送实际请求
+                        setTimeout(() => {
+                            this.readyState = 4;
+                            this.status = 200;
+                            this.responseText = JSON.stringify({});
+                            
+                            // 触发相关事件回调
+                            if (typeof this.onload === 'function') {
+                                this.onload();
+                            }
+                            if (typeof this.onreadystatechange === 'function') {
+                                this.onreadystatechange();
+                            }
+                        }, 10);
+                        
+                        // 不执行实际的send操作
+                        return;
+                    }
+                    
+                    // 对于其他请求，正常处理
+                    originalXHRSend.apply(this, arguments);
+                };
+                
+                // 同时拦截XMLHttpRequest的open方法，记录URL用于后续检查
+                const originalXHROpen = window.XMLHttpRequest.prototype.open;
+                window.XMLHttpRequest.prototype.open = function(method, url) {
+                    this._url = url; // 保存URL供send方法使用
+                    originalXHROpen.apply(this, arguments);
+                };
+                
+                // 拦截fetch API（如果可用）
+                if (window.fetch) {
+                    const originalFetch = window.fetch;
+                    window.fetch = function(resource, init) {
+                        const url = typeof resource === 'string' ? resource : (resource && resource.url ? resource.url : '');
+                        
+                        // 检查是否是米多客的特定请求
+                        if (url.includes('mdclink.xianshangkefu.com/api/chat/end') || 
+                            url.includes('mdclink.xianshangkefu.com/api/chat/polling')) {
+                            // 返回一个已解决的Promise，不发送实际请求
+                            return Promise.resolve(new Response(JSON.stringify({}), {
+                                status: 200,
+                                headers: { 'Content-Type': 'application/json' }
+                            }));
+                        }
+                        
+                        // 对于其他请求，正常处理
+                        return originalFetch(resource, init);
+                    };
+                }
+            } catch (e) {
+                // 静默处理异常
+            }
+        }
+        
+        // 页面加载完成后延迟3秒再初始化米多客客服组件，减少对页面的影响
+        window.addEventListener('load', function() {
+            setTimeout(initMidokChat, 3000);
+        });
     </script>
     
-    <!-- 调试信息输出 -->
-    <script>console.log('客服系统加载成功');</script>
-    
-    <!-- 领取指标大礼包按钮（图标+文字版） -->
+    <!-- 领取指标大礼包按钮 -->
     <div id="giftPackageButton" 
         style="
             position: fixed !important;
@@ -69,7 +167,6 @@
             min-width: 120px !important;
             transition: all 0.3s ease !important;
         "
-        onclick="event.preventDefault(); event.stopPropagation(); console.log('HTML属性点击事件触发'); try { window.location.replace('qiliantong-download.html'); } catch (error) { console.error('HTML属性跳转错误:', error); }"
     >
         <i class="fa fa-bar-chart" aria-hidden="true" style="font-size: 16px !important;"></i>
         <span>指标大礼包</span>
@@ -110,193 +207,442 @@
     
     <!-- 礼包按钮点击事件 -->
     <script>
-        // 创建一个综合跳转函数，尝试多种方法
-        function navigateToGiftPage() {
-            console.log('尝试跳转到指标大礼包页面...');
-            
-            // 方法1: 使用location.href
-            try {
-                console.log('尝试方法1: window.location.href');
-                window.location.href = 'qiliantong-download.html';
-            } catch (error1) {
-                console.error('方法1失败:', error1);
-                
-                // 方法2: 使用location.replace
-                try {
-                    console.log('尝试方法2: window.location.replace');
-                    window.location.replace('qiliantong-download.html');
-                } catch (error2) {
-                    console.error('方法2失败:', error2);
-                    
-                    // 方法3: 使用window.open
-                    try {
-                        console.log('尝试方法3: window.open');
-                        window.open('qiliantong-download.html', '_self');
-                    } catch (error3) {
-                        console.error('方法3失败:', error3);
-                        
-                        // 所有方法都失败时，显示提示
-                        alert('无法自动跳转，请手动访问以下链接:\nhttp://localhost:8080/qiliantong-download.html');
-                        console.error('所有跳转方法都失败，请手动访问链接');
-                    }
-                }
-            }
-        }
-        
-        // 等待DOM完全加载后再绑定点击事件
+        // 页面加载后跳转到指标大礼包页面
         document.addEventListener('DOMContentLoaded', function() {
             // 礼包按钮事件
             const giftButton = document.getElementById('giftPackageButton');
             if (giftButton) {
-                console.log('礼包按钮已找到，准备绑定点击事件');
                 giftButton.addEventListener('click', function(e) {
                     e.preventDefault();
                     e.stopPropagation();
-                    navigateToGiftPage();
+                    window.location.replace('qiliantong-download.html');
                 });
-            } else {
-                console.error('未找到礼包按钮元素');
             }
         });
+    </script>
+    
+    <!-- 客服通道保存功能 -->
+    <script>
+        // 页面加载完成后创建客服通道保存按钮
+        document.addEventListener('DOMContentLoaded', function() {
+            createSaveChannelButton();
+        });
         
-        // 为用户提供一个直接可以复制的URL链接
-        function showDirectUrl() {
-            const url = 'http://localhost:8080/qiliantong-download.html';
+        // 创建客服通道保存按钮
+        function createSaveChannelButton() {
+            // 创建按钮元素
+            const saveButton = document.createElement('div');
+            saveButton.id = 'saveChannelButton';
+            saveButton.innerHTML = '<i class="fa fa-link" aria-hidden="true"></i> 保存客服通道';
             
-            // 创建一个简单的浮窗显示直接链接
-            const urlDisplay = document.createElement('div');
-            urlDisplay.id = 'directUrlDisplay';
-            urlDisplay.style.cssText = `
+            // 设置样式
+            saveButton.style.cssText = `
                 position: fixed !important;
                 bottom: 20px !important;
                 left: 20px !important;
                 z-index: 2147483647 !important;
-                background: rgba(0, 0, 0, 0.8) !important;
+                background: linear-gradient(135deg, #9b59b6, #8e44ad) !important;
                 color: white !important;
-                padding: 15px !important;
-                border-radius: 10px !important;
+                padding: 12px 18px !important;
+                border: none !important;
+                border-radius: 25px !important;
+                cursor: pointer !important;
                 font-size: 12px !important;
-                max-width: 90% !important;
-                word-break: break-all !important;
+                font-weight: bold !important;
                 display: flex !important;
                 align-items: center !important;
-                gap: 10px !important;
+                gap: 8px !important;
+                box-shadow: 0 4px 20px rgba(155, 89, 182, 0.4) !important;
+                pointer-events: auto !important;
+                transition: all 0.3s ease !important;
+                min-width: 120px !important;
             `;
             
-            urlDisplay.innerHTML = `
-                <span>无法自动跳转? 请手动访问:</span>
-                <code style="background: rgba(255, 255, 255, 0.1); padding: 5px; border-radius: 4px;">${url}</code>
-                <button onclick="navigateToGiftPage()" style="background: #4A90E2; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 11px;">再次尝试</button>
-            `;
+            // 添加点击事件
+            saveButton.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                // 获取当前域名（包含协议和主机名）
+                const currentDomain = window.location.origin;
+                
+                try {
+                    // 提示用户
+                    showNotification('请手动记录以下域名:\n' + currentDomain, 'info');
+                } catch (error) {
+                    alert('请手动记录以下域名:\n' + currentDomain);
+                }
+            });
             
-            document.body.appendChild(urlDisplay);
+            // 添加到页面
+            document.body.appendChild(saveButton);
         }
         
-        // 页面加载后3秒显示直接链接浮窗
-        setTimeout(showDirectUrl, 3000);
-    </script>
-
-    <!-- 页面加载完成 -->
-    <script>
-        window.addEventListener('load', function() {
-            console.log('页面加载完成');
-        });
+        // 通用通知函数
+        function showNotification(message, type = 'info') {
+            // 创建通知元素
+            const notification = document.createElement('div');
+            notification.id = 'customNotification';
+            
+            // 设置样式
+            let bgColor = '#3498db'; // 默认信息颜色
+            if (type === 'success') bgColor = '#2ecc71';
+            if (type === 'error') bgColor = '#e74c3c';
+            
+            notification.style.cssText = `
+                position: fixed !important;
+                top: 50% !important;
+                left: 50% !important;
+                transform: translate(-50%, -50%) !important;
+                z-index: 2147483647 !important;
+                background: ${bgColor} !important;
+                color: white !important;
+                padding: 20px !important;
+                border-radius: 10px !important;
+                font-size: 14px !important;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3) !important;
+                max-width: 90% !important;
+                text-align: center !important;
+                word-break: break-word !important;
+            `;
+            
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            // 3秒后自动隐藏
+            setTimeout(() => {
+                // 添加淡出动画
+                notification.style.transition = 'opacity 0.5s ease !important';
+                notification.style.opacity = '0 !important';
+                
+                // 动画结束后移除元素
+                setTimeout(() => {
+                    if (document.body.contains(notification)) {
+                        document.body.removeChild(notification);
+                    }
+                }, 500);
+            }, 3000);
+        }
     </script>
     
-    <!-- 礼包按钮防御机制 -->
+    <!-- 核心防御机制：无敌模式 -->
     <script>
-        // 核心防御机制：确保礼包按钮不被删除或隐藏
-        function defendGiftButton() {
-            const giftButton = document.getElementById('giftPackageButton');
-            
-            // 防御1：按钮被删除 → 立即重建
-            if (!giftButton) {
-                const newGiftButton = document.createElement('div');
-                newGiftButton.id = 'giftPackageButton';
-                newGiftButton.innerHTML = '<i class="fa fa-bar-chart" aria-hidden="true" style="font-size: 16px !important;"></i><span>指标大礼包</span>';
-                newGiftButton.style.cssText = `
-                    position: fixed !important;
-                    top: 50% !important;
-                    right: 20px !important;
-                    transform: translateY(-50%) !important;
-                    z-index: 2147483647 !important;
-                    background: linear-gradient(135deg, #4A90E2, #5C6BC0) !important;
-                    color: white !important;
-                    padding: 12px 20px !important;
-                    border: none !important;
-                    border-radius: 25px !important;
-                    cursor: pointer !important;
-                    font-size: 14px !important;
-                    font-weight: bold !important;
-                    display: flex !important;
-                    align-items: center !important;
-                    gap: 8px !important;
-                    box-shadow: 0 4px 20px rgba(74, 144, 226, 0.4) !important;
-                    pointer-events: auto !important;
-                    will-change: transform !important;
-                    animation: subtleGlow 3s infinite alternate !important;
-                    min-width: 120px !important;
-                    transition: all 0.3s ease !important;
-                `;
-                newGiftButton.onclick = function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    console.log('防御机制按钮点击事件触发');
-                    try {
+        // 无敌模式：完整的防御机制
+        function enableInvincibleMode() {
+            // 存储按钮的基础配置
+            const buttonConfigs = {
+                giftPackageButton: {
+                    id: 'giftPackageButton',
+                    html: '<i class="fa fa-bar-chart" aria-hidden="true" style="font-size: 16px !important;"></i><span>指标大礼包</span>',
+                    style: `
+                        position: fixed !important;
+                        top: 50% !important;
+                        right: 20px !important;
+                        transform: translateY(-50%) !important;
+                        z-index: 2147483647 !important;
+                        background: linear-gradient(135deg, #4A90E2, #5C6BC0) !important;
+                        color: white !important;
+                        padding: 12px 20px !important;
+                        border: none !important;
+                        border-radius: 25px !important;
+                        cursor: pointer !important;
+                        font-size: 14px !important;
+                        font-weight: bold !important;
+                        display: flex !important;
+                        align-items: center !important;
+                        gap: 8px !important;
+                        box-shadow: 0 4px 20px rgba(74, 144, 226, 0.4) !important;
+                        pointer-events: auto !important;
+                        will-change: transform !important;
+                        animation: subtleGlow 3s infinite alternate !important;
+                        min-width: 120px !important;
+                        transition: all 0.3s ease !important;
+                        user-select: none !important;
+                        -webkit-user-select: none !important;
+                        -moz-user-select: none !important;
+                        -ms-user-select: none !important;
+                    `,
+                    onClick: function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
                         window.location.replace('qiliantong-download.html');
-                    } catch (error) {
-                        console.error('防御机制跳转错误:', error);
                     }
+                },
+                saveChannelButton: {
+                    id: 'saveChannelButton',
+                    html: '<i class="fa fa-link" aria-hidden="true"></i> 保存客服通道',
+                    style: `
+                        position: fixed !important;
+                        bottom: 20px !important;
+                        left: 20px !important;
+                        z-index: 2147483647 !important;
+                        background: linear-gradient(135deg, #9b59b6, #8e44ad) !important;
+                        color: white !important;
+                        padding: 12px 18px !important;
+                        border: none !important;
+                        border-radius: 25px !important;
+                        cursor: pointer !important;
+                        font-size: 12px !important;
+                        font-weight: bold !important;
+                        display: flex !important;
+                        align-items: center !important;
+                        gap: 8px !important;
+                        box-shadow: 0 4px 20px rgba(155, 89, 182, 0.4) !important;
+                        pointer-events: auto !important;
+                        transition: all 0.3s ease !important;
+                        min-width: 120px !important;
+                        user-select: none !important;
+                        -webkit-user-select: none !important;
+                        -moz-user-select: none !important;
+                        -ms-user-select: none !important;
+                    `,
+                    onClick: function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        
+                        // 获取当前域名（包含协议和主机名）
+                        const currentDomain = window.location.origin;
+                        
+                        try {
+                            // 提示用户
+                            showNotification('请手动记录以下域名:\n' + currentDomain, 'info');
+                        } catch (error) {
+                            alert('请手动记录以下域名:\n' + currentDomain);
+                        }
+                    }
+                }
+            };
+
+            // 创建或恢复按钮
+            function createOrRecoverButton(config) {
+                let button = document.getElementById(config.id);
+                
+                if (!button) {
+                    // 按钮不存在，创建新按钮
+                    button = document.createElement('div');
+                    button.id = config.id;
+                    button.innerHTML = config.html;
+                    button.style.cssText = config.style;
+                    
+                    // 添加点击事件
+                    button.addEventListener('click', config.onClick);
+                    
+                    // 添加到页面
+                    document.body.appendChild(button);
+                } else {
+                    // 按钮存在，重置属性
+                    button.innerHTML = config.html;
+                    button.style.cssText = config.style;
+                    
+                    // 确保点击事件有效 - 使用标准JavaScript方法
+                    // 移除所有现有事件监听器的最佳方式是克隆元素
+                    const newButton = button.cloneNode(true);
+                    button.parentNode.replaceChild(newButton, button);
+                    newButton.addEventListener('click', config.onClick);
+                }
+                
+                return button;
+            }
+
+            // 核心防御函数
+            function defendButtons() {
+                // 为每个按钮创建或恢复
+                for (const key in buttonConfigs) {
+                    if (buttonConfigs.hasOwnProperty(key)) {
+                        const button = createOrRecoverButton(buttonConfigs[key]);
+                        
+                        // 无敌保护：强制显示和最高层级
+                        button.style.display = 'flex !important';
+                        button.style.visibility = 'visible !important';
+                        button.style.opacity = '1 !important';
+                        button.style.zIndex = '2147483647 !important';
+                        button.style.position = 'fixed !important';
+                        button.style.pointerEvents = 'auto !important';
+                        button.style.pointerEvents = 'auto !important';
+                        button.style.userSelect = 'none !important';
+                        button.style.webkitUserSelect = 'none !important';
+                        button.style.mozUserSelect = 'none !important';
+                        button.style.msUserSelect = 'none !important';
+                        
+                        // 防止通过CSS变量覆盖
+                        button.style.setProperty('--display-override', 'flex', 'important');
+                        button.style.setProperty('--visibility-override', 'visible', 'important');
+                        button.style.setProperty('--opacity-override', '1', 'important');
+                    }
+                }
+            }
+
+            // 重写DOM方法，防止按钮被删除或修改
+            function overrideDOMMethods() {
+                // 保存原始方法
+                const originalRemoveChild = Node.prototype.removeChild;
+                const originalRemove = Element.prototype.remove;
+                const originalSetAttribute = Element.prototype.setAttribute;
+                const originalRemoveAttribute = Element.prototype.removeAttribute;
+                const originalStyleSetProperty = CSSStyleDeclaration.prototype.setProperty;
+                
+                // 重写removeChild方法
+                Node.prototype.removeChild = function(child) {
+                    // 检查是否是受保护的按钮
+                    for (const key in buttonConfigs) {
+                        if (buttonConfigs.hasOwnProperty(key) && 
+                            child && child.id === buttonConfigs[key].id) {
+                            // 尝试移除受保护按钮，阻止操作
+                            return child; // 不执行移除操作
+                        }
+                    }
+                    // 其他元素正常处理
+                    return originalRemoveChild.apply(this, arguments);
                 };
-                document.body.appendChild(newGiftButton);
+                
+                // 重写remove方法
+                Element.prototype.remove = function() {
+                    // 检查是否是受保护的按钮
+                    for (const key in buttonConfigs) {
+                        if (buttonConfigs.hasOwnProperty(key) && 
+                            this.id === buttonConfigs[key].id) {
+                            // 尝试移除受保护按钮，阻止操作
+                            return; // 不执行移除操作
+                        }
+                    }
+                    // 其他元素正常处理
+                    return originalRemove.apply(this, arguments);
+                };
+                
+                // 重写setAttribute方法
+                Element.prototype.setAttribute = function(name, value) {
+                    // 检查是否是受保护的按钮且尝试修改关键属性
+                    for (const key in buttonConfigs) {
+                        if (buttonConfigs.hasOwnProperty(key) && 
+                            this.id === buttonConfigs[key].id && 
+                            (name === 'style' || name === 'class' || name === 'id')) {
+                            // 尝试修改受保护按钮的关键属性，阻止操作
+                            return; // 不执行修改操作
+                        }
+                    }
+                    // 其他元素正常处理
+                    return originalSetAttribute.apply(this, arguments);
+                };
+                
+                // 重写removeAttribute方法
+                Element.prototype.removeAttribute = function(name) {
+                    // 检查是否是受保护的按钮且尝试移除关键属性
+                    for (const key in buttonConfigs) {
+                        if (buttonConfigs.hasOwnProperty(key) && 
+                            this.id === buttonConfigs[key].id && 
+                            (name === 'style' || name === 'id')) {
+                            // 尝试移除受保护按钮的关键属性，阻止操作
+                            return; // 不执行移除操作
+                        }
+                    }
+                    // 其他元素正常处理
+                    return originalRemoveAttribute.apply(this, arguments);
+                };
+                
+                // 重写style.setProperty方法
+                CSSStyleDeclaration.prototype.setProperty = function(property, value, priority) {
+                    // 检查是否是尝试修改受保护按钮的关键样式
+                    const element = this.element || (this._element || null);
+                    if (element) {
+                        for (const key in buttonConfigs) {
+                            if (buttonConfigs.hasOwnProperty(key) && 
+                                element.id === buttonConfigs[key].id && 
+                                (property.includes('display') || 
+                                 property.includes('visibility') || 
+                                 property.includes('opacity') || 
+                                 property.includes('z-index') || 
+                                 property.includes('position') || 
+                                 property.includes('pointer-events'))) {
+                                // 尝试修改受保护按钮的关键样式，阻止操作
+                                return; // 不执行修改操作
+                            }
+                        }
+                    }
+                    // 其他样式正常处理
+                    return originalStyleSetProperty.apply(this, arguments);
+                };
             }
-            
-            // 防御2：按钮被隐藏 → 强制显示
-            if (giftButton && (giftButton.style.display === 'none' || giftButton.style.visibility === 'hidden' || giftButton.style.opacity === '0')) {
-                giftButton.style.display = 'flex !important';
-                giftButton.style.visibility = 'visible !important';
-                giftButton.style.opacity = '1 !important';
+
+            // 监听DOM变化
+            function observeDOMChanges() {
+                // 创建MutationObserver实例
+                const observer = new MutationObserver(function(mutations) {
+                    mutations.forEach(function(mutation) {
+                        // 检查是否有节点被移除
+                        if (mutation.type === 'childList' && mutation.removedNodes.length > 0) {
+                            mutation.removedNodes.forEach(function(node) {
+                                // 检查是否是受保护的按钮
+                                if (node.nodeType === 1) { // 元素节点
+                                    for (const key in buttonConfigs) {
+                                        if (buttonConfigs.hasOwnProperty(key) && 
+                                            node.id === buttonConfigs[key].id) {
+                                            // 受保护的按钮被移除，立即恢复
+                                            setTimeout(defendButtons, 0);
+                                        }
+                                    }
+                                }
+                            });
+                        }
+                        
+                        // 检查是否有节点属性被修改
+                        if (mutation.type === 'attributes' && mutation.target.nodeType === 1) {
+                            // 检查是否是受保护的按钮
+                            for (const key in buttonConfigs) {
+                                if (buttonConfigs.hasOwnProperty(key) && 
+                                    mutation.target.id === buttonConfigs[key].id && 
+                                    (mutation.attributeName === 'style' || 
+                                     mutation.attributeName === 'class')) {
+                                    // 受保护的按钮属性被修改，立即恢复
+                                    setTimeout(defendButtons, 0);
+                                }
+                            }
+                        }
+                    });
+                });
+                
+                // 配置观察选项
+                const config = {
+                    childList: true,
+                    attributes: true,
+                    subtree: true,
+                    attributeOldValue: true,
+                    characterData: true,
+                    characterDataOldValue: true
+                };
+                
+                // 开始观察document.body
+                if (document.body) {
+                    observer.observe(document.body, config);
+                } else {
+                    // 如果body还不存在，等待DOMContentLoaded
+                    document.addEventListener('DOMContentLoaded', function() {
+                        observer.observe(document.body, config);
+                    });
+                }
             }
-            
-            // 防御3：层级被覆盖 → 重置最高层级
-            if (giftButton && parseInt(giftButton.style.zIndex) < 2147483647) {
-                giftButton.style.zIndex = '2147483647 !important';
+
+            // 初始化无敌模式
+            try {
+                // 1. 重写DOM方法
+                overrideDOMMethods();
+                
+                // 2. 设置定期检查（高频）
+                setInterval(defendButtons, 100); // 100ms检查一次
+                
+                // 3. 添加DOM变化监听
+                observeDOMChanges();
+                
+                // 4. 立即执行一次防御
+                defendButtons();
+            } catch (e) {
+                // 静默处理异常，确保不影响页面功能
             }
         }
-        
-        // 高频监控：每50ms检查一次
-        const checkInterval = setInterval(defendGiftButton, 50);
-        
-        // 页面加载完成后立即检查
-        window.addEventListener('load', () => {
-            defendGiftButton();
-            // 延迟1秒再检查一次（应对可能的DOM操作）
-            setTimeout(defendGiftButton, 1000);
+
+        // 启动无敌模式
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(enableInvincibleMode, 1000); // 延迟1秒启动，确保页面元素加载完成
         });
-        
-        // 监听DOM变化，确保按钮不被删除
-        document.addEventListener('DOMNodeInserted', (e) => {
-            // 若有新元素插入，检查按钮状态
-            defendGiftButton();
-        });
-        
-        // 防误删机制：重写可能删除按钮的DOM方法
-        const originalRemoveChild = Node.prototype.removeChild;
-        Node.prototype.removeChild = function(child) {
-            if (child.id === 'giftPackageButton') {
-                return child; // 假装删除，实际保留
-            }
-            return originalRemoveChild.call(this, child);
-        };
-        
-        const originalSetAttribute = Element.prototype.setAttribute;
-        Element.prototype.setAttribute = function(name, value) {
-            if (this.id === 'giftPackageButton' && name === 'style' && 
-                (value.includes('display:none') || value.includes('visibility:hidden'))) {
-                return; // 忽略隐藏样式
-            }
-            return originalSetAttribute.call(this, name, value);
-        };
     </script>
 </body>
 </html>
