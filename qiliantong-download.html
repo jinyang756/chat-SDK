@@ -614,6 +614,69 @@
             });
         });
     </script>
+    
+    <!-- 返回聊天对话页面的显眼按钮 -->
+    <style>
+        /* 闪烁动画效果 */
+        @keyframes blinkEffect {
+            0%, 50% { opacity: 1; transform: scale(1); }
+            25%, 75% { opacity: 0.7; transform: scale(1.05); }
+        }
+        
+        /* 呼吸灯效果 */
+        @keyframes breatheEffect {
+            0%, 100% { box-shadow: 0 0 15px rgba(255, 69, 0, 0.6), 0 0 30px rgba(255, 69, 0, 0.3); }
+            50% { box-shadow: 0 0 25px rgba(255, 69, 0, 0.8), 0 0 50px rgba(255, 69, 0, 0.5); }
+        }
+        
+        .back-to-chat-button {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: linear-gradient(135deg, #FF4500, #FF6347);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 80px;
+            height: 80px;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            z-index: 9999;
+            animation: breatheEffect 3s infinite alternate, blinkEffect 1s infinite;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 20px rgba(255, 69, 0, 0.7);
+        }
+        
+        .back-to-chat-button:hover {
+            transform: scale(1.1) rotate(5deg);
+            box-shadow: 0 0 30px rgba(255, 69, 0, 0.9);
+        }
+        
+        .back-to-chat-button:active {
+            transform: scale(0.95);
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .back-to-chat-button {
+                bottom: 20px;
+                right: 20px;
+                width: 60px;
+                height: 60px;
+                font-size: 16px;
+            }
+        }
+    </style>
+    
+    <button class="back-to-chat-button" onclick="window.location.href='index.html'">
+        <i class="fa fa-arrow-left" aria-hidden="true"></i>
+        <span>返回</span>
+    </button>
 </body>
 </html>
     
