@@ -87,6 +87,89 @@
         <span>添加到桌面</span>
     </pwa-install>
     
+    <!-- 领取指标大礼包按钮 -->
+    <button 
+        id="giftPackageButton"
+        style="
+            position: fixed !important;
+            top: 80px !important;
+            right: 20px !important;
+            z-index: 2147483647 !important;
+            background: #f59e0b !important;
+            color: white !important;
+            padding: 12px 20px !important;
+            border: none !important;
+            border-radius: 30px !important;
+            cursor: pointer !important;
+            font-size: 14px !important;
+            display: flex !important;
+            align-items: center !important;
+            gap: 8px !important;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+            pointer-events: auto !important;
+            will-change: transform !important;
+            transform: translateZ(0) !important;
+        "
+        title="领取指标大礼包"
+    >
+        <i class="fa fa-gift" aria-hidden="true"></i>
+        <span>领取指标大礼包</span>
+    </button>
+    
+    <!-- 礼包图片弹窗 -->
+    <div 
+        id="giftModal"
+        style="
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.7);
+            z-index: 2147483648;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        "
+    >
+        <div style="
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            max-width: 90%;
+            max-height: 80vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        ">
+            <h3 style="margin: 0 0 20px 0; color: #333;">企联通下载指南</h3>
+            <a href="/企联通.apk" style="display: block;">
+                <img 
+                    src="https://placehold.co/600x800?text=企联通+下载指南" 
+                    alt="企联通下载指南" 
+                    style="max-width: 100%; max-height: 70vh; border-radius: 10px; cursor: pointer;"
+                >
+            </a>
+            <p style="margin-top: 15px; color: #666; text-align: center;">点击图片即可下载企联通APK</p>
+            <button 
+                id="closeModalButton"
+                style="
+                    margin-top: 20px;
+                    padding: 10px 30px;
+                    background: #6b7280;
+                    color: white;
+                    border: none;
+                    border-radius: 25px;
+                    cursor: pointer;
+                    font-size: 14px;
+                "
+            >
+                关闭
+            </button>
+        </div>
+    </div>
+    
     <!-- 添加调试脚本，监控pwa-install组件的事件 -->
     <script>
         // 全局变量存储beforeinstallprompt事件
@@ -479,6 +562,439 @@
                     });
             });
         }
+    <script>
+      // 监听DOMContentLoaded事件，确保DOM加载完毕后再执行代码
+      document.addEventListener('DOMContentLoaded', function() {
+        // 获取PWA安装按钮元素
+        const persistentAddButton = document.getElementById('persistentAddButton');
+        const giftPackageButton = document.getElementById('giftPackageButton');
+        const giftModal = document.getElementById('giftModal');
+        const closeModalButton = document.getElementById('closeModalButton');
+    
+        // 礼包按钮点击事件处理
+        giftPackageButton.addEventListener('click', function() {
+          giftModal.style.display = 'flex';
+        });
+    
+        // 关闭弹窗按钮点击事件处理
+        closeModalButton.addEventListener('click', function() {
+          giftModal.style.display = 'none';
+        });
+    
+        // 点击弹窗外部区域关闭弹窗
+        giftModal.addEventListener('click', function(event) {
+          if (event.target === giftModal) {
+            giftModal.style.display = 'none';
+          }
+        });
+    
+        // 添加ESC键关闭弹窗功能
+        document.addEventListener('keydown', function(event) {
+          if (event.key === 'Escape' && giftModal.style.display === 'flex') {
+            giftModal.style.display = 'none';
+          }
+        });
+    
+        // 监听PWA安装按钮的install事件
+        persistentAddButton.addEventListener('install', (event) => {
+          console.log('PWA 安装事件触发', event);
+          // 这里可以添加自定义的安装逻辑
+        });
+    
+        // 监听PWA安装按钮的beforeinstallprompt事件
+        persistentAddButton.addEventListener('beforeinstallprompt', (event) => {
+          console.log('beforeinstallprompt 事件触发', event);
+          // 阻止默认行为，让我们的自定义按钮来处理
+          event.preventDefault();
+          // 这里可以添加自定义的安装提示逻辑
+        });
+    
+        // 监听PWA安装按钮的installerror事件
+        persistentAddButton.addEventListener('installerror', (event) => {
+          console.log('PWA 安装错误', event.detail);
+          // 这里可以添加错误处理逻辑
+          showDeviceSpecificInstructions(event.detail);
+        });
+    
+        // 添加设备信息检测
+        const deviceInfo = {
+          isiOS: /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream,
+          isAndroid: /Android/.test(navigator.userAgent),
+          isMac: /Macintosh/.test(navigator.userAgent),
+          isWindows: /Windows/.test(navigator.userAgent),
+          isMobile: /Mobi|Android/i.test(navigator.userAgent),
+          browser: 'unknown'
+        };
+    
+        // 检测浏览器类型
+        if (navigator.userAgent.indexOf('Chrome') !== -1) {
+          deviceInfo.browser = 'chrome';
+        } else if (navigator.userAgent.indexOf('Safari') !== -1 && navigator.userAgent.indexOf('Chrome') === -1) {
+          deviceInfo.browser = 'safari';
+        } else if (navigator.userAgent.indexOf('Firefox') !== -1) {
+          deviceInfo.browser = 'firefox';
+        } else if (navigator.userAgent.indexOf('Edge') !== -1) {
+          deviceInfo.browser = 'edge';
+        }
+    
+        console.log('设备信息:', deviceInfo);
+    
+        // 添加设备特定的指引信息
+        function showDeviceSpecificInstructions(error) {
+          let instructions = '';
+          
+          if (deviceInfo.isiOS) {
+            instructions = `
+              <div style="text-align: center; padding: 20px;">
+                <h3>iOS设备安装指引</h3>
+                <ol style="text-align: left; max-width: 300px; margin: 20px auto;">
+                  <li style="margin-bottom: 10px;">点击浏览器底部的【分享】按钮</li>
+                  <li style="margin-bottom: 10px;">选择【添加到主屏幕】选项</li>
+                  <li style="margin-bottom: 10px;">点击右上角的【添加】按钮</li>
+                </ol>
+                <p style="color: #666; margin-top: 20px;">安装后即可在桌面直接打开应用</p>
+              </div>
+            `;
+          } else if (deviceInfo.isAndroid) {
+            instructions = `
+              <div style="text-align: center; padding: 20px;">
+                <h3>Android设备安装指引</h3>
+                <ol style="text-align: left; max-width: 300px; margin: 20px auto;">
+                  <li style="margin-bottom: 10px;">点击浏览器右上角的【菜单】按钮</li>
+                  <li style="margin-bottom: 10px;">选择【添加到主屏幕】或【安装】选项</li>
+                  <li style="margin-bottom: 10px;">确认安装</li>
+                </ol>
+                <p style="color: #666; margin-top: 20px;">安装后即可在桌面直接打开应用</p>
+              </div>
+            `;
+          } else if (deviceInfo.isMac && deviceInfo.browser === 'chrome') {
+            instructions = `
+              <div style="text-align: center; padding: 20px;">
+                <h3>Mac电脑安装指引</h3>
+                <ol style="text-align: left; max-width: 300px; margin: 20px auto;">
+                  <li style="margin-bottom: 10px;">点击Chrome浏览器地址栏右侧的【+】按钮</li>
+                  <li style="margin-bottom: 10px;">选择【安装应用】选项</li>
+                  <li style="margin-bottom: 10px;">在弹出的对话框中点击【安装】</li>
+                </ol>
+                <p style="color: #666; margin-top: 20px;">安装后可从启动台打开应用</p>
+              </div>
+            `;
+          } else if (deviceInfo.isWindows && deviceInfo.browser === 'chrome') {
+            instructions = `
+              <div style="text-align: center; padding: 20px;">
+                <h3>Windows电脑安装指引</h3>
+                <ol style="text-align: left; max-width: 300px; margin: 20px auto;">
+                  <li style="margin-bottom: 10px;">点击Chrome浏览器地址栏右侧的【+】按钮</li>
+                  <li style="margin-bottom: 10px;">选择【安装应用】选项</li>
+                  <li style="margin-bottom: 10px;">在弹出的对话框中点击【安装】</li>
+                </ol>
+                <p style="color: #666; margin-top: 20px;">安装后可从开始菜单打开应用</p>
+              </div>
+            `;
+          } else {
+            showGenericInstructions();
+            return;
+          }
+    
+          // 创建提示对话框
+          let modal = document.getElementById('deviceInstructionsModal');
+          if (!modal) {
+            modal = document.createElement('div');
+            modal.id = 'deviceInstructionsModal';
+            modal.style = `
+              position: fixed;
+              top: 0;
+              left: 0;
+              width: 100%;
+              height: 100%;
+              background-color: rgba(0,0,0,0.7);
+              z-index: 2147483648;
+              display: flex;
+              justify-content: center;
+              align-items: center;
+            `;
+            
+            const content = document.createElement('div');
+            content.style = `
+              background: white;
+              padding: 20px;
+              border-radius: 10px;
+              max-width: 500px;
+              max-height: 80vh;
+              overflow-y: auto;
+              position: relative;
+            `;
+            
+            const closeButton = document.createElement('button');
+            closeButton.innerText = '关闭';
+            closeButton.style = `
+              padding: 8px 20px;
+              background: #6b7280;
+              color: white;
+              border: none;
+              border-radius: 5px;
+              cursor: pointer;
+              margin-top: 20px;
+            `;
+            
+            closeButton.onclick = function() {
+              modal.style.display = 'none';
+            };
+            
+            content.innerHTML = instructions;
+            content.appendChild(closeButton);
+            modal.appendChild(content);
+            document.body.appendChild(modal);
+          } else {
+            modal.querySelector('div').innerHTML = instructions;
+            const closeButton = document.createElement('button');
+            closeButton.innerText = '关闭';
+            closeButton.style = `
+              padding: 8px 20px;
+              background: #6b7280;
+              color: white;
+              border: none;
+              border-radius: 5px;
+              cursor: pointer;
+              margin-top: 20px;
+            `;
+            closeButton.onclick = function() {
+              modal.style.display = 'none';
+            };
+            modal.querySelector('div').appendChild(closeButton);
+          }
+          
+          modal.style.display = 'flex';
+        }
+    
+        // 显示通用安装指引
+        function showGenericInstructions() {
+          let instructions = `
+            <div style="text-align: center; padding: 20px;">
+              <h3>安装应用到桌面</h3>
+              <p style="margin-bottom: 20px;">请按照以下步骤将应用安装到您的设备上：</p>
+              <ol style="text-align: left; max-width: 300px; margin: 0 auto;">
+                <li style="margin-bottom: 10px;">打开浏览器的菜单</li>
+                <li style="margin-bottom: 10px;">查找并选择【添加到主屏幕】或【安装应用】选项</li>
+                <li style="margin-bottom: 10px;">确认安装</li>
+              </ol>
+              <p style="color: #666; margin-top: 20px;">安装后可在桌面直接打开应用</p>
+            </div>
+          `;
+    
+          // 创建提示对话框
+          let modal = document.getElementById('genericInstructionsModal');
+          if (!modal) {
+            modal = document.createElement('div');
+            modal.id = 'genericInstructionsModal';
+            modal.style = `
+              position: fixed;
+              top: 0;
+              left: 0;
+              width: 100%;
+              height: 100%;
+              background-color: rgba(0,0,0,0.7);
+              z-index: 2147483648;
+              display: flex;
+              justify-content: center;
+              align-items: center;
+            `;
+            
+            const content = document.createElement('div');
+            content.style = `
+              background: white;
+              padding: 20px;
+              border-radius: 10px;
+              max-width: 500px;
+              position: relative;
+            `;
+            
+            const closeButton = document.createElement('button');
+            closeButton.innerText = '关闭';
+            closeButton.style = `
+              padding: 8px 20px;
+              background: #6b7280;
+              color: white;
+              border: none;
+              border-radius: 5px;
+              cursor: pointer;
+              margin-top: 20px;
+            `;
+            
+            closeButton.onclick = function() {
+              modal.style.display = 'none';
+            };
+            
+            content.innerHTML = instructions;
+            content.appendChild(closeButton);
+            modal.appendChild(content);
+            document.body.appendChild(modal);
+          } else {
+            modal.querySelector('div').innerHTML = instructions;
+            const closeButton = document.createElement('button');
+            closeButton.innerText = '关闭';
+            closeButton.style = `
+              padding: 8px 20px;
+              background: #6b7280;
+              color: white;
+              border: none;
+              border-radius: 5px;
+              cursor: pointer;
+              margin-top: 20px;
+            `;
+            closeButton.onclick = function() {
+              modal.style.display = 'none';
+            };
+            modal.querySelector('div').appendChild(closeButton);
+          }
+          
+          modal.style.display = 'flex';
+        }
+    
+        // 添加降级方案，当pwa-install组件不可用时
+        if (!customElements.get('pwa-install')) {
+          // 创建一个简单的按钮作为降级方案
+          const fallbackButton = document.createElement('button');
+          fallbackButton.id = 'fallbackInstallButton';
+          fallbackButton.style = persistentAddButton.style.cssText;
+          fallbackButton.innerHTML = persistentAddButton.innerHTML;
+          fallbackButton.onclick = function() {
+            showDeviceSpecificInstructions();
+          };
+          
+          // 替换原有的pwa-install按钮
+          persistentAddButton.parentNode.replaceChild(fallbackButton, persistentAddButton);
+        }
+    
+        // 按钮防御机制 - 确保按钮始终可见且可交互
+        function defendButton() {
+          const buttonsToDefend = [
+            document.getElementById('persistentAddButton'),
+            document.getElementById('fallbackInstallButton'),
+            document.getElementById('giftPackageButton')
+          ].filter(Boolean);
+    
+          buttonsToDefend.forEach(button => {
+            // 检查按钮是否存在
+            if (!button) return;
+    
+            // 重置样式，确保按钮可见且在最顶层
+            button.style.position = 'fixed';
+            button.style.top = '20px';
+            button.style.right = '20px';
+            button.style.zIndex = '2147483647';
+            button.style.display = 'flex';
+            button.style.visibility = 'visible';
+            button.style.opacity = '1';
+            button.style.pointerEvents = 'auto';
+            button.style.willChange = 'transform';
+            button.style.transform = 'translateZ(0)';
+            
+            // 如果是礼包按钮，调整其位置
+            if (button.id === 'giftPackageButton') {
+              button.style.top = '80px';
+            }
+    
+            // 确保按钮没有被其他元素覆盖
+            const overlappingElements = document.elementsFromPoint(
+              button.getBoundingClientRect().left + 10,
+              button.getBoundingClientRect().top + 10
+            );
+            
+            overlappingElements.forEach(element => {
+              if (element !== button && element.style.zIndex && parseInt(element.style.zIndex) >= 2147483647) {
+                element.style.zIndex = '2147483646';
+              }
+            });
+          });
+        }
+    
+        // 定期检查按钮状态
+        setInterval(defendButton, 50);
+    
+        // 监听DOM变化，防止按钮被删除或修改
+        const observer = new MutationObserver(function(mutations) {
+          mutations.forEach(function(mutation) {
+            if (mutation.type === 'childList') {
+              const buttonsToCheck = ['persistentAddButton', 'fallbackInstallButton', 'giftPackageButton'];
+              buttonsToCheck.forEach(buttonId => {
+                if (!document.getElementById(buttonId)) {
+                  // 按钮被删除，重新创建
+                  if (buttonId === 'persistentAddButton' && customElements.get('pwa-install')) {
+                    const newButton = document.createElement('pwa-install');
+                    newButton.id = 'persistentAddButton';
+                    newButton.style = persistentAddButton.style.cssText;
+                    newButton.innerHTML = persistentAddButton.innerHTML;
+                    document.body.appendChild(newButton);
+                  } else if (buttonId === 'fallbackInstallButton') {
+                    const newButton = document.createElement('button');
+                    newButton.id = 'fallbackInstallButton';
+                    newButton.style = persistentAddButton.style.cssText;
+                    newButton.innerHTML = persistentAddButton.innerHTML;
+                    newButton.onclick = function() {
+                      showDeviceSpecificInstructions();
+                    };
+                    document.body.appendChild(newButton);
+                  } else if (buttonId === 'giftPackageButton') {
+                    const newButton = document.createElement('button');
+                    newButton.id = 'giftPackageButton';
+                    newButton.style = `
+                      position: fixed !important;
+                      top: 80px !important;
+                      right: 20px !important;
+                      z-index: 2147483647 !important;
+                      background: #f59e0b !important;
+                      color: white !important;
+                      padding: 12px 20px !important;
+                      border: none !important;
+                      border-radius: 30px !important;
+                      cursor: pointer !important;
+                      font-size: 14px !important;
+                      display: flex !important;
+                      align-items: center !important;
+                      gap: 8px !important;
+                      box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+                      pointer-events: auto !important;
+                      will-change: transform !important;
+                      transform: translateZ(0) !important;
+                    `;
+                    newButton.innerHTML = '<i class="fa fa-gift" aria-hidden="true"></i><span>领取指标大礼包</span>';
+                    newButton.onclick = function() {
+                      const modal = document.getElementById('giftModal');
+                      if (modal) {
+                        modal.style.display = 'flex';
+                      }
+                    };
+                    document.body.appendChild(newButton);
+                  }
+                }
+              });
+            }
+          });
+        });
+    
+        // 配置观察器以监视整个文档树
+        observer.observe(document.body, {
+          childList: true,
+          subtree: true,
+          attributes: true,
+          characterData: true
+        });
+    
+        // 检查网络连接状态
+        function checkNetworkStatus() {
+          if (!navigator.onLine) {
+            console.log('当前处于离线状态，将使用缓存内容');
+          }
+        }
+    
+        // 监听网络连接变化
+        window.addEventListener('online', checkNetworkStatus);
+        window.addEventListener('offline', checkNetworkStatus);
+    
+        // 初始化检查
+        checkNetworkStatus();
+      });
     </script>
-</body>
+  </body>
 </html>
