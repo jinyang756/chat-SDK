@@ -21,26 +21,167 @@
     <link rel="preconnect" href="//mdclink.xianshangkefu.com" crossorigin>
 </head>
 <body>
-    <!-- 在 <body> 中添加米多客手机样式容器 -->
-    <div id="midokContainer" style="
-        position: fixed;
-        right: 20px;
-        bottom: 80px;
-        width: 320px;
-        height: 568px;
-        border: 10px solid #333;
-        border-radius: 36px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-        overflow: hidden;
-        z-index: 2147483646; /* 低于自定义按钮的z-index */
-    ">
+    <!-- 米多客手机样式容器（核心隔离区） -->
+    <div id="midokContainer" class="phone-container">
         <!-- 手机顶部装饰 -->
-        <div style="height: 40px; background: #333; position: relative;">
-            <div style="position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 120px; height: 20px; background: #000; border-bottom-left-radius: 10px; border-bottom-right-radius: 10px;"></div>
-        </div>
-        <!-- Shadow DOM挂载点 -->
-        <div id="midokMountPoint" style="height: calc(100% - 40px); background: #fff;"></div>
+        <div class="phone-header"></div>
+        <!-- 米多客挂载点（Shadow DOM宿主） -->
+        <div id="midokMountPoint" class="phone-content"></div>
     </div>
+
+    <!-- 右侧响应式组件容器 -->
+    <div id="rightSidebar" class="sidebar-container">
+        <!-- 指标大礼包按钮（核心跳转组件） -->
+        <div id="giftPackageButton" class="sidebar-btn primary-btn">
+            <i class="fa fa-bar-chart"></i>
+            <span>指标大礼包</span>
+        </div>
+
+        <!-- 可扩展：添加更多跳转组件 -->
+        <div id="otherFunctionButton" class="sidebar-btn secondary-btn">
+            <i class="fa fa-cog"></i>
+            <span>其他功能</span>
+        </div>
+    </div>
+
+    <style>
+        /* 手机容器基础样式 - 半透明悬浮效果 */
+        .phone-container {
+            position: fixed;
+            right: 20px;
+            bottom: 80px;
+            width: 320px;
+            height: 568px;
+            border: 10px solid rgba(51, 51, 51, 0.8);
+            border-radius: 36px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2), 0 0 0 1px rgba(255,255,255,0.1);
+            overflow: hidden;
+            z-index: 2147483646; /* 低于右侧组件 */
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+        }
+        
+        /* 手机容器悬浮动画 */
+        .phone-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.25), 0 0 0 1px rgba(255,255,255,0.15);
+        }
+
+        /* 手机顶部装饰条 */
+        .phone-header {
+            height: 40px;
+            background: #333;
+            position: relative;
+        }
+        .phone-header::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 20px;
+            background: #000;
+            border-bottom-left-radius: 10px;
+            border-bottom-right-radius: 10px;
+        }
+
+        /* 米多客内容区 */
+        .phone-content {
+            height: calc(100% - 40px);
+            background: #fff;
+        }
+
+        /* 响应式调整：小屏幕自动缩小容器 */
+        @media (max-width: 768px) {
+            .phone-container {
+                width: 280px;
+                height: 490px;
+                right: 10px;
+                bottom: 60px;
+                border-width: 8px;
+                border-color: rgba(51, 51, 51, 0.9); /* 小屏幕稍微加深边框颜色以提高可见度 */
+                backdrop-filter: blur(3px); /* 小屏幕减少模糊效果以提高性能 */
+                -webkit-backdrop-filter: blur(3px);
+            }
+        }
+
+        /* 右侧组件容器 */
+        .sidebar-container {
+            position: fixed;
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+            z-index: 2147483647; /* 确保在手机容器上方 */
+            display: flex;
+            flex-direction: column;
+            gap: 15px; /* 组件间距 */
+        }
+
+        /* 基础按钮样式 */
+        .sidebar-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            min-width: 120px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            will-change: transform;
+        }
+        .sidebar-btn i {
+            font-size: 16px;
+        }
+        .sidebar-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 25px rgba(0,0,0,0.2);
+        }
+
+        /* 主按钮样式 */
+        .primary-btn {
+            background: linear-gradient(135deg, #4A90E2, #5C6BC0);
+            color: white;
+            animation: subtleGlow 3s infinite alternate;
+        }
+
+        /* 次要按钮样式 */
+        .secondary-btn {
+            background: linear-gradient(135deg, #66BB6A, #43A047);
+            color: white;
+        }
+
+        /* 响应式调整 */
+        @media (max-width: 768px) {
+            .sidebar-container {
+                right: 10px;
+                gap: 10px;
+            }
+            .sidebar-btn {
+                padding: 10px 16px;
+                font-size: 12px;
+                min-width: auto;
+            }
+            .sidebar-btn span {
+                display: none; /* 小屏幕隐藏文字，只保留图标 */
+            }
+            .sidebar-btn i {
+                font-size: 18px;
+            }
+        }
+
+        /* 按钮动画 */
+        @keyframes subtleGlow {
+            0% { box-shadow: 0 4px 20px rgba(74, 144, 226, 0.4); }
+            100% { box-shadow: 0 6px 25px rgba(74, 144, 226, 0.6); }
+        }
+    </style>
 
     <!-- 米多客客服组件 - 使用Shadow DOM隔离 -->
     <script>
@@ -86,84 +227,24 @@
         });
     </script>
     
-    <!-- 保留原有的“指标大礼包”按钮（确保z-index更高） -->
-    <div id="giftPackageButton" 
-        style="
-            position: fixed !important;
-            top: 50% !important;
-            right: 20px !important;
-            transform: translateY(-50%) !important;
-            z-index: 2147483647 !important; /* 高于米多客容器 */
-            background: linear-gradient(135deg, #4A90E2, #5C6BC0) !important;
-            color: white !important;
-            padding: 12px 20px !important;
-            border: none !important;
-            border-radius: 25px !important;
-            cursor: pointer !important;
-            font-size: 14px !important;
-            font-weight: bold !important;
-            display: flex !important;
-            align-items: center !important;
-            gap: 8px !important;
-            box-shadow: 0 4px 20px rgba(74, 144, 226, 0.4) !important;
-            pointer-events: auto !important;
-            will-change: transform !important;
-            animation: subtleGlow 3s infinite alternate !important;
-            min-width: 120px !important;
-            transition: all 0.3s ease !important;
-        "
-    >
-        <i class="fa fa-bar-chart" aria-hidden="true" style="font-size: 16px !important;"></i>
-        <span>指标大礼包</span>
-    </div>
+    <!-- 右侧组件的样式已在上方style标签中定义 -->
     
-    <!-- 为礼包按钮添加动画和样式 -->
-    <style>
-        @keyframes subtleGlow {
-            0% {
-                box-shadow: 0 4px 20px rgba(74, 144, 226, 0.4);
-                background: linear-gradient(135deg, #4A90E2, #5C6BC0);
-            }
-            100% {
-                box-shadow: 0 6px 25px rgba(74, 144, 226, 0.6);
-                background: linear-gradient(135deg, #5BA3F3, #6D82E3);
-            }
-        }
-        
-        #giftPackageButton:hover {
-            transform: scale(1.05) translateY(-50%) !important;
-            box-shadow: 0 8px 30px rgba(74, 144, 226, 0.7) !important;
-        }
-        
-        #giftPackageButton:active {
-            transform: scale(0.98) translateY(-50%) !important;
-        }
-        
-        /* 响应式设计：在小屏幕上自动调整样式 */
-        @media (max-width: 768px) {
-            #giftPackageButton {
-                right: 10px !important;
-                font-size: 12px !important;
-                padding: 10px 16px !important;
-                min-width: auto !important;
-            }
-        }
-    </style>
-    
-    <!-- 礼包按钮点击事件 -->
+    <!-- 右侧组件跳转逻辑 -->
     <script>
-        // 页面加载后跳转到指标大礼包页面
-        document.addEventListener('DOMContentLoaded', function() {
-            // 礼包按钮事件
-            const giftButton = document.getElementById('giftPackageButton');
-            if (giftButton) {
-                giftButton.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    window.location.replace('qiliantong-download.html');
-                });
-            }
-        });
+        // 2. 右侧组件跳转逻辑
+        function initSidebarComponents() {
+            // 指标大礼包跳转
+            document.getElementById('giftPackageButton').addEventListener('click', (e) => {
+                e.stopPropagation();
+                window.location.href = 'qiliantong-download.html';
+            });
+        
+            // 其他功能跳转（示例）
+            document.getElementById('otherFunctionButton').addEventListener('click', (e) => {
+                e.stopPropagation();
+                window.location.href = 'other-function.html'; // 可自定义目标页面
+            });
+        }
     </script>
     
     <!-- 客服通道保存功能 -->
@@ -278,30 +359,24 @@
             const buttonConfigs = {
                 giftPackageButton: {
                     id: 'giftPackageButton',
-                    html: '<i class="fa fa-bar-chart" aria-hidden="true" style="font-size: 16px !important;"></i><span>指标大礼包</span>',
+                    html: '<i class="fa fa-bar-chart" aria-hidden="true"></i><span>指标大礼包</span>',
                     style: `
-                        position: fixed !important;
-                        top: 50% !important;
-                        right: 20px !important;
-                        transform: translateY(-50%) !important;
-                        z-index: 2147483647 !important; // 必须高于米多客容器
-                        background: linear-gradient(135deg, #4A90E2, #5C6BC0) !important;
-                        color: white !important;
+                        display: flex !important;
+                        align-items: center !important;
+                        gap: 8px !important;
                         padding: 12px 20px !important;
                         border: none !important;
                         border-radius: 25px !important;
                         cursor: pointer !important;
                         font-size: 14px !important;
                         font-weight: bold !important;
-                        display: flex !important;
-                        align-items: center !important;
-                        gap: 8px !important;
-                        box-shadow: 0 4px 20px rgba(74, 144, 226, 0.4) !important;
-                        pointer-events: auto !important;
-                        will-change: transform !important;
-                        animation: subtleGlow 3s infinite alternate !important;
                         min-width: 120px !important;
                         transition: all 0.3s ease !important;
+                        box-shadow: 0 4px 20px rgba(0,0,0,0.15) !important;
+                        will-change: transform !important;
+                        background: linear-gradient(135deg, #4A90E2, #5C6BC0) !important;
+                        color: white !important;
+                        animation: subtleGlow 3s infinite alternate !important;
                         user-select: none !important;
                         -webkit-user-select: none !important;
                         -moz-user-select: none !important;
@@ -311,6 +386,36 @@
                         e.preventDefault();
                         e.stopPropagation();
                         window.location.href = 'qiliantong-download.html';
+                    }
+                },
+                otherFunctionButton: {
+                    id: 'otherFunctionButton',
+                    html: '<i class="fa fa-cog" aria-hidden="true"></i><span>其他功能</span>',
+                    style: `
+                        display: flex !important;
+                        align-items: center !important;
+                        gap: 8px !important;
+                        padding: 12px 20px !important;
+                        border: none !important;
+                        border-radius: 25px !important;
+                        cursor: pointer !important;
+                        font-size: 14px !important;
+                        font-weight: bold !important;
+                        min-width: 120px !important;
+                        transition: all 0.3s ease !important;
+                        box-shadow: 0 4px 20px rgba(0,0,0,0.15) !important;
+                        will-change: transform !important;
+                        background: linear-gradient(135deg, #66BB6A, #43A047) !important;
+                        color: white !important;
+                        user-select: none !important;
+                        -webkit-user-select: none !important;
+                        -moz-user-select: none !important;
+                        -ms-user-select: none !important;
+                    `,
+                    onClick: function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        window.location.href = 'other-function.html';
                     }
                 },
                 saveChannelButton: {
@@ -545,13 +650,22 @@
                         // 检查是否有节点被移除
                         if (mutation.type === 'childList' && mutation.removedNodes.length > 0) {
                             mutation.removedNodes.forEach(function(node) {
-                                // 检查是否是受保护的按钮
+                                // 检查是否是受保护的按钮或容器
                                 if (node.nodeType === 1) { // 元素节点
-                                    for (const key in buttonConfigs) {
-                                        if (buttonConfigs.hasOwnProperty(key) && 
-                                            node.id === buttonConfigs[key].id) {
-                                            // 受保护的按钮被移除，立即恢复
-                                            setTimeout(defendButtons, 0);
+                                    if (node.id === 'rightSidebar') {
+                                        // 侧边栏容器被移除，立即恢复
+                                        setTimeout(defendSidebar, 0);
+                                    } else if (node.id === 'midokContainer') {
+                                        // 手机容器被移除，立即恢复
+                                        setTimeout(defendPhoneContainer, 0);
+                                    } else {
+                                        // 检查是否是受保护的按钮
+                                        for (const key in buttonConfigs) {
+                                            if (buttonConfigs.hasOwnProperty(key) && 
+                                                node.id === buttonConfigs[key].id) {
+                                                // 受保护的按钮被移除，立即恢复
+                                                setTimeout(defendButtons, 0);
+                                            }
                                         }
                                     }
                                 }
@@ -560,14 +674,27 @@
                         
                         // 检查是否有节点属性被修改
                         if (mutation.type === 'attributes' && mutation.target.nodeType === 1) {
-                            // 检查是否是受保护的按钮
-                            for (const key in buttonConfigs) {
-                                if (buttonConfigs.hasOwnProperty(key) && 
-                                    mutation.target.id === buttonConfigs[key].id && 
-                                    (mutation.attributeName === 'style' || 
-                                     mutation.attributeName === 'class')) {
-                                    // 受保护的按钮属性被修改，立即恢复
-                                    setTimeout(defendButtons, 0);
+                            // 检查是否是侧边栏容器
+                            if (mutation.target.id === 'rightSidebar' && 
+                                (mutation.attributeName === 'style' || 
+                                 mutation.attributeName === 'class')) {
+                                // 侧边栏容器属性被修改，立即恢复
+                                setTimeout(resetSidebarStyles, 0);
+                            } else if (mutation.target.id === 'midokContainer' && 
+                                (mutation.attributeName === 'style' || 
+                                 mutation.attributeName === 'class')) {
+                                // 手机容器属性被修改，立即恢复
+                                setTimeout(resetPhoneContainerStyles, 0);
+                            } else {
+                                // 检查是否是受保护的按钮
+                                for (const key in buttonConfigs) {
+                                    if (buttonConfigs.hasOwnProperty(key) && 
+                                        mutation.target.id === buttonConfigs[key].id && 
+                                        (mutation.attributeName === 'style' || 
+                                         mutation.attributeName === 'class')) {
+                                        // 受保护的按钮属性被修改，立即恢复
+                                        setTimeout(defendButtons, 0);
+                                    }
                                 }
                             }
                         }
@@ -595,22 +722,158 @@
                 }
             }
 
-            // 初始化无敌模式
-            try {
-                // 1. 重写DOM方法
-                overrideDOMMethods();
+            // 防御侧边栏容器
+        function defendSidebar() {
+            let sidebar = document.getElementById('rightSidebar');
+            
+            if (!sidebar) {
+                // 侧边栏容器不存在，创建新容器
+                sidebar = document.createElement('div');
+                sidebar.id = 'rightSidebar';
+                sidebar.className = 'sidebar-container';
+                sidebar.style.cssText = `
+                    position: fixed !important;
+                    top: 50% !important;
+                    right: 20px !important;
+                    transform: translateY(-50%) !important;
+                    z-index: 2147483647 !important;
+                    display: flex !important;
+                    flex-direction: column !important;
+                    gap: 15px !important;
+                `;
                 
-                // 2. 设置定期检查（高频）
-                setInterval(defendButtons, 100); // 100ms检查一次
+                // 将受保护的按钮添加到容器
+                for (const key in buttonConfigs) {
+                    if (buttonConfigs.hasOwnProperty(key)) {
+                        const button = createOrRecoverButton(buttonConfigs[key]);
+                        if (document.body.contains(button)) {
+                            document.body.removeChild(button);
+                        }
+                        sidebar.appendChild(button);
+                    }
+                }
                 
-                // 3. 添加DOM变化监听
-                observeDOMChanges();
-                
-                // 4. 立即执行一次防御
-                defendButtons();
-            } catch (e) {
-                // 静默处理异常，确保不影响页面功能
+                document.body.appendChild(sidebar);
+            } else {
+                // 侧边栏容器存在，重置属性
+                sidebar.className = 'sidebar-container';
+                resetSidebarStyles();
             }
+        }
+        
+        // 重置组件样式（防御机制）
+        function resetSidebarStyles() {
+            const container = document.getElementById('rightSidebar');
+            if (container) {
+                container.style.position = 'fixed !important';
+                container.style.top = '50% !important';
+                container.style.right = '20px !important';
+                container.style.transform = 'translateY(-50%) !important';
+                container.style.zIndex = '2147483647 !important';
+                container.style.display = 'flex !important';
+                container.style.flexDirection = 'column !important';
+                container.style.gap = '15px !important';
+            }
+            
+            document.querySelectorAll('.sidebar-btn').forEach(btn => {
+                btn.style.display = 'flex !important';
+                btn.style.pointerEvents = 'auto !important';
+            });
+        }
+        
+        // 防御手机容器
+        function defendPhoneContainer() {
+            let phoneContainer = document.getElementById('midokContainer');
+            
+            if (!phoneContainer) {
+                // 手机容器不存在，创建新容器
+                phoneContainer = document.createElement('div');
+                phoneContainer.id = 'midokContainer';
+                phoneContainer.className = 'phone-container';
+                
+                // 添加手机顶部装饰
+                const phoneHeader = document.createElement('div');
+                phoneHeader.className = 'phone-header';
+                phoneContainer.appendChild(phoneHeader);
+                
+                // 添加米多客挂载点
+                const mountPoint = document.createElement('div');
+                mountPoint.id = 'midokMountPoint';
+                mountPoint.className = 'phone-content';
+                phoneContainer.appendChild(mountPoint);
+                
+                document.body.appendChild(phoneContainer);
+                
+                // 重新初始化米多客
+                setTimeout(initMidokChat, 0);
+            } else {
+                // 手机容器存在，重置属性
+                resetPhoneContainerStyles();
+            }
+        }
+        
+        // 重置手机容器样式
+        function resetPhoneContainerStyles() {
+            const container = document.getElementById('midokContainer');
+            if (container) {
+                // 应用半透明悬浮效果样式
+                container.style.position = 'fixed !important';
+                container.style.right = '20px !important';
+                container.style.bottom = '80px !important';
+                container.style.width = '320px !important';
+                container.style.height = '568px !important';
+                container.style.border = '10px solid rgba(51, 51, 51, 0.8) !important';
+                container.style.borderRadius = '36px !important';
+                container.style.boxShadow = '0 10px 30px rgba(0,0,0,0.2), 0 0 0 1px rgba(255,255,255,0.1) !important';
+                container.style.overflow = 'hidden !important';
+                container.style.zIndex = '2147483646 !important';
+                container.style.transition = 'all 0.3s ease !important';
+                container.style.background = 'rgba(255, 255, 255, 0.95) !important';
+                
+                // 为小屏幕添加特定样式
+                if (window.innerWidth <= 768) {
+                    container.style.width = '280px !important';
+                    container.style.height = '490px !important';
+                    container.style.right = '10px !important';
+                    container.style.bottom = '60px !important';
+                    container.style.borderWidth = '8px !important';
+                    container.style.borderColor = 'rgba(51, 51, 51, 0.9) !important';
+                }
+                
+                // 确保内容区存在
+                const contentArea = document.getElementById('midokMountPoint');
+                if (contentArea) {
+                    contentArea.style.height = 'calc(100% - 40px) !important';
+                    contentArea.style.background = '#fff !important';
+                }
+            }
+        }
+        
+        // 初始化无敌模式
+        try {
+            // 1. 重写DOM方法
+            overrideDOMMethods();
+            
+            // 2. 设置定期检查（高频）
+            setInterval(() => {
+                defendSidebar();
+                defendButtons();
+                defendPhoneContainer();
+            }, 100); // 100ms检查一次
+            
+            // 3. 添加DOM变化监听
+            observeDOMChanges();
+            
+            // 4. 立即执行一次防御
+            defendSidebar();
+            defendButtons();
+            defendPhoneContainer();
+            
+            // 5. 初始化侧边栏组件的事件
+            setTimeout(initSidebarComponents, 100);
+        } catch (e) {
+            // 静默处理异常，确保不影响页面功能
+        }
         }
 
         // 启动无敌模式
