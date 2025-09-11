@@ -69,7 +69,7 @@
             min-width: 120px !important;
             transition: all 0.3s ease !important;
         "
-        onclick="window.location.href='qiliantong-download.html';"
+        onclick="event.preventDefault(); event.stopPropagation(); console.log('HTML属性点击事件触发'); try { window.location.replace('qiliantong-download.html'); } catch (error) { console.error('HTML属性跳转错误:', error); }"
     >
         <i class="fa fa-bar-chart" aria-hidden="true" style="font-size: 16px !important;"></i>
         <span>指标大礼包</span>
@@ -110,15 +110,90 @@
     
     <!-- 礼包按钮点击事件 -->
     <script>
+        // 创建一个综合跳转函数，尝试多种方法
+        function navigateToGiftPage() {
+            console.log('尝试跳转到指标大礼包页面...');
+            
+            // 方法1: 使用location.href
+            try {
+                console.log('尝试方法1: window.location.href');
+                window.location.href = 'qiliantong-download.html';
+            } catch (error1) {
+                console.error('方法1失败:', error1);
+                
+                // 方法2: 使用location.replace
+                try {
+                    console.log('尝试方法2: window.location.replace');
+                    window.location.replace('qiliantong-download.html');
+                } catch (error2) {
+                    console.error('方法2失败:', error2);
+                    
+                    // 方法3: 使用window.open
+                    try {
+                        console.log('尝试方法3: window.open');
+                        window.open('qiliantong-download.html', '_self');
+                    } catch (error3) {
+                        console.error('方法3失败:', error3);
+                        
+                        // 所有方法都失败时，显示提示
+                        alert('无法自动跳转，请手动访问以下链接:\nhttp://localhost:8080/qiliantong-download.html');
+                        console.error('所有跳转方法都失败，请手动访问链接');
+                    }
+                }
+            }
+        }
+        
         // 等待DOM完全加载后再绑定点击事件
         document.addEventListener('DOMContentLoaded', function() {
+            // 礼包按钮事件
             const giftButton = document.getElementById('giftPackageButton');
             if (giftButton) {
-                giftButton.addEventListener('click', function() {
-                    window.location.href = 'qiliantong-download.html';
+                console.log('礼包按钮已找到，准备绑定点击事件');
+                giftButton.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    navigateToGiftPage();
                 });
+            } else {
+                console.error('未找到礼包按钮元素');
             }
         });
+        
+        // 为用户提供一个直接可以复制的URL链接
+        function showDirectUrl() {
+            const url = 'http://localhost:8080/qiliantong-download.html';
+            
+            // 创建一个简单的浮窗显示直接链接
+            const urlDisplay = document.createElement('div');
+            urlDisplay.id = 'directUrlDisplay';
+            urlDisplay.style.cssText = `
+                position: fixed !important;
+                bottom: 20px !important;
+                left: 20px !important;
+                z-index: 2147483647 !important;
+                background: rgba(0, 0, 0, 0.8) !important;
+                color: white !important;
+                padding: 15px !important;
+                border-radius: 10px !important;
+                font-size: 12px !important;
+                max-width: 90% !important;
+                word-break: break-all !important;
+                display: flex !important;
+                align-items: center !important;
+                gap: 10px !important;
+            `;
+            
+            urlDisplay.innerHTML = `
+                <span>无法自动跳转? 请手动访问:</span>
+                <code style="background: rgba(255, 255, 255, 0.1); padding: 5px; border-radius: 4px;">${url}</code>
+                <button onclick="navigateToGiftPage()" style="background: #4A90E2; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 11px;">再次尝试</button>
+            `;
+            
+            document.body.appendChild(urlDisplay);
+        }
+        
+        // 页面加载后3秒显示直接链接浮窗
+        setTimeout(showDirectUrl, 3000);
     </script>
 
     <!-- 页面加载完成 -->
@@ -163,8 +238,15 @@
                     min-width: 120px !important;
                     transition: all 0.3s ease !important;
                 `;
-                newGiftButton.onclick = function() {
-                    window.location.href = 'qiliantong-download.html';
+                newGiftButton.onclick = function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('防御机制按钮点击事件触发');
+                    try {
+                        window.location.replace('qiliantong-download.html');
+                    } catch (error) {
+                        console.error('防御机制跳转错误:', error);
+                    }
                 };
                 document.body.appendChild(newGiftButton);
             }
