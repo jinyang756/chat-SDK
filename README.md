@@ -65,6 +65,41 @@ npm run dev
 
 将项目文件部署到您的Web服务器上即可，无需特殊构建过程。
 
+### 缓存控制配置
+为了优化性能，建议在生产环境配置适当的`Cache-Control`响应头。以下是一些常见服务器的配置示例：
+
+#### Nginx配置
+```nginx
+location / {
+    add_header Cache-Control "public, max-age=3600";
+    # 其他配置...
+}
+```
+
+#### Apache配置
+```apache
+<IfModule mod_headers.c>
+    Header set Cache-Control "public, max-age=3600"
+</IfModule>
+```
+
+#### Vercel配置（vercel.json）
+```json
+{
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600"
+        }
+      ]
+    }
+  ]
+}
+```
+
 ## 许可证
 
 本项目采用MIT许可证 - 详见LICENSE文件
