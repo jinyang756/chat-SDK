@@ -325,14 +325,14 @@
                     // 使用米多客标准的_MICHAT('openUrl')方法进行同域跳转
                     if (typeof window._MICHAT === 'function') {
                         window._MICHAT('openUrl', {
-                            url: './qiliantong-download.html',
+                            url: './widgets/qiliantong-download.html',
                             type: 'sidebar',
                             crossDomain: false
                         });
                     } else {
                         // 降级处理
                         showNotification('米多客SDK未加载，使用传统跳转', 'info');
-                        window.location.href = './qiliantong-download.html';
+                        window.location.href = './widgets/qiliantong-download.html';
                     }
                 });
             }
@@ -389,14 +389,14 @@
                     // 使用米多客标准的_MICHAT('openUrl')方法打开保存客服会话页面
                     if (typeof window._MICHAT === 'function') {
                         window._MICHAT('openUrl', {
-                            url: './save-chat-history.html',
+                            url: './widgets/save-chat-history.html',
                             type: 'sidebar',
                             crossDomain: false
                         });
                     } else {
                         // 降级处理
                         showNotification('米多客SDK未加载，使用传统跳转', 'info');
-                        window.location.href = './save-chat-history.html';
+                        window.location.href = './widgets/save-chat-history.html';
                     }
                 });
             }

@@ -18,7 +18,14 @@
       "id": "save-chat-history",
       "name": "保存客服会话",
       "icon": "fa-save",
-      "url": "./save-chat-history.html",
+      "url": "./widgets/save-chat-history.html",
+      "show": true
+    },
+    {
+      "id": "download",
+      "name": "文件下载",
+      "icon": "fa-download",
+      "url": "./widgets/qiliantong-download.html",
       "show": true
     },
     {
