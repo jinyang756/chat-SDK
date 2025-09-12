@@ -1,885 +1,454 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <!-- 基本设置 -->
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <title>客服系统</title>
-    
-    <!-- 优先引入Font Awesome -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>米多客侧边栏挂件</title>
+    <!-- 米多客基础样式 - 使用内嵌样式确保页面稳定显示 -->
+    <style>
+        /* 米多客侧边栏基础样式 */
+        .midok-sidebar-container {
+            position: fixed;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .midok-sidebar-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            font-size: 18px;
+        }
+        
+        .midok-sidebar-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        .midok-primary-btn {
+            background-color: #409EFF;
+            color: white;
+        }
+        
+        .midok-secondary-btn {
+            background-color: white;
+            color: #606266;
+            border: 1px solid #DCDFE6;
+        }
+        
+        .midok-save-channel-btn {
+            background-color: #67C23A;
+            color: white;
+        }
+        
+        /* 图标和文本样式 */
+        .midok-sidebar-btn .icon {
+            margin-bottom: 4px;
+        }
+        
+        .midok-sidebar-btn .text {
+            font-size: 12px;
+            margin-top: 4px;
+        }
+        
+        /* 保存通道按钮特定样式 */
+        #midok-save-channel-button {
+            background-color: #67C23A;
+            color: white;
+        }
+        
+        #midok-save-channel-button:hover {
+            background-color: #5DAD35;
+        }
+        
+        /* 礼品按钮特定样式 */
+        #midok-gift-button {
+            background-color: #409EFF;
+            color: white;
+        }
+        
+        #midok-gift-button:hover {
+            background-color: #3A8EE6;
+        }
+        
+        /* 其他功能按钮特定样式 */
+        #midok-function-button {
+            background-color: #E6A23C;
+            color: white;
+        }
+        
+        #midok-function-button:hover {
+            background-color: #D49030;
+        }
+    </style>
+    <!-- 图标库 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    
-    <!-- 性能优化 -->
-    <meta http-equiv="Cache-Control" content="public, max-age=31536000">
-    <meta name="format-detection" content="telephone=no">
-    
-    <!-- DNS预解析 -->
-    <link rel="dns-prefetch" href="//mdclink.xianshangkefu.com">
-    
-    <!-- 提前建立连接 -->
-    <link rel="preconnect" href="//mdclink.xianshangkefu.com" crossorigin>
+    <style>
+        /* 全局样式重置 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            background-color: #f5f5f5;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        /* 米多客侧边栏容器样式 - 命名空间前缀 */
+        .midok-sidebar-container {
+            position: fixed;
+            right: 30px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 9999;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        /* 米多客侧边栏按钮样式 - 命名空间前缀 */
+        .midok-sidebar-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 80px;
+            height: 80px;
+            margin-bottom: 15px;
+            border-radius: 50%;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            opacity: 0.9;
+        }
+
+        .midok-sidebar-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+            opacity: 1;
+        }
+
+        /* 米多客主按钮样式 - 命名空间前缀 */
+        .midok-primary-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        /* 米多次要按钮样式 - 命名空间前缀 */
+        .midok-secondary-btn {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .midok-sidebar-btn i {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .midok-sidebar-btn span {
+            font-size: 12px;
+            text-align: center;
+        }
+
+        /* 米多客保存通道按钮样式 - 命名空间前缀 */
+        .midok-save-channel-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            border-radius: 25px;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            opacity: 0;
+            visibility: hidden;
+            z-index: 9998;
+        }
+
+        .midok-save-channel-btn i {
+            margin-right: 5px;
+        }
+
+        .midok-save-channel-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        /* 米多客自定义通知样式 - 命名空间前缀 */
+        .midok-notification {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 15px 30px;
+            color: white;
+            border-radius: 25px;
+            z-index: 9999;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: opacity 0.3s ease;
+            font-size: 14px;
+            max-width: 80%;
+            text-align: center;
+            word-break: break-word;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .midok-sidebar-container {
+                right: 15px;
+            }
+
+            .midok-sidebar-btn {
+                width: 60px;
+                height: 60px;
+                margin-bottom: 10px;
+            }
+
+            .midok-sidebar-btn i {
+                font-size: 20px;
+            }
+
+            .midok-sidebar-btn span {
+                font-size: 10px;
+            }
+
+            .midok-save-channel-btn {
+                bottom: 20px;
+                right: 20px;
+                padding: 8px 16px;
+                font-size: 12px;
+            }
+        }
+
+        /* 动画效果 */
+        @keyframes midok-fadeIn {
+            from {
+                opacity: 0;
+                visibility: hidden;
+            }
+            to {
+                opacity: 1;
+                visibility: visible;
+            }
+        }
+    </style>
 </head>
 <body>
-    <!-- 米多客手机样式容器（核心隔离区） -->
-    <div id="midokContainer" class="phone-container">
-        <!-- 手机顶部装饰 -->
-        <div class="phone-header"></div>
-        <!-- 米多客挂载点（Shadow DOM宿主） -->
-        <div id="midokMountPoint" class="phone-content"></div>
-    </div>
-
-    <!-- 右侧响应式组件容器 -->
-    <div id="rightSidebar" class="sidebar-container">
-        <!-- 指标大礼包按钮（核心跳转组件） -->
-        <div id="giftPackageButton" class="sidebar-btn primary-btn">
+    <!-- 米多客侧边栏容器 - 命名空间前缀 -->
+    <div id="midok-sidebar-container" class="midok-sidebar-container" data-protected="true" data-initializing="true">
+        <div id="midok-gift-button" class="midok-sidebar-btn midok-primary-btn" data-protected="true">
             <i class="fa fa-bar-chart"></i>
             <span>指标大礼包</span>
         </div>
-
-        <!-- 可扩展：添加更多跳转组件 -->
-        <div id="otherFunctionButton" class="sidebar-btn secondary-btn">
+        <div id="midok-save-channel-button" class="midok-sidebar-btn midok-secondary-btn" data-protected="true">
+            <i class="fa fa-link"></i>
+            <span>保存客服通道</span>
+        </div>
+        <div id="midok-function-button" class="midok-sidebar-btn midok-secondary-btn" data-protected="true">
             <i class="fa fa-cog"></i>
             <span>其他功能</span>
         </div>
     </div>
 
-    <style>
-        /* 手机容器基础样式 - 半透明悬浮效果 */
-        .phone-container {
-            position: fixed;
-            right: 20px;
-            bottom: 80px;
-            width: 320px;
-            height: 568px;
-            border: 10px solid rgba(51, 51, 51, 0.8);
-            border-radius: 36px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2), 0 0 0 1px rgba(255,255,255,0.1);
-            overflow: hidden;
-            z-index: 2147483646; /* 低于右侧组件 */
-            transition: all 0.3s ease;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(5px);
-            -webkit-backdrop-filter: blur(5px);
-        }
-        
-        /* 手机容器悬浮动画 */
-        .phone-container:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 35px rgba(0,0,0,0.25), 0 0 0 1px rgba(255,255,255,0.15);
-        }
-
-        /* 手机顶部装饰条 */
-        .phone-header {
-            height: 40px;
-            background: #333;
-            position: relative;
-        }
-        .phone-header::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 120px;
-            height: 20px;
-            background: #000;
-            border-bottom-left-radius: 10px;
-            border-bottom-right-radius: 10px;
-        }
-
-        /* 米多客内容区 */
-        .phone-content {
-            height: calc(100% - 40px);
-            background: #fff;
-        }
-
-        /* 响应式调整：小屏幕自动缩小容器 */
-        @media (max-width: 768px) {
-            .phone-container {
-                width: 280px;
-                height: 490px;
-                right: 10px;
-                bottom: 60px;
-                border-width: 8px;
-                border-color: rgba(51, 51, 51, 0.9); /* 小屏幕稍微加深边框颜色以提高可见度 */
-                backdrop-filter: blur(3px); /* 小屏幕减少模糊效果以提高性能 */
-                -webkit-backdrop-filter: blur(3px);
-            }
-        }
-
-        /* 右侧组件容器 */
-        .sidebar-container {
-            position: fixed;
-            top: 50%;
-            right: 20px;
-            transform: translateY(-50%);
-            z-index: 2147483647; /* 确保在手机容器上方 */
-            display: flex;
-            flex-direction: column;
-            gap: 15px; /* 组件间距 */
-        }
-
-        /* 基础按钮样式 */
-        .sidebar-btn {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 12px 20px;
-            border: none;
-            border-radius: 25px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: bold;
-            min-width: 120px;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-            will-change: transform;
-        }
-        .sidebar-btn i {
-            font-size: 16px;
-        }
-        .sidebar-btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 6px 25px rgba(0,0,0,0.2);
-        }
-
-        /* 主按钮样式 */
-        .primary-btn {
-            background: linear-gradient(135deg, #4A90E2, #5C6BC0);
-            color: white;
-            animation: subtleGlow 3s infinite alternate;
-        }
-
-        /* 次要按钮样式 */
-        .secondary-btn {
-            background: linear-gradient(135deg, #66BB6A, #43A047);
-            color: white;
-        }
-
-        /* 响应式调整 */
-        @media (max-width: 768px) {
-            .sidebar-container {
-                right: 10px;
-                gap: 10px;
-            }
-            .sidebar-btn {
-                padding: 10px 16px;
-                font-size: 12px;
-                min-width: auto;
-            }
-            .sidebar-btn span {
-                display: none; /* 小屏幕隐藏文字，只保留图标 */
-            }
-            .sidebar-btn i {
-                font-size: 18px;
-            }
-        }
-
-        /* 按钮动画 */
-        @keyframes subtleGlow {
-            0% { box-shadow: 0 4px 20px rgba(74, 144, 226, 0.4); }
-            100% { box-shadow: 0 6px 25px rgba(74, 144, 226, 0.6); }
-        }
-    </style>
-
-    <!-- 米多客客服组件 - 使用Shadow DOM隔离 -->
     <script>
-        // 重构米多客初始化，使用Shadow DOM隔离
-        function initMidokChat() {
+        // 全局状态管理
+        const appState = {
+            initialized: false,
+            recoveryAttempts: {}
+        };
+
+        // 初始化米多客挂件
+        function initMidokWidget() {
             try {
-                const mountPoint = document.getElementById('midokMountPoint');
-                const shadowRoot = mountPoint.attachShadow({ mode: 'closed' }); // 封闭模式，避免外部干扰
+                // 验证米多客SDK是否就绪
+                if (!appState.initialized) {
+                    appState.initialized = true;
 
-                // 注入米多客所需样式
-                const style = document.createElement('style');
-                style.textContent = `
-                    /* 仅在Shadow内部生效的样式 */
-                    @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css');
-                `;
-                shadowRoot.appendChild(style);
+                    // 初始化侧边栏组件
+                    initSidebarComponents();
 
-                // 加载米多客核心脚本
-                const midokScript = document.createElement('script');
-                midokScript.textContent = `
-                    window._MICHAT = window._MICHAT || function () { (_MICHAT.a = _MICHAT.a || []).push(arguments) };
-                    _MICHAT("cptid", "e773425b58e01513a5"); // 客服ID
-                    _MICHAT("host", "mdclink.xianshangkefu.com");
-                    _MICHAT("sound", false);
-                    _MICHAT("preventDefault", false);
-                    
-                    const script = document.createElement('script');
-                    script.src = "//mdclink.xianshangkefu.com/Web/js/loader.js";
-                    script.async = true;
-                    document.currentScript.parentNode.appendChild(script);
-                `;
-                shadowRoot.appendChild(midokScript);
-                
-                console.log('米多客客服组件已在Shadow DOM中初始化');
-            } catch (e) {
-                console.error('米多客隔离初始化失败:', e);
+                    // 显示所有元素
+                    setTimeout(() => {
+                        showElement('midok-sidebar-container');
+                    }, 500);
+                }
+            } catch (error) {
+                console.error('米多客挂件初始化失败：', error);
+                showNotification('米多客挂件加载失败，请刷新页面重试', 'error');
             }
         }
 
-        // 页面加载后延迟初始化（避免阻塞）
-        window.addEventListener('load', () => {
-            setTimeout(initMidokChat, 3000); // 延迟3秒，确保页面其他元素加载完成
-        });
-    </script>
-    
-    <!-- 右侧组件的样式已在上方style标签中定义 -->
-    
-    <!-- 右侧组件跳转逻辑 -->
-    <script>
-        // 2. 右侧组件跳转逻辑
+        // 元素显示工具函数
+        function showElement(elementId) {
+            const element = document.getElementById(elementId);
+            if (element) {
+                element.style.opacity = '1';
+                element.style.visibility = 'visible';
+                element.style.animation = 'midok-fadeIn 0.5s ease';
+                element.removeAttribute('data-initializing');
+            }
+        }
+
+        // 侧边栏组件初始化
         function initSidebarComponents() {
-            // 指标大礼包跳转
-            document.getElementById('giftPackageButton').addEventListener('click', (e) => {
-                e.stopPropagation();
-                window.location.href = 'qiliantong-download.html';
-            });
-        
-            // 其他功能跳转（示例）
-            document.getElementById('otherFunctionButton').addEventListener('click', (e) => {
-                e.stopPropagation();
-                window.location.href = 'other-function.html'; // 可自定义目标页面
-            });
-        }
-    </script>
-    
-    <!-- 客服通道保存功能 -->
-    <script>
-        // 页面加载完成后创建客服通道保存按钮
-        document.addEventListener('DOMContentLoaded', function() {
-            createSaveChannelButton();
-        });
-        
-        // 创建客服通道保存按钮
-        function createSaveChannelButton() {
-            // 创建按钮元素
-            const saveButton = document.createElement('div');
-            saveButton.id = 'saveChannelButton';
-            saveButton.innerHTML = '<i class="fa fa-link" aria-hidden="true"></i> 保存客服通道';
-            
-            // 设置样式
-            saveButton.style.cssText = `
-                position: fixed !important;
-                bottom: 20px !important;
-                left: 20px !important;
-                z-index: 2147483647 !important;
-                background: linear-gradient(135deg, #9b59b6, #8e44ad) !important;
-                color: white !important;
-                padding: 12px 18px !important;
-                border: none !important;
-                border-radius: 25px !important;
-                cursor: pointer !important;
-                font-size: 12px !important;
-                font-weight: bold !important;
-                display: flex !important;
-                align-items: center !important;
-                gap: 8px !important;
-                box-shadow: 0 4px 20px rgba(155, 89, 182, 0.4) !important;
-                pointer-events: auto !important;
-                transition: all 0.3s ease !important;
-                min-width: 120px !important;
-            `;
-            
-            // 添加点击事件
-            saveButton.addEventListener('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                
-                // 获取当前域名（包含协议和主机名）
-                const currentDomain = window.location.origin;
-                
-                try {
-                    // 提示用户
-                    showNotification('请手动记录以下域名:\n' + currentDomain, 'info');
-                } catch (error) {
-                    alert('请手动记录以下域名:\n' + currentDomain);
-                }
-            });
-            
-            // 添加到页面
-            document.body.appendChild(saveButton);
-        }
-        
-        // 通用通知函数
-        function showNotification(message, type = 'info') {
-            // 创建通知元素
-            const notification = document.createElement('div');
-            notification.id = 'customNotification';
-            
-            // 设置样式
-            let bgColor = '#3498db'; // 默认信息颜色
-            if (type === 'success') bgColor = '#2ecc71';
-            if (type === 'error') bgColor = '#e74c3c';
-            
-            notification.style.cssText = `
-                position: fixed !important;
-                top: 50% !important;
-                left: 50% !important;
-                transform: translate(-50%, -50%) !important;
-                z-index: 2147483647 !important;
-                background: ${bgColor} !important;
-                color: white !important;
-                padding: 20px !important;
-                border-radius: 10px !important;
-                font-size: 14px !important;
-                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3) !important;
-                max-width: 90% !important;
-                text-align: center !important;
-                word-break: break-word !important;
-            `;
-            
-            notification.textContent = message;
-            document.body.appendChild(notification);
-            
-            // 3秒后自动隐藏
-            setTimeout(() => {
-                // 添加淡出动画
-                notification.style.transition = 'opacity 0.5s ease !important';
-                notification.style.opacity = '0 !important';
-                
-                // 动画结束后移除元素
-                setTimeout(() => {
-                    if (document.body.contains(notification)) {
-                        document.body.removeChild(notification);
-                    }
-                }, 500);
-            }, 3000);
-        }
-    </script>
-    
-    <!-- 核心防御机制：无敌模式 -->
-    <script>
-        // 无敌模式：完整的防御机制
-        function enableInvincibleMode() {
-            // 存储按钮的基础配置
-            const buttonConfigs = {
-                giftPackageButton: {
-                    id: 'giftPackageButton',
-                    html: '<i class="fa fa-bar-chart" aria-hidden="true"></i><span>指标大礼包</span>',
-                    style: `
-                        display: flex !important;
-                        align-items: center !important;
-                        gap: 8px !important;
-                        padding: 12px 20px !important;
-                        border: none !important;
-                        border-radius: 25px !important;
-                        cursor: pointer !important;
-                        font-size: 14px !important;
-                        font-weight: bold !important;
-                        min-width: 120px !important;
-                        transition: all 0.3s ease !important;
-                        box-shadow: 0 4px 20px rgba(0,0,0,0.15) !important;
-                        will-change: transform !important;
-                        background: linear-gradient(135deg, #4A90E2, #5C6BC0) !important;
-                        color: white !important;
-                        animation: subtleGlow 3s infinite alternate !important;
-                        user-select: none !important;
-                        -webkit-user-select: none !important;
-                        -moz-user-select: none !important;
-                        -ms-user-select: none !important;
-                    `,
-                    onClick: function(e) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        window.location.href = 'qiliantong-download.html';
-                    }
-                },
-                otherFunctionButton: {
-                    id: 'otherFunctionButton',
-                    html: '<i class="fa fa-cog" aria-hidden="true"></i><span>其他功能</span>',
-                    style: `
-                        display: flex !important;
-                        align-items: center !important;
-                        gap: 8px !important;
-                        padding: 12px 20px !important;
-                        border: none !important;
-                        border-radius: 25px !important;
-                        cursor: pointer !important;
-                        font-size: 14px !important;
-                        font-weight: bold !important;
-                        min-width: 120px !important;
-                        transition: all 0.3s ease !important;
-                        box-shadow: 0 4px 20px rgba(0,0,0,0.15) !important;
-                        will-change: transform !important;
-                        background: linear-gradient(135deg, #66BB6A, #43A047) !important;
-                        color: white !important;
-                        user-select: none !important;
-                        -webkit-user-select: none !important;
-                        -moz-user-select: none !important;
-                        -ms-user-select: none !important;
-                    `,
-                    onClick: function(e) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        window.location.href = 'other-function.html';
-                    }
-                },
-                saveChannelButton: {
-                    id: 'saveChannelButton',
-                    html: '<i class="fa fa-link" aria-hidden="true"></i> 保存客服通道',
-                    style: `
-                        position: fixed !important;
-                        bottom: 20px !important;
-                        left: 20px !important;
-                        z-index: 2147483647 !important;
-                        background: linear-gradient(135deg, #9b59b6, #8e44ad) !important;
-                        color: white !important;
-                        padding: 12px 18px !important;
-                        border: none !important;
-                        border-radius: 25px !important;
-                        cursor: pointer !important;
-                        font-size: 12px !important;
-                        font-weight: bold !important;
-                        display: flex !important;
-                        align-items: center !important;
-                        gap: 8px !important;
-                        box-shadow: 0 4px 20px rgba(155, 89, 182, 0.4) !important;
-                        pointer-events: auto !important;
-                        transition: all 0.3s ease !important;
-                        min-width: 120px !important;
-                        user-select: none !important;
-                        -webkit-user-select: none !important;
-                        -moz-user-select: none !important;
-                        -ms-user-select: none !important;
-                    `,
-                    onClick: function(e) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        
-                        // 固定的客服通道链接
-                        const customDomain = 'https://jiuzhougroup.vip/';
-                        
-                        try {
-                            // 提示用户
-                            showNotification('客服通道链接:\n' + customDomain, 'info');
-                        } catch (error) {
-                            alert('客服通道链接:\n' + customDomain);
-                        }
-                    }
-                }
-            };
+            const giftBtn = document.getElementById('midok-gift-button');
+            const saveChannelBtn = document.getElementById('midok-save-channel-button');
+            const otherBtn = document.getElementById('midok-function-button');
 
-            // 创建或恢复按钮
-            function createOrRecoverButton(config) {
-                let button = document.getElementById(config.id);
-                
-                if (!button) {
-                    // 按钮不存在，创建新按钮
-                    button = document.createElement('div');
-                    button.id = config.id;
-                    button.innerHTML = config.html;
-                    button.style.cssText = config.style;
+            // 礼品按钮点击事件 - 使用正确的_MICHAT('openUrl')方法
+            if (giftBtn) {
+                giftBtn.addEventListener('click', (e) => {
+                    e.preventDefault(); // 阻止默认行为，避免冲突
                     
-                    // 添加点击事件
-                    button.addEventListener('click', config.onClick);
-                    
-                    // 添加到页面
-                    document.body.appendChild(button);
-                } else {
-                    // 按钮存在，重置属性
-                    button.innerHTML = config.html;
-                    button.style.cssText = config.style;
-                    
-                    // 确保点击事件有效 - 使用标准JavaScript方法
-                    // 移除所有现有事件监听器的最佳方式是克隆元素
-                    const newButton = button.cloneNode(true);
-                    button.parentNode.replaceChild(newButton, button);
-                    newButton.addEventListener('click', config.onClick);
-                }
-                
-                return button;
+                    // 使用米多客标准的_MICHAT('openUrl')方法进行同域跳转
+                    if (typeof window._MICHAT === 'function') {
+                        window._MICHAT('openUrl', {
+                            url: './qiliantong-download.html',
+                            type: 'sidebar',
+                            crossDomain: false
+                        });
+                    } else {
+                        // 降级处理
+                        showNotification('米多客SDK未加载，使用传统跳转', 'info');
+                        window.location.href = './qiliantong-download.html';
+                    }
+                });
             }
 
-            // 核心防御函数
-            function defendButtons() {
-                // 为每个按钮创建或恢复
-                for (const key in buttonConfigs) {
-                    if (buttonConfigs.hasOwnProperty(key)) {
-                        const button = createOrRecoverButton(buttonConfigs[key]);
-                        
-                        // 无敌保护：强制显示和最高层级
-                        button.style.display = 'flex !important';
-                        button.style.visibility = 'visible !important';
-                        button.style.opacity = '1 !important';
-                        button.style.zIndex = '2147483647 !important';
-                        button.style.position = 'fixed !important';
-                        button.style.pointerEvents = 'auto !important';
-                        button.style.userSelect = 'none !important';
-                        button.style.webkitUserSelect = 'none !important';
-                        button.style.mozUserSelect = 'none !important';
-                        button.style.msUserSelect = 'none !important';
-                        
-                        // 防止通过CSS变量覆盖
-                        button.style.setProperty('--display-override', 'flex', 'important');
-                        button.style.setProperty('--visibility-override', 'visible', 'important');
-                        button.style.setProperty('--opacity-override', '1', 'important');
-                    }
-                }
-            }
-
-            // 重写DOM方法，防止按钮被删除或修改
-            function overrideDOMMethods() {
-                // 保存原始方法
-                const originalRemoveChild = Node.prototype.removeChild;
-                const originalRemove = Element.prototype.remove;
-                const originalSetAttribute = Element.prototype.setAttribute;
-                const originalRemoveAttribute = Element.prototype.removeAttribute;
-                const originalStyleSetProperty = CSSStyleDeclaration.prototype.setProperty;
-                
-                // 重写removeChild方法
-                Node.prototype.removeChild = function(child) {
-                    // 检查是否是受保护的按钮
-                        for (const key in buttonConfigs) {
-                            if (buttonConfigs.hasOwnProperty(key) && 
-                                child && child.id === buttonConfigs[key].id) {
-                                // 尝试移除受保护按钮，阻止操作
-                                return child; // 不执行移除操作
-                            }
-                        }
-                        
-                        // 允许米多客客服组件相关的DOM操作
-                        if (child && (child.className && child.className.includes('mdc-chat') || 
-                            child.id && child.id.includes('mdc-'))) {
-                            return originalRemoveChild.apply(this, arguments);
-                        }
-                    // 其他元素正常处理
-                    return originalRemoveChild.apply(this, arguments);
-                };
-                
-                // 重写remove方法
-                Element.prototype.remove = function() {
-                    // 检查是否是受保护的按钮
-                        for (const key in buttonConfigs) {
-                            if (buttonConfigs.hasOwnProperty(key) && 
-                                this.id === buttonConfigs[key].id) {
-                                // 尝试移除受保护按钮，阻止操作
-                                return; // 不执行移除操作
-                            }
-                        }
-                        
-                        // 允许米多客客服组件相关的DOM操作
-                        if (this.className && this.className.includes('mdc-chat') || 
-                            this.id && this.id.includes('mdc-')) {
-                            return originalRemove.apply(this, arguments);
-                        }
-                    // 其他元素正常处理
-                    return originalRemove.apply(this, arguments);
-                };
-                
-                // 重写setAttribute方法
-                Element.prototype.setAttribute = function(name, value) {
-                    // 检查是否是受保护的按钮且尝试修改关键属性
-                        for (const key in buttonConfigs) {
-                            if (buttonConfigs.hasOwnProperty(key) && 
-                                this.id === buttonConfigs[key].id && 
-                                (name === 'style' || name === 'class' || name === 'id')) {
-                                // 尝试修改受保护按钮的关键属性，阻止操作
-                                return; // 不执行修改操作
-                            }
-                        }
-                        
-                        // 允许米多客客服组件相关的DOM操作
-                        if (this.className && this.className.includes('mdc-chat') || 
-                            this.id && this.id.includes('mdc-')) {
-                            return originalSetAttribute.apply(this, arguments);
-                        }
-                    // 其他元素正常处理
-                    return originalSetAttribute.apply(this, arguments);
-                };
-                
-                // 重写removeAttribute方法
-                Element.prototype.removeAttribute = function(name) {
-                    // 检查是否是受保护的按钮且尝试移除关键属性
-                        for (const key in buttonConfigs) {
-                            if (buttonConfigs.hasOwnProperty(key) && 
-                                this.id === buttonConfigs[key].id && 
-                                (name === 'style' || name === 'id')) {
-                                // 尝试移除受保护按钮的关键属性，阻止操作
-                                return; // 不执行移除操作
-                            }
-                        }
-                        
-                        // 允许米多客客服组件相关的DOM操作
-                        if (this.className && this.className.includes('mdc-chat') || 
-                            this.id && this.id.includes('mdc-')) {
-                            return originalRemoveAttribute.apply(this, arguments);
-                        }
-                    // 其他元素正常处理
-                    return originalRemoveAttribute.apply(this, arguments);
-                };
-                
-                // 重写style.setProperty方法
-                CSSStyleDeclaration.prototype.setProperty = function(property, value, priority) {
-                    // 检查是否是尝试修改受保护按钮的关键样式
-                        const element = this.element || (this._element || null);
-                        if (element) {
-                            for (const key in buttonConfigs) {
-                                if (buttonConfigs.hasOwnProperty(key) && 
-                                    element.id === buttonConfigs[key].id && 
-                                    (property.includes('display') || 
-                                     property.includes('visibility') || 
-                                     property.includes('opacity') || 
-                                     property.includes('z-index') || 
-                                     property.includes('position') || 
-                                     property.includes('pointer-events'))) {
-                                    // 尝试修改受保护按钮的关键样式，阻止操作
-                                    return; // 不执行修改操作
-                                }
-                            }
-                            
-                            // 允许米多客客服组件相关的DOM操作
-                            if (element.className && element.className.includes('mdc-chat') || 
-                                element.id && element.id.includes('mdc-')) {
-                                return originalStyleSetProperty.apply(this, arguments);
-                            }
-                        }
-                    // 其他样式正常处理
-                    return originalStyleSetProperty.apply(this, arguments);
-                };
-            }
-
-            // 监听DOM变化
-            function observeDOMChanges() {
-                // 创建MutationObserver实例
-                const observer = new MutationObserver(function(mutations) {
-                    mutations.forEach(function(mutation) {
-                        // 检查是否有节点被移除
-                        if (mutation.type === 'childList' && mutation.removedNodes.length > 0) {
-                            mutation.removedNodes.forEach(function(node) {
-                                // 检查是否是受保护的按钮或容器
-                                if (node.nodeType === 1) { // 元素节点
-                                    if (node.id === 'rightSidebar') {
-                                        // 侧边栏容器被移除，立即恢复
-                                        setTimeout(defendSidebar, 0);
-                                    } else if (node.id === 'midokContainer') {
-                                        // 手机容器被移除，立即恢复
-                                        setTimeout(defendPhoneContainer, 0);
-                                    } else {
-                                        // 检查是否是受保护的按钮
-                                        for (const key in buttonConfigs) {
-                                            if (buttonConfigs.hasOwnProperty(key) && 
-                                                node.id === buttonConfigs[key].id) {
-                                                // 受保护的按钮被移除，立即恢复
-                                                setTimeout(defendButtons, 0);
-                                            }
-                                        }
-                                    }
+            // 保存客服通道按钮点击事件
+            if (saveChannelBtn) {
+                saveChannelBtn.addEventListener('click', function(e) {
+                    e.preventDefault(); // 阻止默认行为，避免冲突
+                    
+                    const customDomain = 'https://jiuzhougroup.vip/';
+                    // 根据同域规范，确保使用正确的URL格式
+                    try {
+                        // 使用米多客标准的_MICHAT('setChannel')方法
+                        if (typeof window._MICHAT === 'function') {
+                            window._MICHAT('setChannel', {
+                                domain: customDomain,
+                                success: function() {
+                                    showNotification('客服通道已保存', 'success');
+                                },
+                                error: function(err) {
+                                    showNotification('客服通道保存失败：' + (err.message || '未知错误'), 'error');
                                 }
                             });
-                        }
-                        
-                        // 检查是否有节点属性被修改
-                        if (mutation.type === 'attributes' && mutation.target.nodeType === 1) {
-                            // 检查是否是侧边栏容器
-                            if (mutation.target.id === 'rightSidebar' && 
-                                (mutation.attributeName === 'style' || 
-                                 mutation.attributeName === 'class')) {
-                                // 侧边栏容器属性被修改，立即恢复
-                                setTimeout(resetSidebarStyles, 0);
-                            } else if (mutation.target.id === 'midokContainer' && 
-                                (mutation.attributeName === 'style' || 
-                                 mutation.attributeName === 'class')) {
-                                // 手机容器属性被修改，立即恢复
-                                setTimeout(resetPhoneContainerStyles, 0);
-                            } else {
-                                // 检查是否是受保护的按钮
-                                for (const key in buttonConfigs) {
-                                    if (buttonConfigs.hasOwnProperty(key) && 
-                                        mutation.target.id === buttonConfigs[key].id && 
-                                        (mutation.attributeName === 'style' || 
-                                         mutation.attributeName === 'class')) {
-                                        // 受保护的按钮属性被修改，立即恢复
-                                        setTimeout(defendButtons, 0);
-                                    }
-                                }
+                        } else {
+                            // 降级处理：复制通道链接
+                            try {
+                                navigator.clipboard.writeText(customDomain).then(() => {
+                                    showNotification('客服通道链接已复制到剪贴板', 'success');
+                                }).catch(() => {
+                                    // 兼容旧版浏览器
+                                    const textArea = document.createElement('textarea');
+                                    textArea.value = customDomain;
+                                    document.body.appendChild(textArea);
+                                    textArea.select();
+                                    document.execCommand('copy');
+                                    document.body.removeChild(textArea);
+                                    showNotification('客服通道链接已复制到剪贴板', 'success');
+                                });
+                            } catch (err) {
+                                showNotification('复制链接失败：' + err.message, 'error');
                             }
                         }
-                    });
-                });
-                
-                // 配置观察选项
-                const config = {
-                    childList: true,
-                    attributes: true,
-                    subtree: true,
-                    attributeOldValue: true,
-                    characterData: true,
-                    characterDataOldValue: true
-                };
-                
-                // 开始观察document.body
-                if (document.body) {
-                    observer.observe(document.body, config);
-                } else {
-                    // 如果body还不存在，等待DOMContentLoaded
-                    document.addEventListener('DOMContentLoaded', function() {
-                        observer.observe(document.body, config);
-                    });
-                }
-            }
-
-            // 防御侧边栏容器
-        function defendSidebar() {
-            let sidebar = document.getElementById('rightSidebar');
-            
-            if (!sidebar) {
-                // 侧边栏容器不存在，创建新容器
-                sidebar = document.createElement('div');
-                sidebar.id = 'rightSidebar';
-                sidebar.className = 'sidebar-container';
-                sidebar.style.cssText = `
-                    position: fixed !important;
-                    top: 50% !important;
-                    right: 20px !important;
-                    transform: translateY(-50%) !important;
-                    z-index: 2147483647 !important;
-                    display: flex !important;
-                    flex-direction: column !important;
-                    gap: 15px !important;
-                `;
-                
-                // 将受保护的按钮添加到容器
-                for (const key in buttonConfigs) {
-                    if (buttonConfigs.hasOwnProperty(key)) {
-                        const button = createOrRecoverButton(buttonConfigs[key]);
-                        if (document.body.contains(button)) {
-                            document.body.removeChild(button);
-                        }
-                        sidebar.appendChild(button);
+                    } catch (error) {
+                        showNotification('复制链接失败：' + error.message, 'error');
                     }
-                }
-                
-                document.body.appendChild(sidebar);
-            } else {
-                // 侧边栏容器存在，重置属性
-                sidebar.className = 'sidebar-container';
-                resetSidebarStyles();
+                });
             }
-        }
-        
-        // 重置组件样式（防御机制）
-        function resetSidebarStyles() {
-            const container = document.getElementById('rightSidebar');
-            if (container) {
-                container.style.position = 'fixed !important';
-                container.style.top = '50% !important';
-                container.style.right = '20px !important';
-                container.style.transform = 'translateY(-50%) !important';
-                container.style.zIndex = '2147483647 !important';
-                container.style.display = 'flex !important';
-                container.style.flexDirection = 'column !important';
-                container.style.gap = '15px !important';
+
+            // 其他功能按钮点击事件
+            if (otherBtn) {
+                otherBtn.addEventListener('click', (e) => {
+                    e.preventDefault(); // 阻止默认行为，避免冲突
+                    
+                    // 使用米多客标准的_MICHAT('openUrl')方法打开保存客服会话页面
+                    if (typeof window._MICHAT === 'function') {
+                        window._MICHAT('openUrl', {
+                            url: './save-chat-history.html',
+                            type: 'sidebar',
+                            crossDomain: false
+                        });
+                    } else {
+                        // 降级处理
+                        showNotification('米多客SDK未加载，使用传统跳转', 'info');
+                        window.location.href = './save-chat-history.html';
+                    }
+                });
             }
-            
-            document.querySelectorAll('.sidebar-btn').forEach(btn => {
-                btn.style.display = 'flex !important';
-                btn.style.pointerEvents = 'auto !important';
-            });
-        }
-        
-        // 防御手机容器
-        function defendPhoneContainer() {
-            let phoneContainer = document.getElementById('midokContainer');
-            
-            if (!phoneContainer) {
-                // 手机容器不存在，创建新容器
-                phoneContainer = document.createElement('div');
-                phoneContainer.id = 'midokContainer';
-                phoneContainer.className = 'phone-container';
-                
-                // 添加手机顶部装饰
-                const phoneHeader = document.createElement('div');
-                phoneHeader.className = 'phone-header';
-                phoneContainer.appendChild(phoneHeader);
-                
-                // 添加米多客挂载点
-                const mountPoint = document.createElement('div');
-                mountPoint.id = 'midokMountPoint';
-                mountPoint.className = 'phone-content';
-                phoneContainer.appendChild(mountPoint);
-                
-                document.body.appendChild(phoneContainer);
-                
-                // 重新初始化米多客
-                setTimeout(initMidokChat, 0);
-            } else {
-                // 手机容器存在，重置属性
-                resetPhoneContainerStyles();
-            }
-        }
-        
-        // 重置手机容器样式
-        function resetPhoneContainerStyles() {
-            const container = document.getElementById('midokContainer');
-            if (container) {
-                // 应用半透明悬浮效果样式
-                container.style.position = 'fixed !important';
-                container.style.right = '20px !important';
-                container.style.bottom = '80px !important';
-                container.style.width = '320px !important';
-                container.style.height = '568px !important';
-                container.style.border = '10px solid rgba(51, 51, 51, 0.8) !important';
-                container.style.borderRadius = '36px !important';
-                container.style.boxShadow = '0 10px 30px rgba(0,0,0,0.2), 0 0 0 1px rgba(255,255,255,0.1) !important';
-                container.style.overflow = 'hidden !important';
-                container.style.zIndex = '2147483646 !important';
-                container.style.transition = 'all 0.3s ease !important';
-                container.style.background = 'rgba(255, 255, 255, 0.95) !important';
-                
-                // 为小屏幕添加特定样式
-                if (window.innerWidth <= 768) {
-                    container.style.width = '280px !important';
-                    container.style.height = '490px !important';
-                    container.style.right = '10px !important';
-                    container.style.bottom = '60px !important';
-                    container.style.borderWidth = '8px !important';
-                    container.style.borderColor = 'rgba(51, 51, 51, 0.9) !important';
-                }
-                
-                // 确保内容区存在
-                const contentArea = document.getElementById('midokMountPoint');
-                if (contentArea) {
-                    contentArea.style.height = 'calc(100% - 40px) !important';
-                    contentArea.style.background = '#fff !important';
-                }
-            }
-        }
-        
-        // 初始化无敌模式
-        try {
-            // 1. 重写DOM方法
-            overrideDOMMethods();
-            
-            // 2. 设置定期检查（高频）
-            setInterval(() => {
-                defendSidebar();
-                defendButtons();
-                defendPhoneContainer();
-            }, 100); // 100ms检查一次
-            
-            // 3. 添加DOM变化监听
-            observeDOMChanges();
-            
-            // 4. 立即执行一次防御
-            defendSidebar();
-            defendButtons();
-            defendPhoneContainer();
-            
-            // 5. 初始化侧边栏组件的事件
-            setTimeout(initSidebarComponents, 100);
-        } catch (e) {
-            // 静默处理异常，确保不影响页面功能
-        }
+
+            // 显示侧边栏
+            showElement('midok-sidebar-container');
         }
 
-        // 启动无敌模式
-        document.addEventListener('DOMContentLoaded', function() {
-            setTimeout(enableInvincibleMode, 1000); // 延迟1秒启动，确保页面元素加载完成
-        });
+        // 米多客SDK加载检测
+        function checkMidokSDKLoaded() {
+            if (typeof window._MICHAT !== 'function') {
+                console.warn('米多客SDK尚未完全加载，使用降级模式');
+                // 可以在这里添加降级处理逻辑
+            }
+        }
+
+        // 通知函数 - 米多客命名空间前缀
+        function showNotification(message, type = 'info') {
+            let notification = document.querySelector('.midok-notification');
+            if (notification) {
+                notification.remove();
+            }
+
+            notification = document.createElement('div');
+            notification.className = 'midok-notification';
+
+            let bgColor = '#3498db';
+            if (type === 'success') bgColor = '#2ecc71';
+            if (type === 'error') bgColor = '#e74c3c';
+
+            notification.style.background = bgColor;
+            notification.textContent = message;
+            notification.style.opacity = '0';
+
+            document.body.appendChild(notification);
+            void notification.offsetWidth;
+            notification.style.opacity = '1';
+
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                setTimeout(() => notification.remove(), 500);
+            }, 3000);
+        }
+
+        // 启动初始化：优先监听米多客SDK加载事件
+        if (document.readyState === 'complete') {
+            initMidokWidget();
+        } else {
+            // 监听页面加载完成 + 米多客SDK加载事件
+            window.addEventListener('load', initMidokWidget);
+            document.addEventListener('midokSdkReady', initMidokWidget); // 米多客自定义事件
+        }
     </script>
 </body>
 </html>

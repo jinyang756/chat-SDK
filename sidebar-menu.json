@@ -1,0 +1,32 @@
+{
+  "menuList": [
+    {
+      "id": "gift-package",
+      "name": "指标大礼包",
+      "icon": "fa-bar-chart",
+      "url": "./qiliantong-download.html",
+      "show": true
+    },
+    {
+      "id": "customer-portal",
+      "name": "客户管理",
+      "icon": "fa-users",
+      "url": "./customer-portal.html",
+      "show": true
+    },
+    {
+      "id": "save-chat-history",
+      "name": "保存客服会话",
+      "icon": "fa-save",
+      "url": "./save-chat-history.html",
+      "show": true
+    },
+    {
+      "id": "open-jiuzhou",
+      "name": "打开九州集团官网",
+      "icon": "fa-external-link",
+      "url": "https://jiuzhougroup.vip/",
+      "show": true
+    }
+  ]
+}

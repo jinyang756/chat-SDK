@@ -1,21 +1,19 @@
 {
-  "name": "coze-chat-app",
+  "name": "midok-sidebar-widget",
   "version": "1.0.0",
-  "description": "基于扣子智能体的聊天网站",
+  "description": "米多客侧边栏挂件项目",
   "main": "index.html",
   "scripts": {
-    "dev": "vercel dev",
+    "dev": "npx serve -l 8080",
     "build": "echo 'No build process needed'",
-    "start": "vercel dev"
+    "start": "npx serve -l 8080"
   },
-  "keywords": ["coze", "chatbot", "ai", "vercel"],
+  "keywords": ["midok", "sidebar", "widget", "米多客"],
   "author": "Your Name",
   "license": "MIT",
   "dependencies": {},
-  "devDependencies": {
-    "@vercel/node": "^2.15.10"
-  },
+  "devDependencies": {},
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=16.0.0"
   }
 }
