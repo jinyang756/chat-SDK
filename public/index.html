@@ -254,7 +254,7 @@
     <div class="header">
       <div class="logo">
         <i class="logo-icon fas fa-comments"></i>
-        <span>九州集团在线客服</span>
+        <span>在线客服系统</span>
       </div>
       <div class="welcome-text">
         欢迎访问，我们将竭诚为您服务
@@ -285,6 +285,14 @@
   </div>
 
   <script>
+    // 配置参数
+    const CONFIG = {
+      // 客服系统服务端地址，用户可根据实际情况修改
+      serverUrl: 'https://your-chat-service.com',
+      // 是否启用机器人优先接待
+      enableBotFirst: true
+    };
+    
     // 生成或获取访客ID
     function generateVisitorId() {
       // 尝试从localStorage获取已有的访客ID
@@ -341,7 +349,7 @@
       const timestamp = Date.now();
       
       // 构建URL参数，支持机器人优先接待
-      return `https://chat.jiuzhougroup.vip/chat?uid=${visitorId}&group_id=${groupId}&device_info=${deviceInfo}&timestamp=${timestamp}&bot_first=true`;
+      return `${CONFIG.serverUrl}/chat?uid=${visitorId}&group_id=${groupId}&device_info=${deviceInfo}&timestamp=${timestamp}&bot_first=${CONFIG.enableBotFirst}`;
     }
     
     // WebSocket连接管理
@@ -358,7 +366,7 @@
       }
       
       const visitorId = generateVisitorId();
-      const wsUrl = `wss://chat.jiuzhougroup.vip/ws?uid=${visitorId}&timestamp=${Date.now()}`;
+      const wsUrl = `${CONFIG.serverUrl.replace('http:', 'ws:').replace('https:', 'wss:')}/ws?uid=${visitorId}&timestamp=${Date.now()}`;
       
       try {
         wsConnection = new WebSocket(wsUrl);
