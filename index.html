@@ -1,9 +1,13 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>在线客服</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>在线客服</title>
+    <!-- 预加载关键资源 -->
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    <link rel="dns-prefetch" href="https://chat.jiuzhougroup.vip">
   <style>
     * {
       margin: 0;
@@ -114,9 +118,135 @@
       transform: translateY(-2px);
       box-shadow: 0 4px 12px rgba(30, 136, 229, 0.3);
     }
+    
+    /* 正在输入指示器样式 */
+    .typing-indicator {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: rgba(255, 255, 255, 0.95);
+      padding: 12px 20px;
+      border-radius: 25px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      font-size: 14px;
+      color: #666;
+      z-index: 1000;
+      display: none;
+      backdrop-filter: blur(5px);
+    }
+    
+    /* 通知样式 */
+    .notification {
+      position: fixed;
+      top: 80px;
+      right: 20px;
+      min-width: 300px;
+      background: white;
+      padding: 15px 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      z-index: 2000;
+      animation: slideIn 0.3s ease-out;
+    }
+    
+    @keyframes slideIn {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+    
+    .notification.fade-out {
+      animation: fadeOut 0.3s ease-in;
+    }
+    
+    @keyframes fadeOut {
+      from {
+        transform: translateX(0);
+        opacity: 1;
+      }
+      to {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+    }
+    
+    .notification-success {
+      border-left: 4px solid #4CAF50;
+    }
+    
+    .notification-success i {
+      color: #4CAF50;
+    }
+    
+    .notification-error {
+      border-left: 4px solid #F44336;
+    }
+    
+    .notification-error i {
+      color: #F44336;
+    }
+    
+    .notification-warning {
+      border-left: 4px solid #FF9800;
+    }
+    
+    .notification-warning i {
+      color: #FF9800;
+    }
+    
+    .notification-info {
+      border-left: 4px solid #2196F3;
+    }
+    
+    .notification-info i {
+      color: #2196F3;
+    }
+    
+    .close-notification {
+      margin-left: auto;
+      background: none;
+      border: none;
+      font-size: 20px;
+      cursor: pointer;
+      color: #999;
+      padding: 0;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      transition: all 0.2s;
+    }
+    
+    .close-notification:hover {
+      background: #f5f5f5;
+      color: #666;
+    }
   </style>
-  <!-- 使用Font Awesome图标 -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- 使用CDN加载Font Awesome图标 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@6.4.0/css/all.min.css">
+    
+    <!-- 配置服务工作线程进行离线缓存 -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function() {
+          navigator.serviceWorker.register('/sw.js').then(function(registration) {
+            console.log('ServiceWorker 注册成功:', registration.scope);
+          }, function(error) {
+            console.log('ServiceWorker 注册失败:', error);
+          });
+        });
+      }
+    </script>
 </head>
 <body>
   <div class="chat-container">
@@ -167,11 +297,223 @@
       return visitorId;
     }
     
+    // 根据访客来源获取客服分组
+    function getCustomerServiceGroup() {
+      // 获取当前页面路径和参数
+      const path = window.location.pathname;
+      const searchParams = new URLSearchParams(window.location.search);
+      
+      // 从URL参数中获取分组信息
+      const groupParam = searchParams.get('group');
+      if (groupParam) {
+        return groupParam;
+      }
+      
+      // 根据页面路径智能分配
+      if (path.includes('product') || path.includes('buy')) {
+        return 'shouqian'; // 售前客服
+      } else if (path.includes('support') || path.includes('help')) {
+        return 'shouhou'; // 售后客服
+      } else if (path.includes('tech') || path.includes('api')) {
+        return 'tech'; // 技术支持
+      } else {
+        return 'default'; // 默认客服组
+      }
+    }
+    
+    // 获取设备信息
+    function getDeviceInfo() {
+      const deviceInfo = {
+        isMobile: /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent),
+        browser: navigator.userAgent,
+        language: navigator.language || navigator.userLanguage,
+        screenWidth: window.screen.width,
+        screenHeight: window.screen.height
+      };
+      return encodeURIComponent(JSON.stringify(deviceInfo));
+    }
+    
     // 获取客服URL
     function getChatUrl() {
       const visitorId = generateVisitorId();
-      // 实际部署时替换为有效的客服系统地址
-      return 'https://chat.jiuzhougroup.vip/chat?uid=' + visitorId;
+      const groupId = getCustomerServiceGroup();
+      const deviceInfo = getDeviceInfo();
+      const timestamp = Date.now();
+      
+      // 构建URL参数，支持机器人优先接待
+      return `https://chat.jiuzhougroup.vip/chat?uid=${visitorId}&group_id=${groupId}&device_info=${deviceInfo}&timestamp=${timestamp}&bot_first=true`;
+    }
+    
+    // WebSocket连接管理
+    let wsConnection = null;
+    let reconnectAttempts = 0;
+    const maxReconnectAttempts = 5;
+    const reconnectDelay = 3000;
+    
+    // 初始化WebSocket连接
+    function initWebSocket() {
+      // 如果已经有连接，先关闭
+      if (wsConnection && wsConnection.readyState === WebSocket.OPEN) {
+        wsConnection.close();
+      }
+      
+      const visitorId = generateVisitorId();
+      const wsUrl = `wss://chat.jiuzhougroup.vip/ws?uid=${visitorId}&timestamp=${Date.now()}`;
+      
+      try {
+        wsConnection = new WebSocket(wsUrl);
+        
+        // 连接建立
+        wsConnection.onopen = function() {
+          console.log('WebSocket连接已建立');
+          reconnectAttempts = 0;
+          showNotification('客服系统已连接', 'success');
+        };
+        
+        // 接收消息
+        wsConnection.onmessage = function(event) {
+          try {
+            const msg = JSON.parse(event.data);
+            handleWebSocketMessage(msg);
+          } catch (e) {
+            console.error('解析WebSocket消息失败:', e);
+          }
+        };
+        
+        // 连接关闭
+        wsConnection.onclose = function(event) {
+          console.log('WebSocket连接已关闭', event.code, event.reason);
+          if (event.code !== 1000) { // 非正常关闭
+            attemptReconnect();
+          }
+        };
+        
+        // 连接错误
+        wsConnection.onerror = function(error) {
+          console.error('WebSocket连接错误:', error);
+          showNotification('客服系统连接异常', 'error');
+        };
+      } catch (e) {
+        console.error('WebSocket初始化失败:', e);
+        attemptReconnect();
+      }
+    }
+    
+    // 处理WebSocket消息
+    function handleWebSocketMessage(msg) {
+      switch (msg.type) {
+        case 'message':
+          // 处理接收到的消息
+          console.log('收到新消息:', msg.content);
+          break;
+        case 'typing':
+          // 处理对方正在输入
+          showTypingIndicator(msg.from);
+          break;
+        case 'read':
+          // 处理已读回执
+          updateMessageStatus(msg.messageId, 'read');
+          break;
+        case 'system':
+          // 处理系统消息
+          showNotification(msg.content, 'info');
+          break;
+        default:
+          console.log('收到未知类型的消息:', msg);
+      }
+    }
+    
+    // 尝试重新连接
+    function attemptReconnect() {
+      if (reconnectAttempts < maxReconnectAttempts) {
+        reconnectAttempts++;
+        console.log(`尝试重新连接(${reconnectAttempts}/${maxReconnectAttempts})...`);
+        
+        setTimeout(() => {
+          initWebSocket();
+        }, reconnectDelay * reconnectAttempts); // 递增延迟
+      } else {
+        console.error('达到最大重连次数，停止尝试');
+        showNotification('客服系统连接已断开，请刷新页面重试', 'error');
+      }
+    }
+    
+    // 发送WebSocket消息
+    function sendWebSocketMessage(type, data) {
+      if (wsConnection && wsConnection.readyState === WebSocket.OPEN) {
+        const message = {
+          type: type,
+          data: data,
+          timestamp: Date.now()
+        };
+        wsConnection.send(JSON.stringify(message));
+      } else {
+        console.warn('WebSocket未连接，无法发送消息');
+      }
+    }
+    
+    // 显示对方正在输入指示器
+    function showTypingIndicator(from) {
+      // 创建或更新"正在输入"提示
+      let typingIndicator = document.getElementById('typingIndicator');
+      if (!typingIndicator) {
+        typingIndicator = document.createElement('div');
+        typingIndicator.id = 'typingIndicator';
+        typingIndicator.className = 'typing-indicator';
+        typingIndicator.innerHTML = `<i class="fas fa-paper-plane"></i> ${from} 正在输入...`;
+        document.body.appendChild(typingIndicator);
+      }
+      
+      typingIndicator.style.display = 'block';
+      
+      // 3秒后隐藏指示器
+      setTimeout(() => {
+        if (typingIndicator) {
+          typingIndicator.style.display = 'none';
+        }
+      }, 3000);
+    }
+    
+    // 更新消息状态
+    function updateMessageStatus(messageId, status) {
+      // 在实际应用中，这里应该更新界面上对应消息的状态显示
+      console.log(`消息 ${messageId} 状态已更新为: ${status}`);
+    }
+    
+    // 显示通知
+    function showNotification(message, type = 'info') {
+      // 创建通知元素
+      const notification = document.createElement('div');
+      notification.className = `notification notification-${type}`;
+      notification.innerHTML = `
+        <i class="fas ${getNotificationIcon(type)}"></i>
+        <span>${message}</span>
+        <button class="close-notification">×</button>
+      `;
+      
+      // 添加关闭事件
+      notification.querySelector('.close-notification').addEventListener('click', () => {
+        notification.remove();
+      });
+      
+      // 添加到页面
+      document.body.appendChild(notification);
+      
+      // 自动消失
+      setTimeout(() => {
+        notification.classList.add('fade-out');
+        setTimeout(() => notification.remove(), 300);
+      }, 3000);
+    }
+    
+    // 获取通知图标
+    function getNotificationIcon(type) {
+      switch (type) {
+        case 'success': return 'fa-check-circle';
+        case 'error': return 'fa-exclamation-circle';
+        case 'warning': return 'fa-exclamation-triangle';
+        default: return 'fa-info-circle';
+      }
     }
     
     // 加载客服系统
@@ -184,6 +526,9 @@
       
       // 设置iframe源
       chatFrame.src = getChatUrl();
+      
+      // 初始化WebSocket连接
+      initWebSocket();
       
       // 监听加载错误
       chatFrame.onerror = function() {
@@ -214,6 +559,13 @@
       
       // 首次加载客服系统
       loadChatSystem();
+      
+      // 监听页面卸载，关闭WebSocket连接
+      window.addEventListener('beforeunload', function() {
+        if (wsConnection) {
+          wsConnection.close(1000, '页面关闭');
+        }
+      });
     });
   </script>
 </body>
