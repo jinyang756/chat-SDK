@@ -5,7 +5,7 @@
   "main": "public/index.html",
   "scripts": {
     "dev": "npx serve -l 8080 public",
-    "build": "echo 'No build process needed'",
+    "build": "if not exist public mkdir public && echo 'Public directory is ready'",
     "start": "npx serve -l 8080 public"
   },
   "keywords": ["midok", "sidebar", "widget", "米多客"],
