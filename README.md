@@ -8,17 +8,18 @@
 
 - ✅ 使用iframe嵌入客服窗口
 - ✅ 响应式设计，适配不同尺寸的设备
-- ✅ 完整的功能模块（客服面板、资料下载、保存通道等）
 - ✅ 商用级别的稳定性与安全性
 - ✅ 支持多种部署方式（传统服务器、Vercel、Netlify等）
+- ✅ 随机访客ID生成与记忆
 
 ## 核心功能
 
-- OnlineChat客服面板（嵌入式）
-- 指标大礼包功能（文件下载）
-- 保存通道功能
+- 嵌入式客服面板
 - 响应式布局适配
 - 随机访客ID生成与记忆
+- WebSocket实时通信支持
+- 连接状态监控与自动重连
+- 完整的错误处理机制
 
 ## 本地开发
 
@@ -44,42 +45,38 @@ npm run dev
 
 ### 客服服务器配置
 
-在 `index.html` 文件中，您需要修改以下代码来配置您的客服系统服务器地址：
+在 `public/index.html` 文件中，您需要修改以下配置常量来设置您的客服系统服务器地址：
 
 ```javascript
-// 获取客服系统URL
-function getCustomerServiceUrl(visitorId) {
-    // 这里可以根据需要配置您的客服系统服务器地址
-    // 注意：实际部署时需要替换为您自己的客服系统服务地址
-    // 以下是一个示例地址，实际使用时请替换为有效的客服系统服务地址
-    // 如果使用iframe嵌入遇到跨域问题，可以考虑使用window.open的方式
-    return 'https://your-chat-service.com/chat?uid=' + visitorId;
-}```
+// 配置常量
+const CONFIG = {
+    // 客服系统服务器地址
+    serverUrl: 'https://your-chat-service.com',
+    // 是否启用机器人优先模式
+    enableBotFirst: false
+};
+```
+
+将 `https://your-chat-service.com` 替换为您实际的客服系统服务地址。
 
 将 `https://your-chat-service.com/chat` 替换为您实际的客服系统服务地址。
 
 ### 客服窗口打开方式配置
 
-项目支持两种客服窗口打开方式，可以在 `index.html` 文件中配置：
-
-```javascript
-// 客服配置选项
-const chatConfig = {
-    // 选择客服窗口的打开方式: 'iframe' 或 'window'
-    // 如果遇到跨域问题，建议使用 'window' 方式
-    openMethod: 'iframe' // 可选值: 'iframe', 'window'
-};```
+项目支持在侧边栏中嵌入客服窗口，无需额外配置。如果遇到跨域问题，可以修改 `public/index.html` 文件中的相关代码以支持在新窗口中打开。
 
 - **iframe方式**（默认）：在侧边栏面板中直接嵌入客服窗口
 - **window方式**：在新窗口中打开客服页面，可有效避免跨域限制
 
 ### 文件结构说明
 
-- `index.html` - 主页面，包含侧边栏基础结构和功能按钮
-- `qiliantong-download.html` - 指标大礼包页面
+- `public/index.html` - 主页面，包含侧边栏基础结构和客服窗口实现
 - `package.json` - 项目配置和脚本定义
+- `build.js` - 构建脚本
+- `sw.js` - Service Worker文件，用于缓存管理
 - `vercel.json` - Vercel部署配置文件
 - `.gitignore` - Git忽略规则
+- `LICENSE` - 项目许可证文件
 
 ## 功能实现说明
 
@@ -125,10 +122,10 @@ location / {
 
 ## 注意事项
 
-1. 确保OnlineChat服务地址正确配置，否则无法正常加载客服窗口
-2. 如需在生产环境使用，请替换示例中的模拟下载链接为真实的文件地址
-3. 响应式设计支持移动端和桌面端，但在小屏幕设备上可能需要调整部分样式
-4. 项目使用了Font Awesome图标库，确保网络连接正常以加载图标
+1. 确保客服系统服务地址正确配置，否则无法正常加载客服窗口
+2. 响应式设计支持移动端和桌面端，但在小屏幕设备上可能需要调整部分样式
+3. 项目使用了Font Awesome图标库，确保网络连接正常以加载图标
+4. 如果遇到跨域问题，可考虑调整客服窗口的加载方式
 
 ## 许可证
 
