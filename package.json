@@ -2,11 +2,11 @@
   "name": "midok-sidebar-widget",
   "version": "1.0.0",
   "description": "米多客侧边栏挂件项目",
-  "main": "index.html",
+  "main": "public/index.html",
   "scripts": {
-    "dev": "npx serve -l 8080",
+    "dev": "npx serve -l 8080 public",
     "build": "echo 'No build process needed'",
-    "start": "npx serve -l 8080"
+    "start": "npx serve -l 8080 public"
   },
   "keywords": ["midok", "sidebar", "widget", "米多客"],
   "author": "Your Name",

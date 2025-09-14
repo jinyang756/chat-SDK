@@ -1,5 +1,5 @@
 // 缓存版本，修改此值将触发新的缓存
-const CACHE_NAME = 'online-chat-v1';
+const CACHE_NAME = 'online-chat-v2';
 const CACHE_FILES = [
   '/',
   '/index.html',
