@@ -1,14 +1,14 @@
 {
-  "name": "midok-sidebar-widget",
+  "name": "customer-service-sdk",
   "version": "1.0.0",
-  "description": "米多客侧边栏挂件项目",
+  "description": "在线客服系统SDK",
   "main": "public/index.html",
   "scripts": {
     "dev": "npx serve -l 8080 public",
     "build": "node build.js",
     "start": "npx serve -l 8080 public"
   },
-  "keywords": ["midok", "sidebar", "widget", "米多客"],
+  "keywords": ["customer-service", "sdk", "online-chat"],
   "author": "Your Name",
   "license": "MIT",
   "dependencies": {},
