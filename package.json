@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "npx serve -l 8080 public",
     "build": "node build.js",
-    "start": "npx serve -l 8080 public"
+    "start": "npx serve -l 8080 public",
+    "vercel-build": "npm run build"
   },
   "keywords": ["customer-service", "sdk", "online-chat"],
   "author": "Your Name",

@@ -37,6 +37,30 @@ const envVars = process.env;
 const templateDir = path.join(__dirname, 'public');
 const templateFiles = ['index.html'];
 
+// 创建一个环境变量配置对象，只包含需要暴露给前端的变量
+const frontendEnvVars = {
+  COZE_API_TOKEN: envVars.COZE_API_TOKEN || 'cztei_qfUo1quBmNBJBxUOPYnIZNuuCJ9Fd62e1xchwAxzBKDqjrtsKYBsWVL58X6cRRwjW',
+  BOT_ID: envVars.BOT_ID || '7549806268429844490',
+  SERVER_URL: envVars.SERVER_URL || ''
+};
+
+// 生成环境变量配置JS文件
+const envConfigPath = path.join(templateDir, 'js', 'env-config.js');
+const envConfigContent = `// 环境变量配置 - 由build.js自动生成
+window.ENV_CONFIG = ${JSON.stringify(frontendEnvVars, null, 2)};
+`;
+
+// 确保js目录存在
+const jsDir = path.join(templateDir, 'js');
+if (!fs.existsSync(jsDir)) {
+  fs.mkdirSync(jsDir);
+}
+
+// 写入环境变量配置文件
+fs.writeFileSync(envConfigPath, envConfigContent, 'utf8');
+console.log(`Environment config file created at ${envConfigPath}`);
+
+// 同时保持原有的占位符替换逻辑
 templateFiles.forEach(fileName => {
   const filePath = path.join(templateDir, fileName);
   if (fs.existsSync(filePath)) {

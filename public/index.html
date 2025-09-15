@@ -11,6 +11,11 @@
     <!-- 外部资源 -->
     <script src="https://cdn.tailwindcss.com/3.3.3"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <!-- 环境变量配置 -->
+    <script src="js/env-config.js"></script>
+    <!-- 应用配置 -->
+    <script src="js/config.js"></script>
+
     <style>
         body {
             font-family: 'Noto Sans SC', sans-serif;
@@ -564,16 +569,16 @@
             // 初始化扣子智能体
             const chatClient = new CozeWebSDK.WebChatClient({
                 config: {
-                    bot_id: '7549806268429844490'
+                    bot_id: window.ENV_CONFIG.BOT_ID
                 },
                 componentProps: {
                     title: '扣子智能体'
                 },
                 auth: {
                     type: 'token',
-                    token: "pat_cztei_hrjQPxfPNsnlf9N8a2fGYhsWibm2vO08owVPEE8cFz3cqAxyYohoLB8IEKoVOQEF5",
+                    token: window.ENV_CONFIG.COZE_API_TOKEN,
                     onRefreshToken: function () {
-                        return "pat_cztei_hrjQPxfPNsnlf9N8a2fGYhsWibm2vO08owVPEE8cFz3cqAxyYohoLB8IEKoVOQEF5"
+                        return window.ENV_CONFIG.COZE_API_TOKEN
                     }
                 }
             });
