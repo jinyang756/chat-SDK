@@ -79,78 +79,7 @@
             opacity: 1;
         }
         
-        /* 聊天挂件相关样式 */
-        .chat-widget {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            width: 360px;
-            height: 500px;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            display: flex;
-            flex-direction: column;
-            z-index: 1000;
-            transition: all 0.3s ease;
-            overflow: hidden;
-        }
-        
-        .chat-widget.minimized {
-            height: 60px;
-            width: 200px;
-        }
-        
-        .chat-header {
-            height: 60px;
-            background: #1e3a8a;
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 20px;
-            cursor: pointer;
-        }
-        
-        .chat-header-title {
-            font-size: 16px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .chat-header-controls {
-            display: flex;
-            gap: 10px;
-        }
-        
-        .chat-header-btn {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 16px;
-            cursor: pointer;
-            padding: 5px;
-            border-radius: 4px;
-            transition: background-color 0.2s;
-        }
-        
-        .chat-header-btn:hover {
-            background: rgba(255, 255, 255, 0.2);
-        }
-        
-        .chat-content {
-            flex: 1;
-            overflow: hidden;
-            position: relative;
-        }
-        
-        .chat-frame {
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
+
         
         /* 正在输入指示器样式 */
         .typing-indicator {
@@ -575,36 +504,8 @@
 
 
 
-    <!-- 客服聊天挂件 -->
-    <div id="chatWidget" class="chat-widget minimized">
-        <div class="chat-header" id="chatHeader">
-            <div class="chat-header-title">
-                <i class="fas fa-comments"></i>
-                <span>7*24在线客服</span>
-            </div>
-            <div class="chat-header-controls">
-                <button id="minimizeBtn" class="chat-header-btn" title="最小化">
-                    <i class="fas fa-window-minimize"></i>
-                </button>
-            </div>
-        </div>
-        <div class="chat-content">
-            <iframe
-                id="chatFrame"
-                class="chat-frame"
-                src=""
-                allow="camera; microphone"
-            ></iframe>
-        </div>
-    </div>
-
-    <!-- 导入JavaScript模块 -->
-    <script src="./js/config.js"></script>
-    <script src="./js/visitor-identity.js"></script>
-    <script src="./js/websocket-client.js"></script>
-    <script src="./js/error-handler.js"></script>
+    <!-- 移动端导航菜单切换 -->
     <script>
-        // 移动端导航菜单切换
         document.addEventListener('DOMContentLoaded', function() {
             const menuButton = document.getElementById('mobileMenuButton');
             const mobileMenu = document.getElementById('mobileMenu');
@@ -653,44 +554,27 @@
                     }
                 });
             });
-
-            // 初始化客服系统
-            const chatWidget = document.getElementById('chatWidget');
-            const chatHeader = document.getElementById('chatHeader');
-            const minimizeBtn = document.getElementById('minimizeBtn');
-            const chatFrame = document.getElementById('chatFrame');
-
-            // 切换客服窗口显示/隐藏
-            chatHeader.addEventListener('click', function() {
-                chatWidget.classList.toggle('minimized');
-            });
-
-            minimizeBtn.addEventListener('click', function(e) {
-                e.stopPropagation();
-                chatWidget.classList.add('minimized');
-            });
-
-            // 创建访客ID
-            const visitorId = generateVisitorId();
-            
-            // 初始化WebSocket客户端
-            const wsClient = new WebSocketClient(CONFIG, visitorId);
-            wsClient.connect();
-            
-            // 监听消息事件
-            wsClient.on('message', msg => {
-                // 展示客服消息
-                console.log('收到客服消息:', msg);
-            });
-            
-            // 监听错误事件
-            wsClient.on('error', err => {
-                ChatErrorHandler.show(err);
-            });
-
-            // 设置iframe源
-            chatFrame.src = getChatUrl();
         });
+    </script>
+    
+    <!-- 扣子智能体SDK -->
+    <script src="https://lf-cdn.coze.cn/obj/unpkg/flow-platform/chat-app-sdk/1.2.0-beta.10/libs/cn/index.js"></script>
+    <script>
+      new CozeWebSDK.WebChatClient({
+        config: {
+          bot_id: '7549806268429844490',
+        },
+        componentProps: {
+          title: 'Coze',
+        },
+        auth: {
+          type: 'token',
+          token: 'pat_********',
+          onRefreshToken: function () {
+            return 'pat_********'
+          }
+        }
+      });
     </script>
 </body>
 </html>
