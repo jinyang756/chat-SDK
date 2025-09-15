@@ -46,7 +46,9 @@ templateFiles.forEach(fileName => {
     Object.keys(envVars).forEach(key => {
       const placeholder = `process.env.${key}`;
       if (content.includes(placeholder)) {
-        content = content.replace(new RegExp(placeholder, 'g'), envVars[key]);
+        // 对于字符串类型的环境变量，添加引号包裹
+        const value = typeof envVars[key] === 'string' ? `"${envVars[key]}"` : envVars[key];
+        content = content.replace(new RegExp(placeholder, 'g'), value);
       }
     });
     

@@ -12,12 +12,13 @@
 │   ├── sw.js             # Service Worker 缓存控制
 │   ├── visitor-identity-demo.html  # 访客身份演示页面
 │   ├── assets/           # 图标、样式、字体等静态资源
-│   ├── js/               # JavaScript 模块化代码
-│   │   ├── config.js     # 配置项
-│   │   ├── websocket-client.js  # WebSocket 客户端实现
-│   │   ├── error-handler.js     # 错误处理模块
-│   │   └── visitor-identity.js  # 访客身份模块
+│   └── js/               # JavaScript 代码
+│       └── config.js     # 配置项
+├── .env                 # 环境变量文件（不提交到版本控制）
+├── .env.example         # 环境变量示例文件
 ├── .gitignore           # Git 忽略文件配置
+├── build.js             # 构建脚本
+├── package.json         # 项目配置和依赖
 ├── vercel.json          # Vercel 部署配置
 └── README.md            # 项目说明文档
 ```
@@ -34,50 +35,71 @@
 
 ## 快速开始
 
-### 安装依赖
+### 环境变量配置
 
-项目使用简单的静态服务器进行开发，无需安装复杂的依赖。推荐使用 `http-server` 或其他静态文件服务器：
+项目使用环境变量管理敏感信息，需要创建 `.env` 文件：
+
+1. 复制 `.env.example` 文件并重命名为 `.env`
+2. 在 `.env` 文件中填写必要的环境变量
 
 ```bash
-# 全局安装 http-server
-npm install -g http-server
+# 复制环境变量示例文件
+cp .env.example .env
 
-# 或使用 yarn
-# yarn global add http-server
+# 编辑 .env 文件，设置必要的环境变量
+# COZE_API_TOKEN=pat_********
 ```
 
-### 启动开发服务器
+### 安装依赖
 
 ```bash
-# 进入项目根目录
-cd chat-SDK
+# 安装项目依赖
+npm install
+```
 
-# 启动静态服务器
-http-server public -p 8080
+### 构建和运行
+
+```bash
+# 构建项目（处理环境变量替换）
+npm run build
+
+# 启动开发服务器
+npm run start
 ```
 
 启动后，访问 [http://localhost:8080](http://localhost:8080) 即可查看客服系统演示页面。
 
 ## 配置说明
 
+### 环境变量配置
+
+项目使用以下环境变量进行配置：
+
+- `COZE_API_TOKEN`：扣子智能体的API密钥（必填）
+- `BOT_ID`：机器人ID（可选，默认为内置值）
+- `SERVER_URL`：服务器地址（可选，默认为空表示不连接真实后端）
+
+这些环境变量需要在 `.env` 文件中配置，构建过程会自动将它们注入到代码中。
+
+### 应用配置
+
 客服系统的主要配置位于 `public/js/config.js` 文件中：
 
 ```javascript
-export const CONFIG = {
-  // 客服系统服务端地址
-  serverUrl: 'https://jiuzhougroup.vip/',
-  // 是否启用机器人优先接待
-  enableBotFirst: true,
-  // 本地预览时使用模拟模式，部署时可设置为false
-  useMockMode: true
+const CONFIG = {
+  // 演示模式，前后端一体运行
+  useMockMode: true,
+  // 留空表示不连接真实后端
+  serverUrl: ''
 };
+// 使其成为全局变量
+window.CONFIG = CONFIG;
 ```
 
 ### 配置项说明
 
-- `serverUrl`：客服系统的服务端地址，用于连接WebSocket和加载客服界面
-- `enableBotFirst`：是否启用机器人优先接待模式
 - `useMockMode`：是否使用模拟模式，建议开发和测试时设为true，生产环境设为false
+- `serverUrl`：客服系统的服务端地址，用于连接WebSocket和加载客服界面（留空表示不连接真实后端）
 
 ## 部署指南
 
