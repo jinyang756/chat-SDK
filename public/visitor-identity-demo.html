@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>访客身份演示</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      background-color: #f5f7fa;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+    
+    .demo-container {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      padding: 30px;
+      max-width: 600px;
+      width: 100%;
+    }
+    
+    .demo-header {
+      text-align: center;
+      margin-bottom: 25px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid #eee;
+    }
+    
+    .demo-header h1 {
+      font-size: 24px;
+      color: #2c3e50;
+      margin-bottom: 10px;
+    }
+    
+    .demo-header p {
+      color: #7f8c8d;
+      font-size: 14px;
+    }
+    
+    .info-card {
+      background: #f8f9fa;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 20px;
+      border-left: 4px solid #3498db;
+    }
+    
+    .info-item {
+      margin-bottom: 15px;
+    }
+    
+    .info-item:last-child {
+      margin-bottom: 0;
+    }
+    
+    .info-label {
+      font-weight: 600;
+      color: #2c3e50;
+      margin-bottom: 5px;
+      display: block;
+    }
+    
+    .info-value {
+      color: #7f8c8d;
+      word-break: break-all;
+    }
+    
+    .mock-mode-badge {
+      display: inline-block;
+      background: #e74c3c;
+      color: white;
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 500;
+      margin-top: 10px;
+    }
+    
+    .action-buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 25px;
+      justify-content: center;
+    }
+    
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+    }
+    
+    .btn-primary {
+      background: #3498db;
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      background: #2980b9;
+      transform: translateY(-1px);
+    }
+    
+    .btn-secondary {
+      background: #95a5a6;
+      color: white;
+    }
+    
+    .btn-secondary:hover {
+      background: #7f8c8d;
+      transform: translateY(-1px);
+    }
+    
+    @media (max-width: 768px) {
+      .demo-container {
+        padding: 20px;
+      }
+      
+      .action-buttons {
+        flex-direction: column;
+      }
+      
+      .btn {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="demo-container">
+    <div class="demo-header">
+      <h1><i class="fas fa-user-circle"></i> 访客身份演示</h1>
+      <p>这是一个模拟的客服系统演示页面</p>
+      <span class="mock-mode-badge"><i class="fas fa-sim-card"></i> 模拟模式</span>
+    </div>
+    
+    <div class="info-card">
+      <div class="info-item">
+        <span class="info-label"><i class="fas fa-id-card"></i> 访客ID</span>
+        <span class="info-value" id="visitorId">加载中...</span>
+      </div>
+      
+      <div class="info-item">
+        <span class="info-label"><i class="fas fa-users"></i> 客服分组</span>
+        <span class="info-value" id="groupId">加载中...</span>
+      </div>
+      
+      <div class="info-item">
+        <span class="info-label"><i class="fas fa-clock"></i> 时间戳</span>
+        <span class="info-value" id="timestamp"></span>
+      </div>
+    </div>
+    
+    <div class="info-card">
+      <div class="info-item">
+        <span class="info-label"><i class="fas fa-code"></i> 完整URL</span>
+        <span class="info-value" id="fullUrl"></span>
+      </div>
+    </div>
+    
+    <div class="action-buttons">
+      <button class="btn btn-primary" id="transferTestBtn">
+        <i class="fas fa-user-tie"></i> 测试转人工客服
+      </button>
+      <a href="index.html" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> 返回客服系统
+      </a>
+    </div>
+  </div>
+  
+  <script>
+    // 解析URL参数
+    function getUrlParams() {
+      const params = {};
+      const searchParams = new URLSearchParams(window.location.search);
+      searchParams.forEach((value, key) => {
+        params[key] = value;
+      });
+      return params;
+    }
+    
+    // 获取当前时间
+    function getCurrentTime() {
+      const now = new Date();
+      return now.toLocaleString('zh-CN', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+      });
+    }
+    
+    // 页面加载完成后初始化
+    document.addEventListener('DOMContentLoaded', function() {
+      const params = getUrlParams();
+      
+      // 显示访客ID和客服分组
+      document.getElementById('visitorId').textContent = params.uid || '未提供';
+      document.getElementById('groupId').textContent = params.group_id || 'default';
+      document.getElementById('timestamp').textContent = getCurrentTime();
+      document.getElementById('fullUrl').textContent = window.location.href;
+      
+      // 添加测试转人工客服按钮点击事件
+      document.getElementById('transferTestBtn').addEventListener('click', function() {
+        if (confirm('这是一个模拟演示，点击确定后将模拟转人工客服过程。在真实系统中，这将通过WebSocket发送转人工请求。')) {
+          // 模拟转人工客服成功
+          alert('模拟转人工客服成功！在真实系统中，客服会收到您的请求。');
+          
+          // 跳回主页面
+          setTimeout(() => {
+            window.location.href = 'index.html';
+          }, 1000);
+        }
+      });
+    });
+  </script>
+</body>
+</html>

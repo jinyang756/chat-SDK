@@ -1,103 +1,150 @@
-# 在线客服系统SDK
-
-本项目是一个独立的在线客服系统SDK，提供了完整的侧边栏客服解决方案，支持响应式布局和现代化的客服交互体验。
+# 客服系统 SDK
 
 ## 项目简介
 
-本项目是一个轻量级但功能完整的客服系统前端SDK，实现了：
+客服系统 SDK 是一个轻量级的客服聊天集成解决方案，提供智能体和人工客服无缝切换的功能，帮助网站快速集成在线客服系统。该 SDK 支持模拟模式，便于开发和测试环境使用。
 
-- ✅ 使用iframe嵌入客服窗口
-- ✅ 响应式设计，适配不同尺寸的设备
-- ✅ 商用级别的稳定性与安全性
-- ✅ 支持多种部署方式（传统服务器、Vercel、Netlify等）
-- ✅ 随机访客ID生成与记忆
+## 目录结构
 
-## 核心功能
-
-- 嵌入式客服面板
-- 响应式布局适配
-- 随机访客ID生成与记忆
-- WebSocket实时通信支持
-- 连接状态监控与自动重连
-- 完整的错误处理机制
-
-## 本地开发
-
-### 前置要求
-
-- Node.js (>=16.0.0)
-
-### 启动方法
-
-1. 安装依赖（如果有）：
-```bash
-npm install
+```
+├── public/               # 静态资源目录
+│   ├── index.html        # 主页面，嵌入客服窗口
+│   ├── sw.js             # Service Worker 缓存控制
+│   ├── visitor-identity-demo.html  # 访客身份演示页面
+│   ├── assets/           # 图标、样式、字体等静态资源
+│   ├── js/               # JavaScript 模块化代码
+│   │   ├── config.js     # 配置项
+│   │   ├── websocket-client.js  # WebSocket 客户端实现
+│   │   ├── error-handler.js     # 错误处理模块
+│   │   └── visitor-identity.js  # 访客身份模块
+├── .gitignore           # Git 忽略文件配置
+├── vercel.json          # Vercel 部署配置
+└── README.md            # 项目说明文档
 ```
 
-2. 启动本地服务器：
+## 功能特性
+
+- **智能体优先接待**：支持机器人优先接待客户，提升客服效率
+- **人工客服转接**：当智能体无法解决问题时，支持无缝转人工客服
+- **访客身份管理**：自动生成并保存访客 ID，提供个性化服务
+- **多客服分组**：根据访客来源自动分配到不同的客服组
+- **模拟模式**：支持本地模拟模式，便于开发和测试
+- **实时消息通知**：提供直观的消息通知和状态反馈
+- **响应式设计**：适配不同设备尺寸的屏幕
+
+## 快速开始
+
+### 安装依赖
+
+项目使用简单的静态服务器进行开发，无需安装复杂的依赖。推荐使用 `http-server` 或其他静态文件服务器：
+
 ```bash
-npm run dev
+# 全局安装 http-server
+npm install -g http-server
+
+# 或使用 yarn
+# yarn global add http-server
 ```
 
-3. 打开浏览器，访问 `http://localhost:8080` 查看效果
+### 启动开发服务器
+
+```bash
+# 进入项目根目录
+cd chat-SDK
+
+# 启动静态服务器
+http-server public -p 8080
+```
+
+启动后，访问 [http://localhost:8080](http://localhost:8080) 即可查看客服系统演示页面。
 
 ## 配置说明
 
-### 客服服务器配置
-
-在 `public/index.html` 文件中，您需要修改以下配置常量来设置您的客服系统服务器地址：
+客服系统的主要配置位于 `public/js/config.js` 文件中：
 
 ```javascript
-// 配置常量
-const CONFIG = {
-    // 客服系统服务器地址
-    serverUrl: 'https://your-chat-service.com',
-    // 是否启用机器人优先模式
-    enableBotFirst: false
+export const CONFIG = {
+  // 客服系统服务端地址
+  serverUrl: 'https://jiuzhougroup.vip/',
+  // 是否启用机器人优先接待
+  enableBotFirst: true,
+  // 本地预览时使用模拟模式，部署时可设置为false
+  useMockMode: true
 };
 ```
 
-将 `https://your-chat-service.com` 替换为您实际的客服系统服务地址。
+### 配置项说明
 
-将 `https://your-chat-service.com/chat` 替换为您实际的客服系统服务地址。
+- `serverUrl`：客服系统的服务端地址，用于连接WebSocket和加载客服界面
+- `enableBotFirst`：是否启用机器人优先接待模式
+- `useMockMode`：是否使用模拟模式，建议开发和测试时设为true，生产环境设为false
 
-### 客服窗口打开方式配置
+## 部署指南
 
-项目支持在侧边栏中嵌入客服窗口，无需额外配置。如果遇到跨域问题，可以修改 `public/index.html` 文件中的相关代码以支持在新窗口中打开。
+### 本地部署
 
-- **iframe方式**（默认）：在侧边栏面板中直接嵌入客服窗口
-- **window方式**：在新窗口中打开客服页面，可有效避免跨域限制
+1. 确保 `useMockMode` 设置为 `false`
+2. 配置正确的 `serverUrl`
+3. 使用静态文件服务器部署 `public` 目录
 
-### 文件结构说明
+### Vercel 部署
 
-- `public/index.html` - 主页面，包含侧边栏基础结构和客服窗口实现
-- `package.json` - 项目配置和脚本定义
-- `build.js` - 构建脚本
-- `sw.js` - Service Worker文件，用于缓存管理
-- `vercel.json` - Vercel部署配置文件
-- `.gitignore` - Git忽略规则
-- `LICENSE` - 项目许可证文件
+项目已包含 `vercel.json` 配置文件，可以直接部署到 Vercel：
 
-## 功能实现说明
+1. 登录 Vercel 账号
+2. 导入项目仓库
+3. Vercel 会自动识别配置并部署
+4. 部署完成后，更新 `config.js` 中的 `serverUrl` 为您的 Vercel 域名
 
-### 1. 客服系统集成
+### 其他平台部署
 
-作为SDK的核心功能，提供了完整的客服系统集成能力：
-- 通过iframe无缝嵌入客服聊天界面
-- 支持WebSocket实时通信，确保消息及时送达
-- 自动生成唯一访客ID，确保会话连续性
-- 提供连接状态监控和自动重连机制
-- 支持响应式设计，适配不同设备屏幕
-- 内置错误处理和重试机制，提升用户体验
+可以部署到任何支持静态网站托管的平台，如 GitHub Pages、Netlify、Cloudflare Pages 等：
 
-## 部署说明
+1. 确保 `public` 目录被正确识别为静态资源目录
+2. 配置自定义域名（如果需要）
+3. 更新 `config.js` 中的 `serverUrl` 为您的实际域名
 
-将项目文件部署到您的Web服务器上即可，无需特殊构建过程。
+## 开发说明
 
-### 支持的部署方式
+### 模块化架构
 
-- **传统Web服务器**：将所有文件上传到Nginx、Apache等Web服务器的根目录
-- **Vercel**：项目包含vercel.json配置文件，可直接部署到Vercel
+项目采用模块化架构，将不同功能拆分为独立的 JavaScript 模块：
+
+- `config.js`：全局配置管理
+- `visitor-identity.js`：访客身份和信息管理
+- `websocket-client.js`：WebSocket 连接和消息处理
+- `error-handler.js`：错误处理和用户通知
+
+### 模拟模式
+
+在模拟模式下，系统不会连接真实的服务器，而是使用本地模拟的 WebSocket 实现。这对于开发和测试非常有用。
+
+模拟模式下，转人工客服请求会触发模拟的客服接入过程，并显示模拟的客服消息。
+
+### 转人工客服功能
+
+转人工客服功能通过以下流程实现：
+
+1. 点击转人工客服按钮
+2. 确认转人工请求
+3. 系统发送转人工请求到服务器（或模拟处理）
+4. 等待客服接入
+5. 客服接入后，进行人工聊天
+
+## 浏览器支持
+
+- Chrome (推荐)
+- Firefox
+- Safari
+- Edge
+- IE 11 (部分功能可能受限)
+
+## 注意事项
+
+- 在生产环境中，务必将 `useMockMode` 设置为 `false`
+- 确保配置正确的 `serverUrl`，否则无法连接客服系统
+- 当切换网络环境时，可能需要刷新页面以重新建立连接
+- 如需自定义样式，可以修改 `index.html` 中的 CSS 样式
 - **Netlify**：支持一键部署
 - **GitHub Pages**：可发布到GitHub Pages服务
 

@@ -1,10 +1,11 @@
 // 缓存版本，修改此值将触发新的缓存
-const CACHE_NAME = 'online-chat-v2';
+const CACHE_NAME = 'online-chat-v3';
 const CACHE_FILES = [
   '/',
   '/index.html',
   '/vercel.json',
-  'https://cdn.jsdelivr.net/npm/font-awesome@6.4.0/css/all.min.css'
+  'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css',
+  'https://lf-cdn.coze.cn/obj/unpkg/flow-platform/chat-app-sdk/1.2.0-beta.10/libs/cn/index.js'
 ];
 
 // 安装事件，缓存静态资源
