@@ -671,7 +671,7 @@
             });
 
             // 创建访客ID
-            const visitorId = VisitorIdentity.getOrCreate();
+            const visitorId = generateVisitorId();
             
             // 初始化WebSocket客户端
             const wsClient = new WebSocketClient(CONFIG, visitorId);
