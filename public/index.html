@@ -560,21 +560,24 @@
     <!-- 扣子智能体SDK -->
     <script src="https://lf-cdn.coze.cn/obj/unpkg/flow-platform/chat-app-sdk/1.2.0-beta.10/libs/cn/index.js"></script>
     <script>
-      new CozeWebSDK.WebChatClient({
-        config: {
-          bot_id: '7549806268429844490',
-        },
-        componentProps: {
-          title: 'Coze',
-        },
-        auth: {
-          type: 'token',
-          token: 'pat_********',
-          onRefreshToken: function () {
-            return 'pat_********'
-          }
-        }
-      });
+        document.addEventListener('DOMContentLoaded', function() {
+            // 初始化扣子智能体
+            const chatClient = new CozeWebSDK.WebChatClient({
+                config: {
+                    bot_id: '7549806268429844490'
+                },
+                componentProps: {
+                    title: '扣子智能体'
+                },
+                auth: {
+                    type: 'token',
+                    token: process.env.COZE_API_TOKEN,
+                    onRefreshToken: function () {
+                        return process.env.COZE_API_TOKEN
+                    }
+                }
+            });
+        });
     </script>
 </body>
 </html>

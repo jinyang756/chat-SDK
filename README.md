@@ -139,6 +139,120 @@ export const CONFIG = {
 - Edge
 - IE 11 (部分功能可能受限)
 
+## 环境变量配置
+
+为了安全管理访问密钥，项目支持通过环境变量的方式配置扣子智能体的API访问密钥。
+
+### 设置环境变量
+
+1. 复制 `.env.example` 文件并重命名为 `.env`
+   ```bash
+   cp .env.example .env
+   ```
+
+2. 在 `.env` 文件中填写您的扣子智能体API访问密钥
+   ```
+   COZE_API_TOKEN=pat_********
+   ```
+
+3. 环境变量会在构建过程中自动注入到代码中
+
+### 注意事项
+
+- 不要将包含真实密钥的 `.env` 文件提交到版本控制系统
+- 确保 `.gitignore` 文件中包含 `.env`
+- 在开发环境和生产环境可以使用不同的 `.env` 文件
+- 如需更多配置选项，可以在 `.env` 文件中添加自定义环境变量
+
+## 配置说明
+
+客服系统的主要配置位于 `public/js/config.js` 文件中：
+
+```javascript
+const CONFIG = {
+  // 演示模式，前后端一体运行
+  useMockMode: true,
+  // 留空表示不连接真实后端
+  serverUrl: ''
+};
+// 使其成为全局变量
+window.CONFIG = CONFIG;
+```
+
+## 部署指南
+
+### 本地部署
+
+1. 确保 `useMockMode` 设置为 `false`
+2. 配置正确的 `serverUrl`
+3. 设置环境变量 COZE_API_TOKEN
+4. 安装依赖
+   ```bash
+   npm install
+   ```
+5. 构建项目
+   ```bash
+   npm run build
+   ```
+6. 启动服务器
+   ```bash
+   npm run start
+   ```
+
+### Vercel 部署
+
+项目已包含 `vercel.json` 配置文件，可以直接部署到 Vercel：
+
+1. 登录 Vercel 账号
+2. 导入项目仓库
+3. 在 Vercel 项目设置中添加环境变量 `COZE_API_TOKEN`
+4. Vercel 会自动识别配置并部署
+5. 部署完成后，更新 `config.js` 中的 `serverUrl` 为您的 Vercel 域名
+
+### 其他平台部署
+
+可以部署到任何支持静态网站托管的平台，如 GitHub Pages、Netlify、Cloudflare Pages 等：
+
+1. 确保 `public` 目录被正确识别为静态资源目录
+2. 在平台的设置中添加环境变量 `COZE_API_TOKEN`
+3. 配置自定义域名（如果需要）
+4. 更新 `config.js` 中的 `serverUrl` 为您的实际域名
+
+## 开发说明
+
+### 模块化架构
+
+项目采用模块化架构，将不同功能拆分为独立的 JavaScript 模块：
+
+- `config.js`：全局配置管理
+- `visitor-identity.js`：访客身份和信息管理
+- `websocket-client.js`：WebSocket 连接和消息处理
+- `error-handler.js`：错误处理和用户通知
+
+### 模拟模式
+
+在模拟模式下，系统不会连接真实的服务器，而是使用本地模拟的 WebSocket 实现。这对于开发和测试非常有用。
+
+模拟模式下，转人工客服请求会触发模拟的客服接入过程，并显示模拟的客服消息。
+
+### 转人工客服功能
+
+转人工客服功能通过以下流程实现：
+
+1. 点击转人工客服按钮
+2. 确认转人工请求
+3. 系统发送转人工请求到服务器（或模拟处理）
+4. 等待客服接入
+5. 客服接入后，进行人工聊天
+
+## 浏览器支持
+
+- Chrome (推荐)
+- Firefox
+- Safari
+- Edge
+- IE 11 (部分功能可能受限)
+
 ## 注意事项
 
 - 在生产环境中，务必将 `useMockMode` 设置为 `false`

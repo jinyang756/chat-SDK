@@ -1,6 +1,9 @@
 const fs = require('fs');
 const path = require('path');
 
+// 加载环境变量
+require('dotenv').config();
+
 // 创建public目录（如果不存在）
 const publicDir = path.join(__dirname, 'public');
 if (!fs.existsSync(publicDir)) {
@@ -28,5 +31,28 @@ if (!fs.existsSync(indexHtml)) {
 } else {
   console.log('index.html already exists in public directory.');
 }
+
+// 处理环境变量替换
+const envVars = process.env;
+const templateDir = path.join(__dirname, 'public');
+const templateFiles = ['index.html'];
+
+templateFiles.forEach(fileName => {
+  const filePath = path.join(templateDir, fileName);
+  if (fs.existsSync(filePath)) {
+    let content = fs.readFileSync(filePath, 'utf8');
+    
+    // 替换环境变量占位符
+    Object.keys(envVars).forEach(key => {
+      const placeholder = `process.env.${key}`;
+      if (content.includes(placeholder)) {
+        content = content.replace(new RegExp(placeholder, 'g'), envVars[key]);
+      }
+    });
+    
+    fs.writeFileSync(filePath, content, 'utf8');
+    console.log(`Environment variables replaced in ${filePath}`);
+  }
+});
 
 console.log('Build process completed successfully.');
