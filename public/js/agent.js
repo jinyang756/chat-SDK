@@ -8,16 +8,19 @@ window.agentModule = window.agentModule || {};
 
 // 初始化扣子智能体配置
 function initCozeConfig() {
+    console.log('初始化扣子智能体配置...');
     // 确保环境配置对象存在
     window.ENV_CONFIG = window.ENV_CONFIG || {
         COZE_API_TOKEN: '', // 不再硬编码Token，由环境变量提供
         BOT_ID: '7549806268429844490',
         SERVER_URL: ''
     };
+    console.log('环境配置:', window.ENV_CONFIG);
 }
 
 // 启动扣子智能体会话
 function startAgentChat(agentId) {
+    console.log('开始启动扣子智能体会话，agentId:', agentId);
     initCozeConfig();
     
     console.log('启动扣子智能体会话，agentId:', agentId);
@@ -28,6 +31,9 @@ function startAgentChat(agentId) {
     if (agentId === 2) {
         // 如果是第二个智能体，可以使用不同的BOT_ID（如果有多个的话）
         // cozeBotId = '另一个智能体的BOT_ID';
+        console.log('使用第二个智能体，BOT_ID:', cozeBotId);
+    } else {
+        console.log('使用第一个智能体，BOT_ID:', cozeBotId);
     }
     
     try {
@@ -65,39 +71,29 @@ function startAgentChat(agentId) {
 
 // 创建聊天窗口
 function createChatWindow(cozeBotId) {
+    console.log('创建聊天窗口，BOT_ID:', cozeBotId);
     try {
-        const chatWindow = window.open('', '_blank', 'width=800,height=600,toolbar=no,location=no,status=no,menubar=no,scrollbars=yes');
+        // 首先直接尝试打开扣子智能体的页面
+        const chatUrl = `https://www.coze.cn/s/${cozeBotId}`;
+        console.log('尝试打开聊天URL:', chatUrl);
+        
+        const chatWindow = window.open(chatUrl, '_blank', 'width=800,height=600,toolbar=no,location=no,status=no,menubar=no,scrollbars=yes');
         
         if (chatWindow) {
-            // 构建扣子智能体的iframe HTML内容
-            const iframeHtml = `
-                <!DOCTYPE html>
-                <html lang="zh-CN">
-                <head>
-                    <meta charset="UTF-8">
-                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                    <title>扣子智能体 - 日斗投资助手</title>
-                    <style>
-                        body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; }
-                        iframe { width: 100%; height: 100%; border: 0; }
-                    </style>
-                </head>
-                <body>
-                    <iframe src="https://www.coze.cn/s/${cozeBotId}?embedded=true" allow="camera;microphone"></iframe>
-                </body>
-                </html>
-            `;
-            
-            // 写入内容到新窗口
-            chatWindow.document.write(iframeHtml);
-            chatWindow.document.close();
+            console.log('成功打开聊天窗口');
         } else {
             // 如果弹窗被阻止，提供备用方案
-            showFallbackOption(`https://www.coze.cn/s/${cozeBotId}`);
+            console.log('弹窗被阻止，显示备用选项');
+            showFallbackOption(chatUrl);
         }
     } catch (error) {
         console.error('创建聊天窗口失败:', error);
-        throw error;
+        // 显示错误通知
+        if (window.showNotification) {
+            window.showNotification('智能体会话启动失败，请稍后重试', 'error');
+        } else {
+            alert('智能体会话启动失败，请稍后重试\n错误：' + error.message);
+        }
     }
 }
 
@@ -168,16 +164,36 @@ function showFallbackOption(chatUrl) {
 
 // 初始化智能体卡片事件监听
 function initAgentCards() {
+    console.log('开始初始化智能体卡片事件监听...');
     document.addEventListener('DOMContentLoaded', function() {
+        console.log('DOM加载完成，开始绑定智能体卡片事件');
         const card1 = document.getElementById('agentCard1');
         const card2 = document.getElementById('agentCard2');
         
+        console.log('找到卡片1:', !!card1);
+        console.log('找到卡片2:', !!card2);
+        
         if (card1) {
-            card1.addEventListener('click', () => startAgentChat(1));
+            card1.addEventListener('click', function() {
+                console.log('点击了智能体卡片1');
+                startAgentChat(1);
+            });
+            console.log('成功为卡片1绑定点击事件');
         }
         
         if (card2) {
-            card2.addEventListener('click', () => startAgentChat(2));
+            card2.addEventListener('click', function() {
+                console.log('点击了智能体卡片2');
+                startAgentChat(2);
+            });
+            console.log('成功为卡片2绑定点击事件');
+        }
+        
+        // 确保卡片有足够的可点击区域
+        if (card1 || card2) {
+            console.log('智能体卡片事件绑定完成');
+        } else {
+            console.warn('未找到智能体卡片元素');
         }
     });
 }
@@ -198,9 +214,14 @@ function registerServiceWorker() {
 // 暴露公共API
 window.agentModule = {
     init: function() {
+        console.log('agentModule初始化开始');
         initAgentCards();
         registerServiceWorker();
+        console.log('agentModule初始化完成');
     },
     startAgentChat: startAgentChat,
     initCozeConfig: initCozeConfig
 };
+
+// 立即执行初始化检查
+console.log('agent.js文件加载完成，agentModule:', !!window.agentModule);
